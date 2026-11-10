@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>릴리즈 러시 설계서</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Noto+Serif+KR:wght@600;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f5f0; --surface:#ffffff; --surface-2:#efece4; --text:#1d1b18; --muted:#6a645a;
+  --border:#e2ddd2; --accent:#d2552d; --accent-2:#2b6f8f; --ok:#2e8b57; --warn:#b7791f; --bad:#b83a3a;
+  --safe:#2b8a6e; --risk:#d2552d; --gold:#c99a1e;
+  --shadow:0 1px 2px rgba(40,30,10,.05),0 8px 24px rgba(40,30,10,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15140f; --surface:#1f1d17; --surface-2:#29261e; --text:#f1ece1; --muted:#a8a091;
+    --border:#38342a; --accent:#ff8a5c; --accent-2:#6fc0e0; --ok:#5ccc8a; --warn:#e8b04c; --bad:#ff7a7a;
+    --safe:#5ccfae; --risk:#ff8a5c; --gold:#f0c34a;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15140f; --surface:#1f1d17; --surface-2:#29261e; --text:#f1ece1; --muted:#a8a091;
+  --border:#38342a; --accent:#ff8a5c; --accent-2:#6fc0e0; --ok:#5ccc8a; --warn:#e8b04c; --bad:#ff7a7a;
+  --safe:#5ccfae; --risk:#ff8a5c; --gold:#f0c34a;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.3);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Noto Sans KR",system-ui,sans-serif;line-height:1.75;font-size:15.5px}
+code{font-family:"JetBrains Mono",monospace;background:var(--surface-2);padding:1px 6px;border-radius:5px;font-size:.88em}
+.wrap{max-width:1100px;margin:0 auto;padding:0 16px}
+header.hero{padding:64px 0 40px;border-bottom:1px solid var(--border);position:relative}
+.eyebrow{font-size:12.5px;letter-spacing:.14em;color:var(--accent);font-weight:700}
+h1{font-family:"Noto Serif KR",serif;font-size:clamp(32px,5vw,48px);line-height:1.2;margin:10px 0 14px;font-weight:900;letter-spacing:-.02em}
+h1 small{display:block;font-size:.42em;font-family:"Noto Sans KR",sans-serif;font-weight:500;color:var(--muted);letter-spacing:0;margin-top:6px}
+.hero p{max-width:760px;color:var(--muted);margin:0}
+.meta{display:flex;flex-wrap:wrap;gap:6px 20px;margin-top:18px;font-size:13px;color:var(--muted)}
+.meta b{color:var(--text);font-weight:500}
+.theme-btn{position:absolute;top:18px;right:16px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:5px 10px;font:inherit;font-size:12px;cursor:pointer}
+nav.toc{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
+nav.toc .wrap{display:flex;gap:2px;overflow-x:auto;padding-top:8px;padding-bottom:8px;scrollbar-width:none}
+nav.toc a{white-space:nowrap;text-decoration:none;color:var(--muted);font-size:13px;padding:5px 10px;border-radius:8px}
+nav.toc a:hover{background:var(--surface-2);color:var(--text)}
+section{padding:48px 0 4px}
+h2{font-family:"Noto Serif KR",serif;font-size:26px;margin:0 0 6px;letter-spacing:-.01em}
+h2 .no{font-family:"Noto Sans KR",sans-serif;font-size:13px;color:var(--accent);margin-right:10px;font-weight:700;vertical-align:middle}
+h3{font-size:17px;margin:28px 0 10px}
+.lead{color:var(--muted);margin:0 0 22px;max-width:800px}
+.q{font-size:14px;color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow)}
+.card h4{margin:0 0 6px;font-size:15.5px}
+.card p{margin:0;font-size:14px;color:var(--muted)}
+.card ul{margin:6px 0 0;padding-left:18px;font-size:14px;color:var(--muted)}
+.card ul li{margin:3px 0}
+.card ul li b{color:var(--text);font-weight:500}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(310px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.pill{display:inline-block;font-size:12px;padding:2px 9px;border-radius:99px;font-weight:500;background:var(--surface-2);color:var(--muted);margin:0 4px 4px 0}
+.pill.safe{background:color-mix(in srgb,var(--safe) 15%,transparent);color:var(--safe)}
+.pill.risk{background:color-mix(in srgb,var(--risk) 15%,transparent);color:var(--risk)}
+.pill.gold{background:color-mix(in srgb,var(--gold) 18%,transparent);color:var(--gold)}
+.pill.ok{background:color-mix(in srgb,var(--ok) 14%,transparent);color:var(--ok)}
+.pill.warn{background:color-mix(in srgb,var(--warn) 14%,transparent);color:var(--warn)}
+.pill.bad{background:color-mix(in srgb,var(--bad) 14%,transparent);color:var(--bad)}
+.callout{border-left:4px solid var(--accent);background:color-mix(in srgb,var(--accent) 7%,var(--surface));padding:14px 18px;border-radius:0 12px 12px 0;margin:18px 0}
+.callout.info{border-color:var(--accent-2);background:color-mix(in srgb,var(--accent-2) 7%,var(--surface))}
+.callout b{display:block;margin-bottom:2px}
+.callout p{margin:0;font-size:14.5px}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:720px}
+th,td{padding:10px 12px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}
+th{background:var(--surface-2);font-weight:700;font-size:13px;color:var(--muted)}
+tr:last-child td{border-bottom:none}
+.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:22px}
+.kpi div{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px}
+.kpi span{display:block;font-size:12.5px;color:var(--muted)}
+.kpi b{font-size:22px;font-family:"Noto Serif KR",serif}
+.pitch{font-family:"Noto Serif KR",serif;font-size:20px;line-height:1.7;background:var(--surface);border:1px solid var(--border);border-left:6px solid var(--accent);border-radius:14px;padding:20px 24px}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13.5px}
+.flow .s{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 12px;font-weight:500}
+.flow .s.loop{border-color:var(--accent);color:var(--accent)}
+.flow .a{color:var(--muted)}
+.svgbox{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;box-shadow:var(--shadow)}
+.svgbox svg{width:100%;height:auto;display:block}
+.map .n{stroke-width:1.5}
+.map .safe{fill:color-mix(in srgb,var(--safe) 14%,var(--surface));stroke:var(--safe)}
+.map .risk{fill:color-mix(in srgb,var(--risk) 14%,var(--surface));stroke:var(--risk)}
+.map .neu{fill:var(--surface-2);stroke:var(--border)}
+.map .boss{fill:color-mix(in srgb,var(--bad) 14%,var(--surface));stroke:var(--bad)}
+.map text{fill:var(--text);font-family:"Noto Sans KR",sans-serif;font-size:14px}
+.map text.sub{fill:var(--muted);font-size:11.5px}
+.map .ln{stroke:var(--muted);stroke-width:1.4;fill:none}
+.arrows{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.arrows span{width:34px;height:34px;display:grid;place-items:center;border-radius:6px;font-weight:900;font-size:18px;background:var(--surface-2);border:2px solid var(--border)}
+.arrows .on{background:var(--safe);border-color:var(--safe);color:#fff}
+.arrows .rev{border-color:var(--risk);color:var(--risk)}
+.arrows .hid{border-style:dashed;color:var(--muted)}
+.arrows .gld{border-color:var(--gold);color:var(--gold)}
+.cardlist{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.cardlist .c{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;position:relative}
+.cardlist .c b{font-size:14.5px;display:block}
+.cardlist .c p{margin:2px 0 0;font-size:13px;color:var(--muted)}
+.cardlist .c .t{position:absolute;top:10px;right:12px;font-size:11px;color:var(--muted)}
+.cardlist .c.sp{border-color:var(--gold);background:color-mix(in srgb,var(--gold) 7%,var(--surface))}
+.scope{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.scope .card h4{display:flex;align-items:center;gap:8px}
+ul.check{list-style:none;padding:0;margin:0}
+ul.check li{padding:6px 0 6px 28px;position:relative;border-bottom:1px dashed var(--border);font-size:14.5px}
+ul.check li:last-child{border-bottom:none}
+ul.check li::before{content:"";position:absolute;left:4px;top:11px;width:13px;height:13px;border:2px solid var(--accent);border-radius:4px}
+.tl{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.tl .card{padding:14px 16px}
+.tl .card .d{font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.04em}
+.tl .card h4{margin:2px 0 4px;font-size:14.5px}
+.tl .card p{font-size:13px}
+pre{background:#11152a;color:#d9e1ff;padding:14px 16px;border-radius:12px;overflow-x:auto;font-size:13px;line-height:1.6;margin:0;font-family:"JetBrains Mono",monospace}
+footer{padding:48px 0 64px;color:var(--muted);font-size:13px;text-align:center}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <button class="theme-btn" id="themeBtn" type="button">테마 전환</button>
+  <div class="wrap">
+    <div class="eyebrow">GAME DESIGN DOCUMENT</div>
+    <h1>릴리즈 러시<small>가칭 · 120초 안에 서비스를 출시하라</small></h1>
+    <p>프로젝트 공정(기획 → 개발 → 테스트 → 출시)을 레이어로 나눈 커맨드 입력 타임어택입니다. 층마다 루트를 골라 난이도를 정하고, 확정 카드와 운 보너스로 빌드를 쌓아 마지막 보스 "출시 D-Day"를 넘깁니다.</p>
+    <div class="meta">
+      <div>작성일 <b>2026-11-09</b></div>
+      <div>출품 <b>채용박람회 AI 게임 이벤트</b></div>
+      <div>마감 <b style="color:var(--accent)">11/10(화) 17:00</b></div>
+      <div>함께 볼 문서 <b><a href="entry-strategy.html" style="color:inherit">entry-strategy.html</a></b></div>
+    </div>
+  </div>
+</header>
+
+<nav class="toc"><div class="wrap">
+  <a href="#sum">1. 요약</a><a href="#flow">2. 게임 흐름</a><a href="#map">3. 루트 맵</a><a href="#cmd">4. 커맨드 입력</a><a href="#reward">5. 보상</a>
+  <a href="#boss">6. 보스</a><a href="#score">7. 점수·칭호</a><a href="#screen">8. 화면</a><a href="#tech">9. 기술 구현</a><a href="#scope">10. 범위</a><a href="#plan">11. 일정·제출</a><a href="#tbd">12. 조정 항목</a>
+</div></nav>
+
+<main class="wrap">
+
+<!-- 1 -->
+<section id="sum">
+  <h2><span class="no">01</span>한 줄 요약</h2>
+  <div class="pitch">방향키 커맨드로 프로젝트 공정을 돌파하며, 안전하게 갈지 신기술에 걸지 매 층 선택해서 <b>120초 안에 출시</b>까지 가는 게임.</div>
+  <div class="kpi">
+    <div><span>한 판</span><b>최대 120초</b></div>
+    <div><span>구성</span><b>3층 + 보스</b></div>
+    <div><span>조작</span><b>방향키</b></div>
+    <div><span>확정 카드</span><b>10종</b></div>
+    <div><span>특수 보상</span><b>4종</b></div>
+    <div><span>저장</span><b>localStorage</b></div>
+  </div>
+  <h3>설계 원칙 (지금까지 정한 것)</h3>
+  <div class="grid g4">
+    <div class="card"><h4>익숙한 조작 + 새로운 소재</h4><p>방향키 커맨드는 누구나 아는 조작입니다. 소재(개발 프로젝트)와 결과 화면으로 차별화합니다.</p></div>
+    <div class="card"><h4>루트 = 난이도</h4><p>층마다 안전·위험 루트를 고릅니다. 초보와 고수가 같은 게임에서 각자 맞는 난이도로 플레이합니다.</p></div>
+    <div class="card"><h4>확정 70 : 운 30</h4><p>확정 카드가 바닥을, 운 보너스가 천장을 담당합니다. 운이 나빠도 끝까지 갈 수 있습니다.</p></div>
+    <div class="card"><h4>실패해도 점수는 남음</h4><p>시간이 끝나도 그때까지의 점수로 랭킹에 오릅니다. 처음 하는 사람도 기록을 남깁니다.</p></div>
+  </div>
+</section>
+
+<!-- 2 -->
+<section id="flow">
+  <h2><span class="no">02</span>게임 흐름</h2>
+  <p class="lead">보라색 칸은 층마다 반복되는 구간입니다. 보상·루트 선택 화면에서는 타이머가 멈추고, 대신 10초 안에 고르지 않으면 첫 번째 선택지가 자동으로 선택됩니다.</p>
+  <div class="flow">
+    <span class="s">대기 화면 (TOP 10)</span><span class="a">→</span>
+    <span class="s">닉네임 입력</span><span class="a">→</span>
+    <span class="s">시작 카드 1장 선택</span><span class="a">→</span>
+    <span class="s loop">루트 선택</span><span class="a">→</span>
+    <span class="s loop">층 플레이 (커맨드)</span><span class="a">→</span>
+    <span class="s loop">확정 카드 + 보너스 룰렛</span><span class="a">→ ×3 →</span>
+    <span class="s">보스: 출시 D-Day</span><span class="a">→</span>
+    <span class="s">결과 · 칭호</span><span class="a">→</span>
+    <span class="s">랭킹</span>
+  </div>
+  <div class="callout info"><b>종료 조건</b><p>① 보스 클리어(출시 성공) ② 제한 시간 120초 소진 중 먼저 오는 쪽. 어느 경우든 결과 화면에서 기록을 자동 저장하고 랭킹을 보여 줍니다.</p></div>
+</section>
+
+<!-- 3 -->
+<section id="map">
+  <h2><span class="no">03</span>루트 맵과 층 구성</h2>
+  <p class="lead">프로젝트 공정 3단계가 층이고, 마지막이 보스입니다. 층마다 두 루트 중 하나를 고르며, 이전 선택과 상관없이 다음 층에서 다시 고를 수 있습니다.</p>
+  <div class="svgbox map">
+    <svg viewBox="0 0 900 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="기획, 개발, 테스트 3개 층과 출시 보스로 이어지는 루트 맵">
+      <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs>
+      <g style="color:var(--muted)">
+        <rect class="n neu" x="10" y="100" width="120" height="60" rx="10"/>
+        <text x="70" y="126" text-anchor="middle" font-weight="700">킥오프</text><text class="sub" x="70" y="146" text-anchor="middle">시작 카드 1장</text>
+
+        <text class="sub" x="245" y="20" text-anchor="middle">1층 · 기획</text>
+        <rect class="n safe" x="180" y="34" width="130" height="62" rx="10"/>
+        <text x="245" y="60" text-anchor="middle" font-weight="700">검증된 방식</text><text class="sub" x="245" y="80" text-anchor="middle">4칸 × 3개</text>
+        <rect class="n risk" x="180" y="164" width="130" height="62" rx="10"/>
+        <text x="245" y="190" text-anchor="middle" font-weight="700">신기술 도입</text><text class="sub" x="245" y="210" text-anchor="middle">5칸 × 3개 · 변형</text>
+
+        <text class="sub" x="435" y="20" text-anchor="middle">2층 · 개발</text>
+        <rect class="n safe" x="370" y="34" width="130" height="62" rx="10"/>
+        <text x="435" y="60" text-anchor="middle" font-weight="700">검증된 방식</text><text class="sub" x="435" y="80" text-anchor="middle">5칸 × 3개</text>
+        <rect class="n risk" x="370" y="164" width="130" height="62" rx="10"/>
+        <text x="435" y="190" text-anchor="middle" font-weight="700">신기술 도입</text><text class="sub" x="435" y="210" text-anchor="middle">6칸 × 3개 · 변형</text>
+
+        <text class="sub" x="625" y="20" text-anchor="middle">3층 · 테스트</text>
+        <rect class="n safe" x="560" y="34" width="130" height="62" rx="10"/>
+        <text x="625" y="60" text-anchor="middle" font-weight="700">검증된 방식</text><text class="sub" x="625" y="80" text-anchor="middle">5칸 × 4개</text>
+        <rect class="n risk" x="560" y="164" width="130" height="62" rx="10"/>
+        <text x="625" y="190" text-anchor="middle" font-weight="700">신기술 도입</text><text class="sub" x="625" y="210" text-anchor="middle">7칸 × 4개 · 변형</text>
+
+        <rect class="n boss" x="750" y="96" width="140" height="68" rx="10"/>
+        <text x="820" y="124" text-anchor="middle" font-weight="700">출시 D-Day</text><text class="sub" x="820" y="146" text-anchor="middle">보스 · 6칸 × 5개</text>
+
+        <path class="ln" d="M130 120 L176 70" marker-end="url(#ah)"/><path class="ln" d="M130 140 L176 190" marker-end="url(#ah)"/>
+        <path class="ln" d="M310 65 H366" marker-end="url(#ah)"/><path class="ln" d="M310 80 L366 180" marker-end="url(#ah)"/>
+        <path class="ln" d="M310 180 L366 80" marker-end="url(#ah)"/><path class="ln" d="M310 195 H366" marker-end="url(#ah)"/>
+        <path class="ln" d="M500 65 H556" marker-end="url(#ah)"/><path class="ln" d="M500 80 L556 180" marker-end="url(#ah)"/>
+        <path class="ln" d="M500 180 L556 80" marker-end="url(#ah)"/><path class="ln" d="M500 195 H556" marker-end="url(#ah)"/>
+        <path class="ln" d="M690 70 L746 116" marker-end="url(#ah)"/><path class="ln" d="M690 190 L746 146" marker-end="url(#ah)"/>
+      </g>
+    </svg>
+  </div>
+
+  <h3>층별 구성</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>층</th><th>배경 (정적 도트)</th><th>화면 속 명령어 예시</th><th><span class="pill safe">검증된 방식</span></th><th><span class="pill risk">신기술 도입</span></th></tr></thead>
+    <tbody>
+      <tr><td><b>1층 · 기획</b></td><td>화이트보드 회의실</td><td>회의 소집, 요구사항 정리, 와이어프레임</td><td>4칸 × 3개, 변형 없음</td><td>5칸 × 3개, 버그 화살표 섞임</td></tr>
+      <tr><td><b>2층 · 개발</b></td><td>모니터 3대 책상</td><td><code>git commit</code>, <code>npm install</code>, <code>git merge</code></td><td>5칸 × 3개</td><td>6칸 × 3개, 버그 + 미확인 스펙</td></tr>
+      <tr><td><b>3층 · 테스트</b></td><td>버그 보드와 포스트잇</td><td><code>npm test</code>, 버그 재현, 회귀 테스트</td><td>5칸 × 4개</td><td>7칸 × 4개, 변형 비율 높음</td></tr>
+      <tr><td><b>보스 · 출시 D-Day</b></td><td>빨간 경고등 서버실</td><td><code>deploy --prod</code>, 롤백, 핫픽스</td><td colspan="2">6칸 × 5개, 8초마다 장애 발생(제한 시간 −5초). 6장 참고</td></tr>
+    </tbody>
+  </table></div>
+  <div class="grid g2" style="margin-top:16px">
+    <div class="card"><h4><span class="pill safe">검증된 방식</span> 안전 루트</h4><ul><li>커맨드가 짧고 변형이 없음</li><li>점수 배율 <b>×1</b>, 보너스 확률 <b>20%</b></li><li>빨리 끝나서 시간을 아낄 수 있음</li></ul></div>
+    <div class="card"><h4><span class="pill risk">신기술 도입</span> 위험 루트</h4><ul><li>커맨드가 길고 변형 화살표가 섞임</li><li>점수 배율 <b>×2</b>, 보너스 확률 <b>40%</b></li><li>시간이 더 걸려 보스 도달이 빠듯해짐</li></ul></div>
+  </div>
+</section>
+
+<!-- 4 -->
+<section id="cmd">
+  <h2><span class="no">04</span>커맨드 입력 규칙</h2>
+  <p class="lead">화면에 명령어 이름과 화살표 줄이 나오면 순서대로 입력합니다. 리듬에 맞출 필요는 없고 순서만 맞으면 됩니다.</p>
+  <div class="grid g2">
+    <div class="card">
+      <h4>입력</h4>
+      <ul>
+        <li><b>방향키</b>와 <b>WASD</b> 모두 사용 가능</li>
+        <li>카드 선택: <b>1 · 2 · 3</b> 키 또는 마우스 클릭, 루트 선택: <b>↑ / ↓</b> 후 <b>Enter</b></li>
+        <li>키를 누르고 있어 생기는 반복 입력은 무시</li>
+        <li>방향키를 눌러도 페이지가 스크롤되지 않게 막음</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>성공과 실패</h4>
+      <ul>
+        <li>맞게 누르면 그 칸에 불이 켜짐</li>
+        <li><b>틀리면 그 커맨드만 처음부터</b> 다시 (화면 흔들림 + 빨간 번쩍임). 게임은 계속됨</li>
+        <li>커맨드를 끝내면 다음 커맨드로. 층의 커맨드를 모두 끝내면 클리어</li>
+        <li>실수 횟수를 기록해 무결점 보너스에 사용</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>화살표 종류</h3>
+  <div class="grid g4">
+    <div class="card"><h4>일반 화살표</h4><div class="arrows"><span class="on">↑</span><span class="on">→</span><span>↓</span><span>←</span></div><p>표시된 방향 그대로 입력합니다.</p></div>
+    <div class="card"><h4>버그 화살표 <span class="pill risk">위험 루트</span></h4><div class="arrows"><span class="rev">↑</span></div><p>빨간 테두리. <b style="color:var(--text)">반대 방향</b>(위 → 아래)으로 입력해야 합니다.</p></div>
+    <div class="card"><h4>미확인 스펙 <span class="pill risk">위험 루트</span></h4><div class="arrows"><span class="hid">?</span></div><p>바로 앞 칸을 입력하는 순간에 방향이 공개됩니다.</p></div>
+    <div class="card"><h4>황금 커맨드 <span class="pill gold">운</span></h4><div class="arrows"><span class="gld">↑</span><span class="gld">↓</span><span class="gld">→</span></div><p>층 안에서 무작위로 등장합니다(안전 10%, 위험 20%). 실수 없이 성공하면 특수 보상을 즉시 받습니다.</p></div>
+  </div>
+</section>
+
+<!-- 5 -->
+<section id="reward">
+  <h2><span class="no">05</span>보상 — 확정 카드와 운 보너스</h2>
+  <p class="lead">층을 클리어하면 확정 카드 3장 중 1장을 고르고, 이어서 보너스 룰렛을 돌립니다. 카드는 숫자만 바꾸는 것과 규칙을 바꾸는 것을 섞었습니다.</p>
+
+  <h3>확정 카드 10종</h3>
+  <div class="cardlist">
+    <div class="c"><span class="t">입력</span><b>단축키 등록</b><p>모든 커맨드 길이 −1 (최소 3칸). 중복 불가</p></div>
+    <div class="c"><span class="t">입력</span><b>자동 완성</b><p>커맨드마다 첫 칸 자동 입력. 2장까지 겹침</p></div>
+    <div class="c"><span class="t">실수</span><b>린터</b><p>층마다 실수 1회 무시</p></div>
+    <div class="c"><span class="t">실수</span><b>페어 프로그래밍</b><p>틀려도 처음이 아니라 틀린 칸부터 다시</p></div>
+    <div class="c"><span class="t">시간</span><b>커피 한 잔</b><p>즉시 제한 시간 +8초</p></div>
+    <div class="c"><span class="t">진행</span><b>리팩토링</b><p>다음 층 커맨드 개수 −1</p></div>
+    <div class="c"><span class="t">변형</span><b>코드 리뷰</b><p>버그 화살표가 일반 화살표로 바뀌어 나옴</p></div>
+    <div class="c"><span class="t">변형</span><b>문서화</b><p>미확인 스펙 화살표가 처음부터 보임</p></div>
+    <div class="c"><span class="t">점수</span><b>무결점 배포</b><p>층을 실수 없이 끝내면 그 층 점수 ×1.5</p></div>
+    <div class="c"><span class="t">운</span><b>행운의 커밋</b><p>보너스 룰렛 확률 +15%, 황금 커맨드 등장률 ×2</p></div>
+  </div>
+  <p class="q" style="margin-top:10px">카드 3장은 이미 가진 카드 중 중복 불가인 것을 빼고 무작위로 뽑습니다. 시작 카드도 같은 풀에서 3장 중 1장을 고릅니다.</p>
+
+  <h3>특수 보상 4종 (운)</h3>
+  <div class="cardlist">
+    <div class="c sp"><span class="t">규칙 변경</span><b>오픈소스 발견</b><p>다음 층 커맨드 절반이 이미 완료된 상태로 시작</p></div>
+    <div class="c sp"><span class="t">규칙 변경</span><b>시니어 합류</b><p>다음 카드 보상에서 2장을 고름</p></div>
+    <div class="c sp"><span class="t">시간</span><b>서버 증설</b><p>즉시 제한 시간 +20초</p></div>
+    <div class="c sp"><span class="t">점수</span><b>투자 유치</b><p>즉시 +1,000점</p></div>
+  </div>
+
+  <h3>보너스 룰렛 판정</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>조건</th><th>확률</th><th>비고</th></tr></thead>
+    <tbody>
+      <tr><td>검증된 방식 층 클리어</td><td>20%</td><td rowspan="2">실패할 때마다 다음 판정 확률 +15% (천장). 당첨되면 기본값으로 초기화</td></tr>
+      <tr><td>신기술 도입 층 클리어</td><td>40%</td></tr>
+      <tr><td>행운의 커밋 보유</td><td>+15%</td><td>최대 90%</td></tr>
+      <tr><td>황금 커맨드 성공</td><td>100%</td><td>룰렛 없이 즉시 특수 보상 1종</td></tr>
+    </tbody>
+  </table></div>
+  <p class="q" style="margin-top:10px">룰렛은 1.5초 동안 4종이 빠르게 바뀌다 멈추는 연출로 충분합니다. 당첨되면 화면 번쩍임, 꽝이면 "다음엔 확률 +15%"를 표시합니다.</p>
+</section>
+
+<!-- 6 -->
+<section id="boss">
+  <h2><span class="no">06</span>보스 — 출시 D-Day</h2>
+  <div class="grid g3">
+    <div class="card"><h4>구조</h4><ul><li>보스 체력 = 커맨드 <b>5개</b> (6칸)</li><li>커맨드 하나를 끝낼 때마다 체력 1칸 감소</li><li>버그·미확인 스펙 화살표가 섞여 나옴</li></ul></div>
+    <div class="card"><h4>압박</h4><ul><li><b>8초마다 장애 발생</b>: 제한 시간 −5초, 화면 빨갛게 번쩍임</li><li>보스 진입 때 남은 시간이 화면 중앙에 크게 표시됨</li></ul></div>
+    <div class="card"><h4>클리어</h4><ul><li>출시 성공 보너스 <b>+2,000점</b></li><li>남은 시간 1초당 <b>+20점</b></li><li>"배포 완료" 연출 후 결과 화면</li></ul></div>
+  </div>
+  <p class="q" style="margin-top:10px">보스는 새 시스템이 아니라 "길고 어려운 층 + 시간 감소 이벤트"로 만듭니다. 구현 비용을 거의 늘리지 않으면서 마지막 고비를 만들 수 있습니다.</p>
+</section>
+
+<!-- 7 -->
+<section id="score">
+  <h2><span class="no">07</span>점수 공식과 칭호</h2>
+  <div class="grid g2">
+    <div>
+<pre>커맨드 성공   = 칸 수 × 10 × 루트 배율
+층 클리어      = 300 × 루트 배율
+               (무결점 배포 카드 + 실수 0회 → 그 층 점수 ×1.5)
+보스 클리어   = 2,000 + 남은 초 × 20
+특수 보상      = 투자 유치 +1,000
+
+루트 배율: 검증된 방식 ×1 / 신기술 도입 ×2
+시간이 끝나면 그 순간까지의 점수가 최종 점수</pre>
+    </div>
+    <div class="card">
+      <h4>예상 점수대 (조정 전 계산값)</h4>
+      <ul>
+        <li><b>안전 루트만, 보스 클리어</b>: 약 3,500 ~ 4,000점</li>
+        <li><b>위험 루트 위주, 보스 직전 시간 초과</b>: 약 3,000 ~ 3,500점</li>
+        <li><b>위험 루트 위주, 보스 클리어</b>: 약 5,000 ~ 6,000점</li>
+        <li><b>1~2층에서 시간 초과</b>: 약 500 ~ 1,500점</li>
+      </ul>
+      <p style="margin-top:8px">목표: 안전하게 끝까지 간 사람과 과감하게 가다 마지막에 못 간 사람이 비슷한 점수. 과감하게 가서 성공한 사람이 최상위.</p>
+    </div>
+  </div>
+
+  <h3>결과 칭호</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>조건</th><th>칭호</th><th>결과 문구 예시</th></tr></thead>
+    <tbody>
+      <tr><td>보스 클리어 + 신기술 도입 3회</td><td><b>유니콘 스타트업 CTO</b></td><td>"PHANTOM 팀, 신기술로 출시 성공! 남은 시간 12초"</td></tr>
+      <tr><td>보스 클리어</td><td><b>출시 장인</b></td><td>"PHANTOM 팀, 서비스 출시 성공!"</td></tr>
+      <tr><td>보스 도달, 시간 초과</td><td><b>배포 직전의 개발자</b></td><td>"아깝다! 출시 D-Day에서 멈췄습니다"</td></tr>
+      <tr><td>3층 도달</td><td><b>QA 통과 대기 중</b></td><td>"테스트까지 왔습니다. 조금만 더!"</td></tr>
+      <tr><td>1~2층</td><td><b>열정 넘치는 인턴</b></td><td>"첫 커밋 완료! 다시 도전해 보세요"</td></tr>
+    </tbody>
+  </table></div>
+  <p class="q" style="margin-top:10px">실패 문구도 응원하는 톤으로 씁니다. 채용박람회 방문객이 기분 좋게 자리를 뜨는 게 목표입니다.</p>
+</section>
+
+<!-- 8 -->
+<section id="screen">
+  <h2><span class="no">08</span>화면 구성 — 플레이 화면 목업</h2>
+  <p class="lead">정적 도트 배경 위에 HUD와 커맨드 줄을 올립니다. 내부 해상도 320×180으로 그린 뒤 정수배로 확대해 픽셀이 뭉개지지 않게 합니다.</p>
+  <div class="svgbox" style="background:#0f1220;border-color:#0f1220">
+    <svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" role="img" aria-label="2층 개발 신기술 도입 루트 플레이 화면 목업">
+      <rect width="320" height="180" fill="#1b2140"/>
+      <rect x="0" y="120" width="320" height="60" fill="#2a2038"/>
+      <rect x="0" y="118" width="320" height="2" fill="#3a2d4e"/>
+      <rect x="20" y="40" width="40" height="30" fill="#2d3561"/><rect x="22" y="42" width="36" height="22" fill="#3ef2ff" opacity=".25"/>
+      <rect x="260" y="36" width="44" height="34" fill="#2d3561"/><rect x="262" y="38" width="40" height="26" fill="#7be3a0" opacity=".25"/>
+      <rect x="120" y="70" width="80" height="44" fill="#2d3561"/><rect x="123" y="73" width="74" height="34" fill="#11152a"/>
+      <rect x="128" y="78" width="30" height="3" fill="#7be3a0"/><rect x="128" y="84" width="46" height="3" fill="#3ef2ff"/><rect x="128" y="90" width="22" height="3" fill="#ff8ad8"/><rect x="128" y="96" width="38" height="3" fill="#ffd84a"/>
+      <rect x="154" y="114" width="12" height="6" fill="#2d3561"/>
+      <rect x="100" y="120" width="120" height="6" fill="#5a4636"/>
+      <rect x="150" y="96" width="20" height="18" fill="#f2c69b"/><rect x="146" y="88" width="28" height="10" fill="#3b2b20"/><rect x="146" y="114" width="28" height="18" fill="#4a90c2"/>
+      <rect x="0" y="0" width="320" height="16" fill="#000" opacity=".55"/>
+      <text x="6" y="11" font-size="8" fill="#e8ebff" font-family="monospace">2층 개발 · 신기술 도입</text>
+      <text x="160" y="11" font-size="9" fill="#ffd84a" font-family="monospace" text-anchor="middle">01:12</text>
+      <text x="314" y="11" font-size="8" fill="#e8ebff" font-family="monospace" text-anchor="end">SCORE 2,480</text>
+      <rect x="0" y="16" width="320" height="2" fill="#11152a"/><rect x="0" y="16" width="192" height="2" fill="#ffd84a"/>
+      <rect x="70" y="136" width="180" height="38" fill="#0b0f1e" opacity=".9"/><rect x="70" y="136" width="180" height="1" fill="#3ef2ff"/>
+      <text x="160" y="146" font-size="7" fill="#9aa2c7" font-family="monospace" text-anchor="middle">git merge --no-ff   2/3</text>
+      <g font-family="monospace" font-size="10" font-weight="bold" text-anchor="middle">
+        <rect x="84" y="151" width="18" height="18" fill="#2b8a6e"/><text x="93" y="164" fill="#fff">↑</text>
+        <rect x="107" y="151" width="18" height="18" fill="#2b8a6e"/><text x="116" y="164" fill="#fff">↑</text>
+        <rect x="130" y="151" width="18" height="18" fill="#1b2140" stroke="#e8ebff" stroke-width="1"/><text x="139" y="164" fill="#e8ebff">→</text>
+        <rect x="153" y="151" width="18" height="18" fill="#1b2140" stroke="#ff5a5a" stroke-width="1"/><text x="162" y="164" fill="#ff5a5a">↓</text>
+        <rect x="176" y="151" width="18" height="18" fill="#1b2140" stroke="#9aa2c7" stroke-width="1" stroke-dasharray="2 2"/><text x="185" y="164" fill="#9aa2c7">?</text>
+        <rect x="199" y="151" width="18" height="18" fill="#1b2140" stroke="#e8ebff" stroke-width="1"/><text x="208" y="164" fill="#e8ebff">←</text>
+      </g>
+      <g font-family="monospace" font-size="6" fill="#e8ebff">
+        <rect x="6" y="140" width="52" height="10" fill="#2d3561"/><text x="9" y="147">단축키 등록</text>
+        <rect x="6" y="153" width="52" height="10" fill="#2d3561"/><text x="9" y="160">린터 1/1</text>
+        <rect x="262" y="140" width="52" height="10" fill="#5a4a1a"/><text x="265" y="147" fill="#ffd84a">보너스 55%</text>
+      </g>
+      <text x="230" y="60" font-size="7" fill="#7be3a0" font-family="monospace">+120</text>
+    </svg>
+  </div>
+  <div class="grid g4" style="margin-top:16px">
+    <div class="card"><h4>위쪽 HUD</h4><p>현재 층·루트, 남은 시간(가장 크게), 점수, 시간 진행 바</p></div>
+    <div class="card"><h4>가운데</h4><p>층별 정적 도트 배경. 성공 시 점수 팝업, 실패 시 흔들림만 움직임</p></div>
+    <div class="card"><h4>아래쪽</h4><p>명령어 이름 + 진행(2/3) + 화살표 줄. 구경꾼도 볼 수 있게 크게</p></div>
+    <div class="card"><h4>양옆</h4><p>왼쪽은 보유 카드, 오른쪽은 다음 보너스 확률</p></div>
+  </div>
+</section>
+
+<!-- 9 -->
+<section id="tech">
+  <h2><span class="no">09</span>기술 구현</h2>
+  <div class="grid g2">
+    <div class="card"><h4>파일 구성</h4><ul>
+      <li><b>게임실행.html 하나</b>에 HTML·CSS·JS를 모두 넣음. 더블클릭하면 Edge·Chrome으로 바로 실행</li>
+      <li>외부 CDN·웹폰트·온라인 이미지 없음. 폰트는 맑은 고딕 + 숫자·화살표는 직접 그림</li>
+      <li>도트 그림은 코드 안의 픽셀 배열이나 <code>fillRect</code>로 그림 (이미지 파일 없음)</li>
+      <li>캔버스 320×180을 정수배로 확대, <code>image-rendering: pixelated</code></li>
+    </ul></div>
+    <div class="card"><h4>기록 저장 (localStorage)</h4><ul>
+      <li>키 하나에 기록 배열을 JSON으로 저장: 닉네임, 점수, 도달 층, 보스 클리어 여부, 루트 기록, 날짜</li>
+      <li>저장 직후 다시 읽어서 확인, 실패하면 화면에 경고</li>
+      <li>랭킹: 점수 내림차순 TOP 10, 동점이면 먼저 달성한 기록이 위</li>
+      <li>같은 닉네임은 최고점만 랭킹에 표시 (전체 기록은 보존)</li>
+    </ul></div>
+    <div class="card"><h4>부스 운영 기능</h4><ul>
+      <li>대기 화면: 아무도 안 할 때 TOP 10과 "Enter로 시작" 표시</li>
+      <li>마지막 닉네임 기억, Enter 한 번으로 재도전</li>
+      <li>운영자용 기록 초기화: 대기 화면에서 R 키 5번 + 확인 창</li>
+      <li>F11 전체 화면 안내 문구</li>
+    </ul></div>
+    <div class="card"><h4>주의할 점</h4><ul>
+      <li>기록은 <b>같은 PC·같은 브라우저</b>에서만 이어짐 → 설명서에 명시</li>
+      <li>ES 모듈(<code>type="module"</code>) 사용 금지 (더블클릭 실행에서 막힘)</li>
+      <li>탭 전환이나 창이 내려가면 자동 일시정지</li>
+      <li>난수는 <code>Math.random</code>으로 충분. 같은 날 같은 순서로 나오게 하는 시드 기능은 나중에 고려</li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- 10 -->
+<section id="scope">
+  <h2><span class="no">10</span>구현 범위</h2>
+  <p class="lead">마감이 하루라서 범위를 세 단계로 나눴습니다. 필수만 끝나도 출품할 수 있게 순서대로 만듭니다.</p>
+  <div class="scope">
+    <div class="card"><h4><span class="pill bad">필수</span> 없으면 출품 불가</h4><ul>
+      <li>닉네임 입력 → 플레이 → 결과 → 랭킹</li>
+      <li>커맨드 입력, 제한 시간 120초</li>
+      <li>3층 + 보스, 루트 선택</li>
+      <li>확정 카드 3장 중 1장 (최소 6종)</li>
+      <li>localStorage 저장·랭킹 TOP 10</li>
+      <li>설명서 TXT</li>
+    </ul></div>
+    <div class="card"><h4><span class="pill warn">권장</span> 선정 가능성을 올림</h4><ul>
+      <li>버그·미확인 스펙 화살표</li>
+      <li>보너스 룰렛 + 특수 보상 4종 + 천장</li>
+      <li>층별 정적 도트 배경 4장</li>
+      <li>결과 칭호, 대기 화면</li>
+      <li>성공·실패 연출 (팝업, 흔들림, 번쩍임)</li>
+      <li>카드 10종 전부</li>
+    </ul></div>
+    <div class="card"><h4><span class="pill">여유가 있으면</span></h4><ul>
+      <li>황금 커맨드</li>
+      <li>효과음 (Web Audio로 생성)</li>
+      <li>오늘 / 전체 랭킹 탭</li>
+      <li>운영자 기록 초기화</li>
+      <li>스노우볼·왕귀 트랙 밸런스 (나중으로 보류한 항목)</li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- 11 -->
+<section id="plan">
+  <h2><span class="no">11</span>일정과 제출 체크리스트</h2>
+  <div class="tl">
+    <div class="card"><div class="d">오늘 밤</div><h4>핵심 루프</h4><p>커맨드 입력, 타이머, 층 진행, 루트 선택, 카드 보상</p></div>
+    <div class="card"><div class="d">오늘 밤</div><h4>기록·랭킹</h4><p>닉네임, 결과 화면, localStorage, TOP 10</p></div>
+    <div class="card"><div class="d">내일 오전</div><h4>권장 범위</h4><p>변형 화살표, 룰렛·특수 보상, 보스 연출, 도트 배경, 칭호</p></div>
+    <div class="card"><div class="d">내일 13시</div><h4>Windows 테스트</h4><p>와이파이 끄고, ZIP을 새 폴더에 풀어 Edge·Chrome 실행, 껐다 켜서 기록 확인</p></div>
+    <div class="card"><div class="d">내일 15시</div><h4>설명서·ZIP</h4><p>설명서 4항목 작성, ZIP 압축</p></div>
+    <div class="card"><div class="d">내일 16시</div><h4>제출</h4><p>Drive 업로드, 시크릿 창으로 공유 확인, 구글폼 제출</p></div>
+  </div>
+
+  <div class="grid g2" style="margin-top:16px">
+    <div class="card"><h4>제출 파일 구성</h4>
+<pre>릴리즈러시_닉네임.zip
+├─ 게임실행.html     ← 더블클릭
+└─ 게임설명서.txt</pre>
+      <p style="margin-top:10px">Drive 폴더에는 ZIP과 설명서(PDF 또는 TXT)를 함께 올립니다.</p>
+    </div>
+    <div class="card"><h4>설명서 필수 4항목</h4><ul class="check">
+      <li><b>게임 소개</b>: 한 줄 요약 + 루트·카드·보스 설명 3줄</li>
+      <li><b>실행 방법</b>: 압축 해제 → 게임실행.html 더블클릭 (Edge·Chrome), 인터넷 불필요</li>
+      <li><b>조작 방법</b>: 방향키/WASD, 1·2·3 카드 선택, Enter 확인</li>
+      <li><b>랭킹 확인 방법</b>: 게임 종료 시 자동 표시, 대기 화면 TOP 10. 같은 PC·브라우저에서 기록 유지</li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- 12 -->
+<section id="tbd">
+  <h2><span class="no">12</span>플레이해 보며 조정할 항목</h2>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>항목</th><th>현재 값</th><th>확인할 것</th></tr></thead>
+    <tbody>
+      <tr><td>제한 시간</td><td>120초</td><td>안전 루트로 처음 하는 사람이 보스까지 갈 수 있는가</td></tr>
+      <tr><td>커맨드 길이·개수</td><td>3장 표</td><td>층 하나가 15~25초 안에 끝나는가</td></tr>
+      <tr><td>보스 장애 주기</td><td>8초마다 −5초</td><td>너무 가혹하지 않은가</td></tr>
+      <tr><td>루트 배율</td><td>×1 / ×2</td><td>안전 완주와 위험 실패의 점수가 비슷한가</td></tr>
+      <tr><td>보너스 확률</td><td>20% / 40%, 천장 +15%</td><td>한 판에 한 번은 당첨을 보는가</td></tr>
+      <tr><td>선택 제한 시간</td><td>10초</td><td>처음 하는 사람도 카드 설명을 읽을 수 있는가</td></tr>
+      <tr><td>게임 이름</td><td>릴리즈 러시 (가칭)</td><td>다른 후보: 출시까지 120초, 배포 커맨드</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+</main>
+
+<footer class="wrap">릴리즈 러시(가칭) 게임 설계서 · 2026-11-09 · 수치는 모두 첫 플레이 테스트 전 출발값입니다</footer>
+
+<script>
+(function(){
+  var root=document.documentElement;
+  document.getElementById('themeBtn').addEventListener('click',function(){
+    var cur=root.getAttribute('data-theme');
+    var dark=cur?cur==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
+    root.setAttribute('data-theme',dark?'light':'dark');
+  });
+})();
+</script>
+</body>
+</html>

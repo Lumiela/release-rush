@@ -1,0 +1,921 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NEON 180 기획서</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f7fb; --surface:#ffffff; --surface-2:#eef0f6; --text:#151a2d; --muted:#5b6280;
+  --border:#dde1ec; --accent:#5a4bff; --accent-2:#00a7c2; --ok:#1a9e5c; --warn:#c77700; --bad:#d33a4a;
+  --code-bg:#11152a; --code-text:#d9e1ff; --shadow:0 1px 2px rgba(20,25,50,.06),0 6px 24px rgba(20,25,50,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0c0f1c; --surface:#141933; --surface-2:#1b2142; --text:#e8ebff; --muted:#9aa2c7;
+    --border:#29305a; --accent:#8b80ff; --accent-2:#3ee0f5; --ok:#3ccf86; --warn:#ffb648; --bad:#ff6b7a;
+    --code-bg:#0a0d1a; --code-text:#d9e1ff; --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 28px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0c0f1c; --surface:#141933; --surface-2:#1b2142; --text:#e8ebff; --muted:#9aa2c7;
+  --border:#29305a; --accent:#8b80ff; --accent-2:#3ee0f5; --ok:#3ccf86; --warn:#ffb648; --bad:#ff6b7a;
+  --code-bg:#0a0d1a; --code-text:#d9e1ff; --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 28px rgba(0,0,0,.3);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Noto Sans KR",system-ui,sans-serif;line-height:1.7;font-size:15.5px}
+a{color:var(--accent)}
+code,pre{font-family:"JetBrains Mono",ui-monospace,monospace}
+.wrap{max-width:1080px;margin:0 auto;padding:0 16px}
+header.hero{background:linear-gradient(135deg,#0b0f1e 0%,#1d1550 55%,#0b3a4a 100%);color:#fff;padding:56px 0 44px;position:relative;overflow:hidden}
+header.hero::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 85% 30%,rgba(62,242,255,.25),transparent 40%),radial-gradient(circle at 15% 90%,rgba(255,79,216,.2),transparent 40%);pointer-events:none}
+.hero .tag{display:inline-block;font-size:12px;letter-spacing:.12em;padding:4px 10px;border:1px solid rgba(255,255,255,.3);border-radius:99px;margin-bottom:14px}
+.hero h1{font-size:clamp(30px,5vw,48px);margin:0 0 8px;font-weight:900;letter-spacing:-.02em}
+.hero h1 span{background:linear-gradient(90deg,#3ef2ff,#ff4fd8);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{margin:0;color:rgba(255,255,255,.8);max-width:680px}
+.meta{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:20px;font-size:13px;color:rgba(255,255,255,.7)}
+.meta b{color:#fff;font-weight:500}
+nav.toc{position:sticky;top:0;z-index:10;background:var(--surface);border-bottom:1px solid var(--border);box-shadow:var(--shadow)}
+nav.toc .wrap{display:flex;gap:4px;overflow-x:auto;padding-top:8px;padding-bottom:8px;scrollbar-width:none}
+nav.toc a{white-space:nowrap;text-decoration:none;color:var(--muted);font-size:13px;padding:6px 10px;border-radius:8px}
+nav.toc a:hover{background:var(--surface-2);color:var(--text)}
+section{padding:44px 0 8px}
+h2{font-size:24px;margin:0 0 6px;letter-spacing:-.01em;display:flex;align-items:center;gap:10px}
+h2 .no{font-family:"JetBrains Mono",monospace;font-size:13px;color:var(--accent);border:1px solid var(--accent);border-radius:6px;padding:1px 7px}
+h3{font-size:17px;margin:26px 0 8px}
+.lead{color:var(--muted);margin:0 0 20px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;box-shadow:var(--shadow)}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.req{display:flex;gap:12px;align-items:flex-start}
+.req .ic{flex:0 0 36px;height:36px;border-radius:10px;display:grid;place-items:center;background:var(--surface-2);color:var(--accent);font-weight:700;font-family:"JetBrains Mono",monospace}
+.req h4{margin:0 0 2px;font-size:15px}
+.req p{margin:0;color:var(--muted);font-size:14px}
+.pill{display:inline-block;font-size:12px;padding:2px 9px;border-radius:99px;font-weight:500;vertical-align:middle}
+.pill.ok{background:color-mix(in srgb,var(--ok) 15%,transparent);color:var(--ok)}
+.pill.warn{background:color-mix(in srgb,var(--warn) 15%,transparent);color:var(--warn)}
+.pill.bad{background:color-mix(in srgb,var(--bad) 15%,transparent);color:var(--bad)}
+.pill.acc{background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--accent)}
+.callout{border-left:4px solid var(--warn);background:color-mix(in srgb,var(--warn) 8%,var(--surface));padding:14px 16px;border-radius:0 10px 10px 0;margin:16px 0}
+.callout.info{border-color:var(--accent-2);background:color-mix(in srgb,var(--accent-2) 8%,var(--surface))}
+.callout b{display:block;margin-bottom:2px}
+.callout p{margin:0;font-size:14.5px}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th,td{padding:10px 12px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}
+th{background:var(--surface-2);font-weight:700;font-size:13px;color:var(--muted)}
+tr:last-child td{border-bottom:none}
+tr.pick td{background:color-mix(in srgb,var(--accent) 7%,transparent)}
+.dots{letter-spacing:2px;color:var(--accent);white-space:nowrap}
+.dots i{color:var(--border);font-style:normal}
+pre{background:var(--code-bg);color:var(--code-text);padding:16px;border-radius:12px;overflow-x:auto;font-size:13px;line-height:1.6;margin:0}
+pre .c{color:#7a84b8}
+pre .k{color:#ff8ad8}
+pre .s{color:#8ff0a4}
+pre .n{color:#ffd84a}
+:not(pre)>code{background:var(--surface-2);padding:1px 6px;border-radius:5px;font-size:.88em}
+.shots{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:16px}
+figure{margin:0}
+figure svg{width:100%;height:auto;display:block;border-radius:22px;box-shadow:var(--shadow)}
+figcaption{font-size:13px;color:var(--muted);margin-top:8px;text-align:center}
+figcaption b{color:var(--text);display:block;font-size:14px}
+.flow svg{width:100%;height:auto;display:block}
+.flow .box{fill:var(--surface);stroke:var(--border);stroke-width:1.5}
+.flow .box.main{stroke:var(--accent);stroke-width:2}
+.flow .box.data{fill:var(--surface-2);stroke:var(--accent-2);stroke-dasharray:4 3}
+.flow text{fill:var(--text);font-family:"Noto Sans KR",sans-serif;font-size:14px}
+.flow text.sub{fill:var(--muted);font-size:11.5px}
+.flow .arr{stroke:var(--muted);stroke-width:1.6;fill:none}
+.flow .arr.back{stroke:var(--accent);stroke-dasharray:5 4}
+.flow .arr.db{stroke:var(--accent-2);stroke-dasharray:3 3}
+.flow .lbl{fill:var(--accent);font-size:11.5px}
+.timeline{display:flex;border-radius:12px;overflow:hidden;border:1px solid var(--border);font-size:13px}
+.timeline div{flex:1;padding:12px 14px;color:#fff}
+.timeline div b{display:block;font-size:14px}
+.tree{background:var(--code-bg);color:var(--code-text);border-radius:12px;padding:16px;font-family:"JetBrains Mono",monospace;font-size:13px;line-height:1.65;overflow-x:auto;white-space:pre;margin:0}
+.tree .d{color:#3ef2ff}
+.tree .m{color:#7a84b8}
+ul.check{list-style:none;padding:0;margin:0}
+ul.check li{padding:6px 0 6px 28px;position:relative;border-bottom:1px dashed var(--border);font-size:14.5px}
+ul.check li:last-child{border-bottom:none}
+ul.check li::before{content:"";position:absolute;left:4px;top:11px;width:13px;height:13px;border:2px solid var(--accent);border-radius:4px}
+.spec h4{margin:0 0 6px;font-size:15px;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.spec ul{margin:0;padding-left:18px;font-size:14px;color:var(--muted)}
+.spec ul li{margin:2px 0}
+.spec ul li b{color:var(--text);font-weight:500}
+.demo{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:16px;align-items:stretch}
+@media (max-width:760px){.demo{grid-template-columns:1fr}}
+.demo canvas{width:100%;aspect-ratio:16/10;display:block;border-radius:14px;background:#0b0f1e;touch-action:none;cursor:crosshair}
+.btn{appearance:none;border:none;background:var(--accent);color:#fff;font:inherit;font-weight:700;padding:9px 16px;border-radius:10px;cursor:pointer}
+.btn.ghost{background:var(--surface-2);color:var(--text)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:14px}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0;font-family:"JetBrains Mono",monospace}
+.ms{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.ms .card{padding:14px}
+.ms .card .d{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--accent)}
+.ms .card h4{margin:2px 0 4px;font-size:14.5px}
+.ms .card p{margin:0;font-size:13px;color:var(--muted)}
+footer{padding:40px 0 60px;color:var(--muted);font-size:13px;text-align:center}
+.theme-btn{position:absolute;top:16px;right:16px;z-index:2;background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:5px 10px;font:inherit;font-size:12px;cursor:pointer}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <button class="theme-btn" id="themeBtn" type="button">테마 전환</button>
+  <div class="wrap" style="position:relative;z-index:1">
+    <span class="tag">MINI GAME · GAME DESIGN DOCUMENT</span>
+    <h1><span>NEON 180</span> 기획서</h1>
+    <p>180초 동안 네온 조각을 모으고 위험물을 피하는 원터치 아케이드. 3~5분이면 한 판이 끝나고, 웹과 오프라인에서 모두 돌아가며, 닉네임별 기록이 로컬 SQLite에 남습니다.</p>
+    <div class="meta">
+      <div>문서 버전 <b>v0.1 (초안)</b></div>
+      <div>작성일 <b>2026-11-09</b></div>
+      <div>플랫폼 <b>Web (PC·모바일) / PWA 오프라인</b></div>
+      <div>배포 <b>Netlify 정적 호스팅</b></div>
+    </div>
+  </div>
+</header>
+
+<nav class="toc"><div class="wrap">
+  <a href="#req">1. 요구사항</a><a href="#tech">2. 기술 검토</a><a href="#genre">3. 장르 추천</a><a href="#concept">4. 게임 컨셉</a>
+  <a href="#shots">5. 예시 화면</a><a href="#flow">6. 플로우</a><a href="#feature">7. 핵심 기능</a><a href="#data">8. 데이터 설계</a>
+  <a href="#struct">9. 디렉토리 구조</a><a href="#deploy">10. 배포·오프라인</a><a href="#plan">11. 일정</a><a href="#qa">12. 리스크·QA</a>
+</div></nav>
+
+<main class="wrap">
+
+<!-- 1 -->
+<section id="req">
+  <h2><span class="no">01</span>요구사항 요약</h2>
+  <p class="lead">기본 조건 4가지를 어떻게 만족시킬지 한눈에 정리했습니다.</p>
+  <div class="grid g2">
+    <div class="card req"><div class="ic">⏱</div><div><h4>3~5분 이내 플레이타임 <span class="pill ok">설계로 보장</span></h4><p>본 게임은 <b>최대 180초 하드캡</b>입니다. 일찍 죽으면 더 빨리 끝납니다. 결과·랭킹 확인까지 포함해 한 사이클이 3~4분입니다.</p></div></div>
+    <div class="card req"><div class="ic">⇅</div><div><h4>오프라인 + 웹 실행 <span class="pill ok">가능</span></h4><p>빌드 없는 HTML/JS 정적 파일이라 Netlify에 그대로 올릴 수 있습니다. 서비스 워커(PWA)로 첫 방문 후에는 인터넷 없이도 실행됩니다.</p></div></div>
+    <div class="card req"><div class="ic">#</div><div><h4>랭킹 + 로컬 기록 유지 <span class="pill warn">조건부 가능</span></h4><p>브라우저에서 SQLite를 쓰려면 <b>sql.js(WASM)</b>로 DB를 띄우고 IndexedDB에 저장하면 됩니다. 단, 기록은 <b>해당 기기·브라우저 안에서만</b> 공유됩니다(2장 참고).</p></div></div>
+    <div class="card req"><div class="ic">Aa</div><div><h4>닉네임 입력 <span class="pill ok">가능</span></h4><p>첫 실행 때 입력받고 마지막 닉네임을 기억합니다. 2~10자 한글·영문·숫자만 허용하며, 랭킹은 닉네임별 최고점으로 집계합니다.</p></div></div>
+  </div>
+</section>
+
+<!-- 2 -->
+<section id="tech">
+  <h2><span class="no">02</span>기술 검토</h2>
+  <p class="lead">"Netlify 정적 배포 + SQLite" 조합이 실제로 되는지, 그리고 어디까지 되는지 확인했습니다.</p>
+
+  <div class="tbl-wrap"><table>
+    <thead><tr><th style="width:22%">항목</th><th style="width:14%">판정</th><th>내용</th></tr></thead>
+    <tbody>
+      <tr><td><b>Netlify 정적 배포</b></td><td><span class="pill ok">가능</span></td><td>HTML/CSS/JS/WASM 파일만 있으면 드래그 앤 드롭이나 Git 연동으로 배포됩니다. 서버 코드가 없으므로 무료 플랜으로 충분합니다.</td></tr>
+      <tr><td><b>브라우저 안 SQLite</b></td><td><span class="pill ok">가능</span></td><td><code>sql.js</code>(SQLite를 WebAssembly로 컴파일, 약 1MB)를 쓰면 브라우저 메모리에서 실제 SQL을 실행할 수 있습니다. DB 파일(<code>Uint8Array</code>)을 <b>IndexedDB</b>에 저장해 두면 브라우저를 닫아도 기록이 남습니다.</td></tr>
+      <tr><td><b>기록 공유 범위</b></td><td><span class="pill warn">주의</span></td><td>로컬 DB라서 <b>같은 기기, 같은 브라우저</b>에서 플레이한 기록끼리만 순위가 매겨집니다. 오락실 기계 한 대의 "HIGH SCORE" 화면과 같습니다. 전체 사용자 공용 랭킹이 필요하면 서버(Netlify Functions + DB)를 추가해야 합니다. 이는 확장 단계로 분리했습니다.</td></tr>
+      <tr><td><b>오프라인 실행</b></td><td><span class="pill ok">PWA로 가능</span></td><td>서비스 워커가 전체 리소스를 캐시하면, 첫 접속 이후 비행기 모드에서도 실행됩니다. 홈 화면 설치도 지원합니다.</td></tr>
+      <tr><td><b>file:// 더블클릭 실행</b></td><td><span class="pill bad">제약</span></td><td>파일을 더블클릭해서 열면 ES 모듈, WASM 로딩, 서비스 워커가 브라우저 보안 정책에 막힙니다. 로컬에서는 <code>npx serve public</code>처럼 간단한 서버로 띄워야 합니다. 꼭 더블클릭 실행이 필요하면 빌드 단계에서 단일 HTML로 묶는 방법이 있습니다(옵션).</td></tr>
+      <tr><td><b>저장소 대안</b></td><td><span class="pill acc">폴백</span></td><td>WASM 로딩에 실패하거나 시크릿 모드처럼 IndexedDB를 쓸 수 없으면 <code>localStorage</code> JSON으로 자동 전환합니다. 저장소 접근은 <code>storage.js</code> 인터페이스 하나로 감싸서 구현을 바꿔 끼울 수 있게 합니다.</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="callout info"><b>결론</b><p>요구하신 구성은 그대로 실현 가능합니다. <b>Vanilla JS + Canvas 2D</b>로 게임을, <b>sql.js + IndexedDB</b>로 로컬 랭킹을, <b>Service Worker</b>로 오프라인을 처리하고, <b>Netlify</b>에 정적으로 배포합니다. 빌드 도구 없이 시작할 수 있습니다.</p></div>
+
+  <h3>기술 스택</h3>
+  <div class="grid g4">
+    <div class="card"><span class="pill acc">렌더링</span><h4 style="margin:8px 0 4px">Canvas 2D</h4><p style="margin:0;font-size:13.5px;color:var(--muted)">도형 위주 네온 그래픽이라 엔진 없이도 충분합니다. 60fps를 목표로 <code>requestAnimationFrame</code> 고정 스텝 루프를 씁니다.</p></div>
+    <div class="card"><span class="pill acc">언어</span><h4 style="margin:8px 0 4px">ES Modules (JS)</h4><p style="margin:0;font-size:13.5px;color:var(--muted)">번들러 없이 <code>&lt;script type="module"&gt;</code>로 씁니다. 필요해지면 Vite로 옮기기 쉽습니다.</p></div>
+    <div class="card"><span class="pill acc">데이터</span><h4 style="margin:8px 0 4px">sql.js + IndexedDB</h4><p style="margin:0;font-size:13.5px;color:var(--muted)">SQLite 문법 그대로 랭킹을 조회하고, DB 바이너리를 IndexedDB에 저장합니다.</p></div>
+    <div class="card"><span class="pill acc">배포</span><h4 style="margin:8px 0 4px">Netlify + PWA</h4><p style="margin:0;font-size:13.5px;color:var(--muted)">정적 호스팅 + <code>manifest.webmanifest</code> + <code>sw.js</code>로 구성합니다.</p></div>
+  </div>
+</section>
+
+<!-- 3 -->
+<section id="genre">
+  <h2><span class="no">03</span>추천 장르</h2>
+  <p class="lead">짧은 세션, 점수 경쟁, 웹과 모바일 동시 대응을 기준으로 5개 장르를 비교했습니다.</p>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>장르</th><th>세션 길이 통제</th><th>점수 변별력</th><th>개발 난이도</th><th>모바일 조작</th><th>리플레이성</th><th>총평</th></tr></thead>
+    <tbody>
+      <tr class="pick"><td><b>A. 타임리밋 회피·수집 아케이드</b><br><span class="pill acc">최종 추천</span></td><td class="dots">●●●●●</td><td class="dots">●●●●●</td><td class="dots">●●<i>●●●</i></td><td class="dots">●●●●●</td><td class="dots">●●●●<i>●</i></td><td>타이머로 길이를 정확히 통제할 수 있습니다. 콤보·배율 구조라 점수가 넓게 퍼져서 랭킹 보는 재미가 큽니다. 드래그 하나로 조작합니다.</td></tr>
+      <tr><td><b>B. 타임어택 퍼즐</b><br>(3-매치, 숫자 합치기)</td><td class="dots">●●●●●</td><td class="dots">●●●●<i>●</i></td><td class="dots">●●●<i>●●</i></td><td class="dots">●●●●●</td><td class="dots">●●●<i>●●</i></td><td>남녀노소 모두 좋아하지만 판정 로직과 연출 작업이 많습니다.</td></tr>
+      <tr><td><b>C. 원버튼 엔드리스 러너</b></td><td class="dots">●●●<i>●●</i></td><td class="dots">●●●●<i>●</i></td><td class="dots">●●<i>●●●</i></td><td class="dots">●●●●●</td><td class="dots">●●●●<i>●</i></td><td>잘하는 사람은 끝없이 플레이하게 돼서 5분을 넘길 수 있습니다. 시간 제한을 따로 넣어야 합니다.</td></tr>
+      <tr><td><b>D. 타워 스태킹</b></td><td class="dots">●●●<i>●●</i></td><td class="dots">●●●<i>●●</i></td><td class="dots">●<i>●●●●</i></td><td class="dots">●●●●●</td><td class="dots">●●●<i>●●</i></td><td>만들기는 가장 쉽지만 깊이가 얕아 반복 플레이 동기가 약합니다.</td></tr>
+      <tr><td><b>E. 반응속도·리듬 탭</b></td><td class="dots">●●●●●</td><td class="dots">●●●<i>●●</i></td><td class="dots">●●●<i>●●</i></td><td class="dots">●●●●<i>●</i></td><td class="dots">●●●<i>●●</i></td><td>음원 저작권과 싱크 문제가 있고, 실력 차이가 점수에 덜 드러납니다.</td></tr>
+    </tbody>
+  </table></div>
+  <p style="font-size:13px;color:var(--muted);margin-top:8px">● 많을수록 유리함. 개발 난이도는 ● 적을수록 쉬움.</p>
+  <div class="callout info"><b>A안을 고른 이유</b><p>① 180초 고정 타이머라 "3~5분 플레이타임" 조건을 설계 차원에서 보장합니다. ② 콤보 배율 덕분에 같은 시간을 버텨도 점수 차이가 커서 랭킹이 의미 있습니다. ③ 마우스와 터치 드래그가 같은 방식이라 PC와 모바일을 한 코드로 처리합니다. ④ 도형 그래픽이라 외부 에셋 없이 오프라인 용량이 작습니다.</p></div>
+</section>
+
+<!-- 4 -->
+<section id="concept">
+  <h2><span class="no">04</span>게임 컨셉 — NEON 180 (가칭)</h2>
+  <p class="lead">"180초, 빛을 모으고 어둠을 피하라." 화면을 드래그해 빛나는 구체를 움직이면서 네온 조각을 모으고, 붉은 위험물을 피합니다.</p>
+
+  <div class="grid g3">
+    <div class="card spec"><h4>조작</h4><ul>
+      <li><b>PC</b>: 마우스를 움직이면 구체가 부드럽게 따라옵니다 (lerp 보간)</li>
+      <li><b>모바일</b>: 손가락 드래그. 상대 이동이라 손가락이 구체를 가리지 않습니다</li>
+      <li><b>보조</b>: 방향키/WASD, <code>Space</code> 대시, <code>Esc</code> 일시정지</li>
+    </ul></div>
+    <div class="card spec"><h4>오브젝트</h4><ul>
+      <li><b style="color:#00a7c2">◆ 네온 조각</b> +10점 × 콤보 배율</li>
+      <li><b style="color:#c77700">★ 골드 스타</b> +100점, 5초간 자석 효과</li>
+      <li><b style="color:#d33a4a">● 위험물</b> 닿으면 HP −1, 콤보 초기화</li>
+      <li><b style="color:#5a4bff">✚ 실드</b> 피격 1회 막기 (드물게 등장)</li>
+    </ul></div>
+    <div class="card spec"><h4>종료 조건</h4><ul>
+      <li><b>TIME UP</b>: 180초를 버팀 → 남은 HP 1칸당 +500 보너스</li>
+      <li><b>GAME OVER</b>: HP 3칸 소진 → 그 시점 점수로 끝</li>
+      <li>두 경우 모두 결과 화면에서 <b>자동 저장</b>합니다</li>
+    </ul></div>
+  </div>
+
+  <h3>페이즈 타임라인 (난이도 곡선)</h3>
+  <div class="timeline">
+    <div style="background:#00839a"><b>PHASE 1 · 0~60초</b>위험물이 천천히 직선으로 움직입니다. 조작을 익히는 구간입니다.</div>
+    <div style="background:#5a4bff"><b>PHASE 2 · 60~120초</b>유도탄과 회전 장애물이 나오고 생성 속도가 1.5배가 됩니다.</div>
+    <div style="background:#b3269a"><b>PHASE 3 · 120~180초</b>탄막 패턴이 나오고 골드 스타 출현율이 올라갑니다. 고위험 고보상 구간입니다.</div>
+  </div>
+
+  <h3>점수 공식</h3>
+  <div class="grid g2">
+    <pre><span class="c">// 조각 획득 시</span>
+gain = <span class="n">10</span> × multiplier
+multiplier = min(<span class="n">1</span> + combo × <span class="n">0.1</span>, <span class="n">5.0</span>)   <span class="c">// 최대 ×5</span>
+
+<span class="c">// 매 초 생존 보너스</span>
+score += <span class="n">1</span> × phase           <span class="c">// 1 → 2 → 3</span>
+
+<span class="c">// 종료 시</span>
+<span class="k">if</span> (timeUp) score += hp × <span class="n">500</span></pre>
+    <div class="card">
+      <h4 style="margin:0 0 8px">밸런싱 목표치</h4>
+      <dl class="kv">
+        <dt>초보 평균</dt><dd>2,000 ~ 4,000점 (90초 전후 사망)</dd>
+        <dt>숙련 평균</dt><dd>8,000 ~ 12,000점 (180초 생존)</dd>
+        <dt>최상위</dt><dd>20,000점 이상 (콤보 ×5 유지)</dd>
+        <dt>평균 세션</dt><dd>플레이 2분 30초 + 결과·랭킹 40초</dd>
+        <dt>콤보 끊김</dt><dd>피격, 또는 3초 동안 조각을 못 먹었을 때</dd>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<!-- 5 -->
+<section id="shots">
+  <h2><span class="no">05</span>예시 화면 (목업)</h2>
+  <p class="lead">화면별 와이어프레임 목업입니다. 실제 색상 팔레트와 HUD 배치를 반영했습니다. 다른 게임의 캡처는 저작권 문제로 넣지 않았고, 아래에 직접 조작해 보는 프로토타입을 대신 넣었습니다.</p>
+
+  <div class="shots">
+    <!-- Title -->
+    <figure>
+      <svg viewBox="0 0 240 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="타이틀 화면 목업">
+        <defs>
+          <linearGradient id="bgG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#151a3f"/><stop offset="1" stop-color="#0b0f1e"/></linearGradient>
+          <linearGradient id="logoG" x1="0" x2="1"><stop offset="0" stop-color="#3ef2ff"/><stop offset="1" stop-color="#ff4fd8"/></linearGradient>
+          <filter id="glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <rect width="240" height="420" fill="url(#bgG)"/>
+        <g opacity=".35" stroke="#3ef2ff" stroke-width=".5">
+          <line x1="0" y1="300" x2="240" y2="300"/><line x1="0" y1="330" x2="240" y2="330"/><line x1="0" y1="370" x2="240" y2="370"/>
+          <line x1="120" y1="290" x2="0" y2="420"/><line x1="120" y1="290" x2="60" y2="420"/><line x1="120" y1="290" x2="180" y2="420"/><line x1="120" y1="290" x2="240" y2="420"/>
+        </g>
+        <circle cx="120" cy="110" r="22" fill="#3ef2ff" filter="url(#glow)"/>
+        <circle cx="120" cy="110" r="10" fill="#fff"/>
+        <text x="120" y="172" text-anchor="middle" font-family="Noto Sans KR" font-weight="900" font-size="34" fill="url(#logoG)">NEON 180</text>
+        <text x="120" y="192" text-anchor="middle" font-size="10" fill="#9aa2c7" font-family="Noto Sans KR">180초 동안 빛을 모아라</text>
+        <rect x="50" y="222" width="140" height="36" rx="18" fill="#3ef2ff"/>
+        <text x="120" y="245" text-anchor="middle" font-size="13" font-weight="700" fill="#0b0f1e" font-family="Noto Sans KR">게임 시작</text>
+        <rect x="50" y="266" width="66" height="30" rx="15" fill="none" stroke="#5b6280"/>
+        <text x="83" y="285" text-anchor="middle" font-size="11" fill="#e8ebff" font-family="Noto Sans KR">랭킹</text>
+        <rect x="124" y="266" width="66" height="30" rx="15" fill="none" stroke="#5b6280"/>
+        <text x="157" y="285" text-anchor="middle" font-size="11" fill="#e8ebff" font-family="Noto Sans KR">설정</text>
+        <text x="120" y="392" text-anchor="middle" font-size="10" fill="#9aa2c7" font-family="JetBrains Mono">PHANTOM · BEST 12,480</text>
+      </svg>
+      <figcaption><b>① 타이틀</b>시작·랭킹·설정 버튼, 내 닉네임과 최고점 표시</figcaption>
+    </figure>
+
+    <!-- Nickname -->
+    <figure>
+      <svg viewBox="0 0 240 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="닉네임 입력 화면 목업">
+        <rect width="240" height="420" fill="#0b0f1e"/>
+        <text x="20" y="56" font-size="18" font-weight="700" fill="#e8ebff" font-family="Noto Sans KR">닉네임 입력</text>
+        <text x="20" y="76" font-size="10" fill="#9aa2c7" font-family="Noto Sans KR">랭킹에 표시될 이름을 정해 주세요</text>
+        <rect x="20" y="100" width="200" height="44" rx="10" fill="#141933" stroke="#3ef2ff" stroke-width="1.5"/>
+        <text x="34" y="128" font-size="15" fill="#e8ebff" font-family="JetBrains Mono">PHANTOM</text>
+        <rect x="111" y="113" width="1.5" height="18" fill="#3ef2ff"/>
+        <text x="206" y="128" text-anchor="end" font-size="10" fill="#9aa2c7" font-family="JetBrains Mono">7/10</text>
+        <text x="20" y="162" font-size="9.5" fill="#3ccf86" font-family="Noto Sans KR">✓ 사용할 수 있는 닉네임이에요</text>
+        <text x="20" y="196" font-size="10" fill="#9aa2c7" font-family="Noto Sans KR">이 기기에서 쓴 닉네임</text>
+        <rect x="20" y="206" width="64" height="24" rx="12" fill="#1b2142"/><text x="52" y="222" text-anchor="middle" font-size="10" fill="#e8ebff" font-family="Noto Sans KR">별빛</text>
+        <rect x="90" y="206" width="70" height="24" rx="12" fill="#1b2142"/><text x="125" y="222" text-anchor="middle" font-size="10" fill="#e8ebff" font-family="JetBrains Mono">kim_01</text>
+        <text x="20" y="262" font-size="9" fill="#5b6280" font-family="Noto Sans KR">· 2~10자 한글·영문·숫자·_</text>
+        <text x="20" y="278" font-size="9" fill="#5b6280" font-family="Noto Sans KR">· 같은 닉네임 기록은 하나로 합쳐 집계</text>
+        <rect x="20" y="350" width="200" height="42" rx="21" fill="#3ef2ff"/>
+        <text x="120" y="376" text-anchor="middle" font-size="13" font-weight="700" fill="#0b0f1e" font-family="Noto Sans KR">확인하고 시작</text>
+      </svg>
+      <figcaption><b>② 닉네임 입력</b>실시간 유효성 검사, 이 기기에서 쓴 닉네임 칩</figcaption>
+    </figure>
+
+    <!-- Gameplay -->
+    <figure>
+      <svg viewBox="0 0 240 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="인게임 화면 목업">
+        <defs>
+          <filter id="glow2"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <rect width="240" height="420" fill="#0b0f1e"/>
+        <g fill="#fff" opacity=".35"><circle cx="30" cy="90" r=".8"/><circle cx="200" cy="140" r=".8"/><circle cx="80" cy="250" r=".8"/><circle cx="170" cy="330" r=".8"/><circle cx="50" cy="370" r=".8"/></g>
+        <rect x="0" y="0" width="240" height="44" fill="#000" opacity=".35"/>
+        <text x="12" y="20" font-size="8" fill="#9aa2c7" font-family="JetBrains Mono">SCORE</text>
+        <text x="12" y="36" font-size="15" font-weight="600" fill="#e8ebff" font-family="JetBrains Mono">3,420</text>
+        <text x="120" y="30" text-anchor="middle" font-size="16" font-weight="600" fill="#ffd84a" font-family="JetBrains Mono">01:47</text>
+        <g fill="#ff4fd8"><path d="M190 22c0-4 6-4 6 0 0-4 6-4 6 0 0 4-6 8-6 8s-6-4-6-8z"/><path d="M206 22c0-4 6-4 6 0 0-4 6-4 6 0 0 4-6 8-6 8s-6-4-6-8z"/></g>
+        <path d="M222 22c0-4 6-4 6 0 0-4 6-4 6 0 0 4-6 8-6 8s-6-4-6-8z" fill="none" stroke="#5b6280"/>
+        <rect x="0" y="44" width="240" height="3" fill="#1b2142"/><rect x="0" y="44" width="97" height="3" fill="#ffd84a"/>
+        <text x="120" y="78" text-anchor="middle" font-size="9" fill="#8b80ff" font-family="JetBrains Mono" letter-spacing="2">PHASE 2</text>
+        <g filter="url(#glow2)">
+          <rect x="58" y="130" width="9" height="9" fill="#3ef2ff" transform="rotate(45 62 134)"/>
+          <rect x="160" y="110" width="9" height="9" fill="#3ef2ff" transform="rotate(45 164 114)"/>
+          <rect x="190" y="250" width="9" height="9" fill="#3ef2ff" transform="rotate(45 194 254)"/>
+          <rect x="70" y="300" width="9" height="9" fill="#3ef2ff" transform="rotate(45 74 304)"/>
+          <path d="M150 190l3 7 7 .5-5.5 4.5 2 7-6.5-4-6.5 4 2-7-5.5-4.5 7-.5z" fill="#ffd84a"/>
+          <circle cx="40" cy="210" r="10" fill="#ff5a5a"/>
+          <circle cx="200" cy="190" r="7" fill="#ff5a5a"/>
+          <circle cx="130" cy="330" r="12" fill="#ff5a5a"/>
+          <circle cx="104" cy="242" r="13" fill="#3ef2ff"/>
+        </g>
+        <circle cx="104" cy="242" r="6" fill="#fff"/>
+        <path d="M104 242 L80 262 L60 272" stroke="#3ef2ff" stroke-width="3" opacity=".25" fill="none" stroke-linecap="round"/>
+        <line x1="200" y1="190" x2="178" y2="204" stroke="#ff5a5a" stroke-width="1" stroke-dasharray="2 2" opacity=".6"/>
+        <text x="122" y="226" font-size="10" font-weight="700" fill="#3ef2ff" font-family="JetBrains Mono">+24</text>
+        <rect x="80" y="384" width="80" height="22" rx="11" fill="#ff4fd8" opacity=".9"/>
+        <text x="120" y="399" text-anchor="middle" font-size="11" font-weight="700" fill="#fff" font-family="JetBrains Mono">COMBO ×2.4</text>
+      </svg>
+      <figcaption><b>③ 인게임</b>점수·남은 시간·HP·진행 바, 콤보 배율, 획득 점수 팝업</figcaption>
+    </figure>
+
+    <!-- Result -->
+    <figure>
+      <svg viewBox="0 0 240 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="결과 화면 목업">
+        <rect width="240" height="420" fill="#0b0f1e"/>
+        <text x="120" y="66" text-anchor="middle" font-size="22" font-weight="900" fill="#ffd84a" font-family="Noto Sans KR">TIME UP!</text>
+        <text x="120" y="86" text-anchor="middle" font-size="10" fill="#9aa2c7" font-family="Noto Sans KR">180초를 모두 버텼습니다</text>
+        <text x="120" y="138" text-anchor="middle" font-size="36" font-weight="600" fill="#e8ebff" font-family="JetBrains Mono">12,480</text>
+        <rect x="84" y="148" width="72" height="18" rx="9" fill="#ff4fd8"/>
+        <text x="120" y="161" text-anchor="middle" font-size="9.5" font-weight="700" fill="#fff" font-family="JetBrains Mono">NEW BEST!</text>
+        <rect x="20" y="186" width="200" height="104" rx="12" fill="#141933"/>
+        <g font-size="10.5" font-family="Noto Sans KR" fill="#9aa2c7">
+          <text x="34" y="210">수집한 조각</text><text x="34" y="232">최대 콤보</text><text x="34" y="254">생존 보너스</text><text x="34" y="276">HP 보너스</text>
+        </g>
+        <g font-size="10.5" font-family="JetBrains Mono" fill="#e8ebff" text-anchor="end">
+          <text x="206" y="210">128</text><text x="206" y="232">×4.6 (36)</text><text x="206" y="254">+360</text><text x="206" y="276">+1,000</text>
+        </g>
+        <text x="120" y="320" text-anchor="middle" font-size="11" fill="#3ef2ff" font-family="Noto Sans KR">이 기기 랭킹 3위 · 상위 12%</text>
+        <rect x="20" y="350" width="96" height="40" rx="20" fill="#3ef2ff"/>
+        <text x="68" y="375" text-anchor="middle" font-size="12" font-weight="700" fill="#0b0f1e" font-family="Noto Sans KR">다시 하기</text>
+        <rect x="124" y="350" width="96" height="40" rx="20" fill="none" stroke="#5b6280"/>
+        <text x="172" y="375" text-anchor="middle" font-size="12" fill="#e8ebff" font-family="Noto Sans KR">랭킹 보기</text>
+      </svg>
+      <figcaption><b>④ 결과</b>점수 상세, 신기록 배지, 내 순위. 자동 저장됨</figcaption>
+    </figure>
+
+    <!-- Ranking -->
+    <figure>
+      <svg viewBox="0 0 240 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="랭킹 화면 목업">
+        <rect width="240" height="420" fill="#0b0f1e"/>
+        <text x="20" y="44" font-size="18" font-weight="700" fill="#e8ebff" font-family="Noto Sans KR">랭킹</text>
+        <rect x="20" y="60" width="200" height="28" rx="14" fill="#141933"/>
+        <rect x="22" y="62" width="98" height="24" rx="12" fill="#3ef2ff"/>
+        <text x="71" y="78" text-anchor="middle" font-size="10" font-weight="700" fill="#0b0f1e" font-family="Noto Sans KR">TOP 10</text>
+        <text x="170" y="78" text-anchor="middle" font-size="10" fill="#9aa2c7" font-family="Noto Sans KR">내 기록</text>
+        <g font-family="JetBrains Mono" font-size="11">
+          <g><text x="28" y="118" fill="#ffd84a" font-weight="600">1</text><text x="50" y="118" fill="#e8ebff" font-family="Noto Sans KR">별빛</text><text x="212" y="118" text-anchor="end" fill="#e8ebff">21,930</text></g>
+          <line x1="20" y1="128" x2="220" y2="128" stroke="#1b2142"/>
+          <g><text x="28" y="148" fill="#c8d0e8" font-weight="600">2</text><text x="50" y="148" fill="#e8ebff">kim_01</text><text x="212" y="148" text-anchor="end" fill="#e8ebff">15,200</text></g>
+          <line x1="20" y1="158" x2="220" y2="158" stroke="#1b2142"/>
+          <rect x="16" y="162" width="208" height="28" rx="8" fill="#3ef2ff" opacity=".14" stroke="#3ef2ff" stroke-width=".8"/>
+          <g><text x="28" y="180" fill="#e0a060" font-weight="600">3</text><text x="50" y="180" fill="#3ef2ff" font-weight="600">PHANTOM</text><text x="212" y="180" text-anchor="end" fill="#3ef2ff" font-weight="600">12,480</text></g>
+          <g><text x="28" y="210" fill="#9aa2c7">4</text><text x="50" y="210" fill="#e8ebff" font-family="Noto Sans KR">달토끼</text><text x="212" y="210" text-anchor="end" fill="#e8ebff">9,870</text></g>
+          <line x1="20" y1="220" x2="220" y2="220" stroke="#1b2142"/>
+          <g><text x="28" y="240" fill="#9aa2c7">5</text><text x="50" y="240" fill="#e8ebff">neo</text><text x="212" y="240" text-anchor="end" fill="#e8ebff">7,410</text></g>
+          <line x1="20" y1="250" x2="220" y2="250" stroke="#1b2142"/>
+          <g><text x="28" y="270" fill="#9aa2c7">6</text><text x="50" y="270" fill="#e8ebff">guest7</text><text x="212" y="270" text-anchor="end" fill="#e8ebff">5,020</text></g>
+          <line x1="20" y1="280" x2="220" y2="280" stroke="#1b2142"/>
+          <g><text x="28" y="300" fill="#9aa2c7">7</text><text x="50" y="300" fill="#e8ebff" font-family="Noto Sans KR">초보</text><text x="212" y="300" text-anchor="end" fill="#e8ebff">2,310</text></g>
+        </g>
+        <text x="120" y="334" text-anchor="middle" font-size="9" fill="#5b6280" font-family="Noto Sans KR">이 기기에 저장된 기록 · 닉네임별 최고점</text>
+        <rect x="20" y="356" width="200" height="40" rx="20" fill="none" stroke="#5b6280"/>
+        <text x="120" y="381" text-anchor="middle" font-size="12" fill="#e8ebff" font-family="Noto Sans KR">타이틀로</text>
+      </svg>
+      <figcaption><b>⑤ 랭킹</b>TOP 10 / 내 기록 탭, 내 순위 강조 표시</figcaption>
+    </figure>
+  </div>
+
+  <h3>라이브 프로토타입 — 핵심 루프 체험 (30초)</h3>
+  <p style="margin:0 0 12px;color:var(--muted);font-size:14.5px">마우스나 손가락으로 캔버스 위를 움직여 보세요. 조각 수집, 콤보, 피격까지 핵심 재미 요소만 30초로 줄여서 구현했습니다.</p>
+  <div class="demo">
+    <canvas id="demo" width="800" height="500"></canvas>
+    <div class="card" style="display:flex;flex-direction:column;gap:12px">
+      <dl class="kv" id="demoStats">
+        <dt>점수</dt><dd id="dScore">0</dd>
+        <dt>남은 시간</dt><dd id="dTime">30.0s</dd>
+        <dt>HP</dt><dd id="dHp">♥♥♥</dd>
+        <dt>콤보</dt><dd id="dCombo">×1.0</dd>
+        <dt>이번 최고</dt><dd id="dBest">-</dd>
+      </dl>
+      <button class="btn" id="demoBtn" type="button">시작</button>
+      <p style="margin:0;font-size:12.5px;color:var(--muted)">이번 최고점은 이 페이지를 연 동안만 유지됩니다. 실제 게임에서는 SQLite에 저장합니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 6 -->
+<section id="flow">
+  <h2><span class="no">06</span>화면 플로우</h2>
+  <p class="lead">실선은 기본 진행, 보라 점선은 다시 하기·복귀, 청록 점선은 DB 읽기·쓰기입니다.</p>
+  <div class="card flow">
+    <svg viewBox="0 0 1000 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="게임 화면 흐름도">
+      <defs>
+        <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker>
+      </defs>
+      <g style="color:var(--muted)">
+        <!-- row 1 -->
+        <rect class="box" x="20" y="40" width="140" height="64" rx="12"/>
+        <text x="90" y="68" text-anchor="middle" font-weight="700">부트</text>
+        <text class="sub" x="90" y="88" text-anchor="middle">에셋 로드 · DB 열기</text>
+
+        <rect class="box main" x="210" y="40" width="140" height="64" rx="12"/>
+        <text x="280" y="68" text-anchor="middle" font-weight="700">타이틀</text>
+        <text class="sub" x="280" y="88" text-anchor="middle">시작 / 랭킹 / 설정</text>
+
+        <rect class="box" x="400" y="40" width="150" height="64" rx="12"/>
+        <text x="475" y="68" text-anchor="middle" font-weight="700">닉네임 입력</text>
+        <text class="sub" x="475" y="88" text-anchor="middle">최초 1회 · 변경 시</text>
+
+        <rect class="box" x="600" y="40" width="150" height="64" rx="12"/>
+        <text x="675" y="68" text-anchor="middle" font-weight="700">튜토리얼</text>
+        <text class="sub" x="675" y="88" text-anchor="middle">첫 플레이만 · 10초</text>
+
+        <rect class="box main" x="800" y="40" width="180" height="64" rx="12"/>
+        <text x="890" y="68" text-anchor="middle" font-weight="700">플레이 (≤180초)</text>
+        <text class="sub" x="890" y="88" text-anchor="middle">3페이즈 · HP 3</text>
+
+        <path class="arr" d="M160 72H206" marker-end="url(#ah)"/>
+        <path class="arr" d="M350 72H396" marker-end="url(#ah)"/>
+        <path class="arr" d="M550 72H596" marker-end="url(#ah)"/>
+        <path class="arr" d="M750 72H796" marker-end="url(#ah)"/>
+        <path class="arr" d="M280 104V130H860V108" marker-end="url(#ah)" style="opacity:.6"/>
+        <text class="lbl" x="560" y="146" text-anchor="middle">닉네임이 저장돼 있으면 바로 플레이</text>
+
+        <!-- pause -->
+        <rect class="box" x="820" y="190" width="140" height="56" rx="12"/>
+        <text x="890" y="214" text-anchor="middle" font-weight="700">일시정지</text>
+        <text class="sub" x="890" y="232" text-anchor="middle">재개 / 포기</text>
+        <path class="arr" d="M870 104V186" marker-end="url(#ah)"/>
+        <path class="arr back" d="M910 186V108" marker-end="url(#ah)" style="color:var(--accent)"/>
+
+        <!-- row 2 -->
+        <rect class="box main" x="580" y="300" width="170" height="64" rx="12"/>
+        <text x="665" y="328" text-anchor="middle" font-weight="700">결과</text>
+        <text class="sub" x="665" y="348" text-anchor="middle">TIME UP / GAME OVER</text>
+
+        <rect class="box main" x="330" y="300" width="160" height="64" rx="12"/>
+        <text x="410" y="328" text-anchor="middle" font-weight="700">랭킹</text>
+        <text class="sub" x="410" y="348" text-anchor="middle">TOP 10 · 내 순위</text>
+
+        <rect class="box data" x="40" y="300" width="200" height="64" rx="12"/>
+        <text x="140" y="328" text-anchor="middle" font-weight="700">SQLite (sql.js)</text>
+        <text class="sub" x="140" y="348" text-anchor="middle">IndexedDB에 영구 저장</text>
+
+        <path class="arr" d="M960 104V330H754" marker-end="url(#ah)"/>
+        <text class="lbl" x="860" y="322" text-anchor="middle" style="fill:var(--muted)">시간 종료 · HP 0</text>
+        <path class="arr" d="M820 228H720V296" marker-end="url(#ah)" style="opacity:.6"/>
+        <text class="lbl" x="728" y="268" style="fill:var(--muted)">포기</text>
+        <path class="arr" d="M580 332H494" marker-end="url(#ah)"/>
+        <path class="arr back" d="M710 364V392H990V72H984" marker-end="url(#ah)" style="color:var(--accent)"/>
+        <text class="lbl" x="850" y="386" text-anchor="middle">다시 하기</text>
+        <path class="arr back" d="M410 300V160H300V108" marker-end="url(#ah)" style="color:var(--accent)"/>
+        <text class="lbl" x="372" y="190" text-anchor="middle">타이틀로</text>
+        <path class="arr db" d="M620 364V380H190V368" marker-end="url(#ah)" style="color:var(--accent-2)"/>
+        <text class="lbl" x="430" y="398" text-anchor="middle" style="fill:var(--accent-2)">INSERT score</text>
+        <path class="arr db" d="M326 332H244" marker-end="url(#ah)" style="color:var(--accent-2)"/>
+        <text class="lbl" x="285" y="322" text-anchor="middle" style="fill:var(--accent-2)">SELECT</text>
+        <path class="arr db" d="M90 104V296" marker-end="url(#ah)" style="color:var(--accent-2)"/>
+        <text class="lbl" x="100" y="200" style="fill:var(--accent-2)">초기화</text>
+      </g>
+    </svg>
+  </div>
+
+  <h3>씬 상태 전이 규칙</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>현재 씬</th><th>이벤트</th><th>다음 씬</th><th>처리</th></tr></thead>
+    <tbody>
+      <tr><td>Boot</td><td>로드 완료</td><td>Title</td><td><code>openDB()</code>로 스키마 생성 또는 마이그레이션, 마지막 닉네임 불러오기</td></tr>
+      <tr><td>Title</td><td>시작</td><td>Nickname 또는 Play</td><td>저장된 닉네임이 없으면 Nickname, 있으면 Play(첫 플레이면 Tutorial)</td></tr>
+      <tr><td>Play</td><td>blur / Esc</td><td>Pause</td><td>탭이 비활성화되면 자동으로 일시정지하고 타이머를 멈춤</td></tr>
+      <tr><td>Play</td><td>timer ≤ 0 · hp = 0</td><td>Result</td><td>최종 점수 계산 → <code>saveScore()</code> → IndexedDB에 기록</td></tr>
+      <tr><td>Result</td><td>다시 하기</td><td>Play</td><td>같은 닉네임으로 바로 재시작 (재시작까지 1초 이내 목표)</td></tr>
+      <tr><td>Ranking</td><td>뒤로</td><td>Title</td><td>—</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 7 -->
+<section id="feature">
+  <h2><span class="no">07</span>핵심 기능 명세</h2>
+  <p class="lead">우선순위: <span class="pill bad">P0</span> 출시 필수 · <span class="pill warn">P1</span> 출시 권장 · <span class="pill acc">P2</span> 확장</p>
+  <div class="grid g2">
+    <div class="card spec"><h4>F1. 코어 게임 루프 <span class="pill bad">P0</span></h4><ul>
+      <li>고정 타임스텝(1/60초) 업데이트와 가변 렌더링을 분리</li>
+      <li>180초 타이머, 3단계 페이즈 난이도 테이블</li>
+      <li>원형 충돌 판정, 오브젝트 풀링으로 GC 끊김 방지</li>
+      <li>화면 크기에 맞춘 반응형 캔버스, 고DPI(devicePixelRatio) 대응</li>
+    </ul></div>
+    <div class="card spec"><h4>F2. 닉네임 <span class="pill bad">P0</span></h4><ul>
+      <li>규칙: <b>2~10자</b>, <code>^[가-힣A-Za-z0-9_]+$</code>, 앞뒤 공백 제거</li>
+      <li>금칙어 필터 (로컬 단어 목록)</li>
+      <li>마지막 닉네임 자동 입력, 이 기기에서 쓴 닉네임 칩 표시</li>
+      <li>타이틀에서 언제든 변경 가능. 기존 기록은 이전 닉네임에 그대로 남음</li>
+    </ul></div>
+    <div class="card spec"><h4>F3. 기록 저장 <span class="pill bad">P0</span></h4><ul>
+      <li>게임이 끝날 때마다 <b>모든 판</b>을 <code>scores</code> 테이블에 INSERT</li>
+      <li>저장 직후 <code>db.export()</code> → IndexedDB에 기록 (300ms 디바운스)</li>
+      <li><code>navigator.storage.persist()</code>를 요청해 브라우저가 저장 데이터를 지우지 않도록 함</li>
+      <li>저장에 실패하면 localStorage에 대신 저장하고 토스트로 알림</li>
+    </ul></div>
+    <div class="card spec"><h4>F4. 랭킹 <span class="pill bad">P0</span></h4><ul>
+      <li><b>TOP 10</b>: 닉네임별 최고점 기준으로 정렬 (동점이면 먼저 달성한 사람이 위)</li>
+      <li><b>내 기록</b>: 현재 닉네임의 최근 20판과 최고점·평균·판수</li>
+      <li>결과 화면에 이번 판 순위와 상위 % 표시</li>
+      <li>10위 밖이면 목록 아래에 내 순위 행을 따로 고정 표시</li>
+    </ul></div>
+    <div class="card spec"><h4>F5. 오프라인 / PWA <span class="pill warn">P1</span></h4><ul>
+      <li>서비스 워커로 앱 셸 전체를 미리 캐시 (WASM 포함)</li>
+      <li>캐시 버전 문자열로 업데이트를 감지하고 "새 버전" 토스트 표시</li>
+      <li><code>manifest.webmanifest</code>로 홈 화면 설치, 전체 화면, 세로 고정</li>
+    </ul></div>
+    <div class="card spec"><h4>F6. 설정 · 연출 <span class="pill warn">P1</span></h4><ul>
+      <li>효과음/BGM 볼륨, 진동(모바일), 화면 흔들림 끄기</li>
+      <li>Web Audio API로 효과음을 직접 생성 (파일 없이 → 용량 절약)</li>
+      <li>기록 초기화 (확인 창 2단계), DB 내보내기·가져오기(.sqlite 파일)</li>
+    </ul></div>
+    <div class="card spec"><h4>F7. 공용 온라인 랭킹 <span class="pill acc">P2</span></h4><ul>
+      <li>Netlify Functions + Netlify Blobs(또는 Supabase)로 전체 사용자 TOP 100</li>
+      <li>온라인일 때만 제출하고, 오프라인 기록은 큐에 쌓았다가 나중에 전송</li>
+      <li>최소한의 부정행위 방지: 서버에서 점수 상한·플레이 시간 검증</li>
+    </ul></div>
+    <div class="card spec"><h4>F8. 기타 <span class="pill acc">P2</span></h4><ul>
+      <li>일일 시드 모드 (매일 같은 패턴으로 공정하게 경쟁)</li>
+      <li>업적 배지, 결과 화면 이미지 공유 (Canvas → PNG)</li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- 8 -->
+<section id="data">
+  <h2><span class="no">08</span>데이터 설계 (SQLite)</h2>
+  <p class="lead">sql.js에서 그대로 실행하는 SQL입니다. 스키마 버전은 <code>PRAGMA user_version</code>으로 관리합니다.</p>
+  <div class="grid g2">
+    <div>
+      <h3 style="margin-top:0">스키마</h3>
+<pre><span class="k">CREATE TABLE IF NOT EXISTS</span> players (
+  nickname    <span class="k">TEXT PRIMARY KEY</span>,
+  created_at  <span class="k">TEXT DEFAULT</span> (datetime(<span class="s">'now'</span>)),
+  last_played <span class="k">TEXT</span>
+);
+
+<span class="k">CREATE TABLE IF NOT EXISTS</span> scores (
+  id          <span class="k">INTEGER PRIMARY KEY AUTOINCREMENT</span>,
+  nickname    <span class="k">TEXT NOT NULL</span>,
+  score       <span class="k">INTEGER NOT NULL</span>,
+  end_reason  <span class="k">TEXT</span>,      <span class="c">-- 'timeup' | 'dead' | 'quit'</span>
+  survived_ms <span class="k">INTEGER</span>,
+  shards      <span class="k">INTEGER</span>,
+  max_combo   <span class="k">INTEGER</span>,
+  version     <span class="k">TEXT</span>,      <span class="c">-- 밸런스 패치 구분용</span>
+  played_at   <span class="k">TEXT DEFAULT</span> (datetime(<span class="s">'now'</span>))
+);
+
+<span class="k">CREATE INDEX IF NOT EXISTS</span> idx_scores_rank
+  <span class="k">ON</span> scores(score <span class="k">DESC</span>, played_at <span class="k">ASC</span>);
+<span class="k">CREATE INDEX IF NOT EXISTS</span> idx_scores_nick
+  <span class="k">ON</span> scores(nickname, score <span class="k">DESC</span>);
+
+<span class="k">PRAGMA</span> user_version = <span class="n">1</span>;</pre>
+    </div>
+    <div>
+      <h3 style="margin-top:0">주요 쿼리</h3>
+<pre><span class="c">-- TOP 10 (닉네임별 최고점)</span>
+<span class="k">SELECT</span> nickname, <span class="k">MAX</span>(score) <span class="k">AS</span> best,
+       <span class="k">COUNT</span>(*) <span class="k">AS</span> plays
+<span class="k">FROM</span> scores
+<span class="k">GROUP BY</span> nickname
+<span class="k">ORDER BY</span> best <span class="k">DESC</span>, <span class="k">MIN</span>(played_at) <span class="k">ASC</span>
+<span class="k">LIMIT</span> <span class="n">10</span>;
+
+<span class="c">-- 내 순위 (:best = 내 최고점)</span>
+<span class="k">SELECT COUNT</span>(*) + <span class="n">1</span> <span class="k">AS</span> rank
+<span class="k">FROM</span> (<span class="k">SELECT MAX</span>(score) b <span class="k">FROM</span> scores
+      <span class="k">GROUP BY</span> nickname)
+<span class="k">WHERE</span> b > :best;
+
+<span class="c">-- 내 최근 20판</span>
+<span class="k">SELECT</span> score, end_reason, played_at
+<span class="k">FROM</span> scores <span class="k">WHERE</span> nickname = :nick
+<span class="k">ORDER BY</span> played_at <span class="k">DESC LIMIT</span> <span class="n">20</span>;</pre>
+    </div>
+  </div>
+
+  <h3>db.js — 저장소 래퍼 (요약)</h3>
+<pre><span class="c">// public/src/data/db.js  (vendor/sql-wasm.js를 &lt;script&gt;로 먼저 로드)</span>
+<span class="k">const</span> KEY = <span class="s">'neon180.sqlite'</span>;
+<span class="k">let</span> db, saveTimer;
+
+<span class="k">export async function</span> openDB() {
+  <span class="k">const</span> SQL = <span class="k">await</span> initSqlJs({ locateFile: f => <span class="s">`vendor/${f}`</span> });
+  <span class="k">const</span> bytes = <span class="k">await</span> idbGet(KEY);            <span class="c">// Uint8Array | undefined</span>
+  db = bytes ? <span class="k">new</span> SQL.Database(bytes) : <span class="k">new</span> SQL.Database();
+  migrate(db);                                  <span class="c">// user_version 기준 스키마 적용</span>
+  navigator.storage?.persist?.();               <span class="c">// 브라우저가 데이터를 지우지 않도록 요청</span>
+}
+
+<span class="k">export function</span> saveScore(r) {
+  db.run(
+    <span class="s">`INSERT INTO scores (nickname, score, end_reason, survived_ms, shards, max_combo, version)
+     VALUES (?,?,?,?,?,?,?)`</span>,
+    [r.nickname, r.score, r.reason, r.ms, r.shards, r.maxCombo, APP_VERSION]
+  );
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => idbSet(KEY, db.export()), <span class="n">300</span>);  <span class="c">// 디바운스 저장</span>
+}
+
+<span class="k">export function</span> topRanking(limit = <span class="n">10</span>) {
+  <span class="k">const</span> st = db.prepare(TOP_SQL); st.bind([limit]);
+  <span class="k">const</span> rows = []; <span class="k">while</span> (st.step()) rows.push(st.getAsObject());
+  st.free(); <span class="k">return</span> rows;
+}</pre>
+  <div class="callout"><b>저장 데이터 관리 메모</b><p>sql.js는 DB 전체를 메모리에 올리고 통째로 export합니다. 한 판에 약 100바이트이므로 1만 판을 해도 1MB 수준이라 문제없습니다. 그래도 <code>scores</code>가 5만 건을 넘으면 닉네임별 상위 100건만 남기고 정리하는 로직을 넣습니다.</p></div>
+</section>
+
+<!-- 9 -->
+<section id="struct">
+  <h2><span class="no">09</span>디렉토리 구조</h2>
+  <p class="lead">배포 루트는 <code>public/</code> 하나로 고정하고, 기획 문서와 도구 파일은 그 밖에 둡니다.</p>
+<div class="tree"><span class="d">2026 11 09 mini-game/</span>
+├─ game-plan.html            <span class="m"># 본 기획서</span>
+├─ netlify.toml              <span class="m"># 배포 설정 (publish = "public")</span>
+├─ README.md
+└─ <span class="d">public/</span>                   <span class="m"># ← Netlify 배포 루트</span>
+   ├─ index.html             <span class="m"># 캔버스 + UI 오버레이(DOM)</span>
+   ├─ manifest.webmanifest   <span class="m"># PWA 설치 정보</span>
+   ├─ sw.js                  <span class="m"># 서비스 워커 (오프라인 캐시)</span>
+   ├─ <span class="d">icons/</span>                 <span class="m"># 192 / 512 / maskable</span>
+   ├─ <span class="d">assets/</span>
+   │  ├─ <span class="d">fonts/</span>              <span class="m"># 로컬 폰트 (오프라인용, 서브셋)</span>
+   │  └─ <span class="d">img/</span>
+   ├─ <span class="d">vendor/</span>
+   │  ├─ sql-wasm.js         <span class="m"># sql.js 로더</span>
+   │  └─ sql-wasm.wasm       <span class="m"># SQLite WASM 바이너리</span>
+   ├─ <span class="d">styles/</span>
+   │  └─ ui.css
+   └─ <span class="d">src/</span>
+      ├─ main.js             <span class="m"># 진입점: 부트 → SceneManager 시작</span>
+      ├─ config.js           <span class="m"># 밸런스 수치, 페이즈 테이블, APP_VERSION</span>
+      ├─ <span class="d">core/</span>
+      │  ├─ loop.js          <span class="m"># 고정 스텝 게임 루프</span>
+      │  ├─ input.js         <span class="m"># 마우스 · 터치 · 키보드 통합</span>
+      │  ├─ audio.js         <span class="m"># Web Audio 효과음 생성</span>
+      │  └─ scene-manager.js
+      ├─ <span class="d">scenes/</span>
+      │  ├─ boot.js  title.js  nickname.js  tutorial.js
+      │  └─ play.js  pause.js  result.js  ranking.js  settings.js
+      ├─ <span class="d">game/</span>
+      │  ├─ player.js        <span class="m"># 이동, 대시, 실드</span>
+      │  ├─ entities.js      <span class="m"># 조각, 스타, 위험물 (오브젝트 풀)</span>
+      │  ├─ spawner.js       <span class="m"># 페이즈별 생성 패턴</span>
+      │  ├─ score.js         <span class="m"># 콤보 · 배율 · 보너스 계산</span>
+      │  └─ fx.js            <span class="m"># 파티클, 화면 흔들림, 점수 팝업</span>
+      └─ <span class="d">data/</span>
+         ├─ db.js            <span class="m"># sql.js 래퍼 (스키마 · 마이그레이션 · 쿼리)</span>
+         ├─ idb.js           <span class="m"># IndexedDB get/set</span>
+         ├─ storage.js       <span class="m"># 공통 인터페이스 + localStorage 폴백</span>
+         └─ nickname.js      <span class="m"># 유효성 검사 · 금칙어</span>
+</div>
+</section>
+
+<!-- 10 -->
+<section id="deploy">
+  <h2><span class="no">10</span>배포 · 오프라인 설정</h2>
+  <div class="grid g2">
+    <div>
+      <h3 style="margin-top:0">netlify.toml</h3>
+<pre>[build]
+  publish = <span class="s">"public"</span>
+  command = <span class="s">""</span>            <span class="c"># 빌드 없음</span>
+
+[[headers]]
+  for = <span class="s">"/vendor/*.wasm"</span>
+  [headers.values]
+    Content-Type  = <span class="s">"application/wasm"</span>
+    Cache-Control = <span class="s">"public, max-age=31536000, immutable"</span>
+
+[[headers]]
+  for = <span class="s">"/sw.js"</span>
+  [headers.values]
+    Cache-Control = <span class="s">"no-cache"</span>   <span class="c"># SW 업데이트 즉시 반영</span></pre>
+    </div>
+    <div>
+      <h3 style="margin-top:0">sw.js (캐시 우선)</h3>
+<pre><span class="k">const</span> CACHE = <span class="s">'neon180-v1'</span>;
+<span class="k">const</span> ASSETS = [<span class="s">'./'</span>, <span class="s">'index.html'</span>, <span class="s">'styles/ui.css'</span>,
+  <span class="s">'src/main.js'</span>, <span class="c">/* ...모든 모듈... */</span>
+  <span class="s">'vendor/sql-wasm.js'</span>, <span class="s">'vendor/sql-wasm.wasm'</span>];
+
+self.addEventListener(<span class="s">'install'</span>, e =>
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS))));
+
+self.addEventListener(<span class="s">'activate'</span>, e =>
+  e.waitUntil(caches.keys().then(ks => Promise.all(
+    ks.filter(k => k !== CACHE).map(k => caches.delete(k))))));
+
+self.addEventListener(<span class="s">'fetch'</span>, e =>
+  e.respondWith(caches.match(e.request)
+    .then(r => r || fetch(e.request))));</pre>
+    </div>
+  </div>
+
+  <h3>실행 방법</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>환경</th><th>방법</th><th>기록 저장 위치</th></tr></thead>
+    <tbody>
+      <tr><td><b>웹 (Netlify)</b></td><td><code>public/</code> 폴더를 드래그 앤 드롭하거나 Git 저장소를 연결하면 <code>https://&lt;이름&gt;.netlify.app</code> 주소가 생깁니다</td><td>해당 브라우저의 IndexedDB</td></tr>
+      <tr><td><b>오프라인 (PWA)</b></td><td>한 번 접속하면 자동으로 캐시됩니다. "홈 화면에 추가"로 앱처럼 설치하면 비행기 모드에서도 실행됩니다</td><td>동일 (설치한 앱과 브라우저가 저장소를 공유)</td></tr>
+      <tr><td><b>로컬 개발</b></td><td><code>npx serve public</code> 실행 후 <code>http://localhost:3000</code> 접속 (localhost에서는 서비스 워커도 동작합니다)</td><td>localhost 전용 IndexedDB</td></tr>
+      <tr><td><b>완전 오프라인 배포판</b> <span class="pill acc">옵션</span></td><td>Vite와 <code>vite-plugin-singlefile</code>로 WASM까지 base64로 넣은 단일 <code>neon180.html</code>을 만들면 USB로 옮겨 더블클릭으로 실행할 수 있습니다</td><td>file:// 출처의 저장소 (브라우저마다 동작이 다를 수 있음)</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 11 -->
+<section id="plan">
+  <h2><span class="no">11</span>개발 일정 (예상 2주)</h2>
+  <div class="ms">
+    <div class="card"><div class="d">M1 · D1–D3</div><h4>코어 루프</h4><p>캔버스, 입력, 플레이어, 조각·위험물, 충돌, 타이머</p></div>
+    <div class="card"><div class="d">M2 · D4–D5</div><h4>점수·페이즈</h4><p>콤보 배율, 3페이즈 스포너, HUD, 결과 계산</p></div>
+    <div class="card"><div class="d">M3 · D6–D7</div><h4>씬·UI</h4><p>타이틀, 닉네임, 결과, 랭킹, 일시정지, 설정</p></div>
+    <div class="card"><div class="d">M4 · D8–D9</div><h4>DB·랭킹</h4><p>sql.js 연동, 스키마, 저장·조회, 폴백, 내보내기</p></div>
+    <div class="card"><div class="d">M5 · D10–D11</div><h4>PWA·배포</h4><p>서비스 워커, 매니페스트, Netlify 배포, 오프라인 테스트</p></div>
+    <div class="card"><div class="d">M6 · D12–D14</div><h4>폴리싱·QA</h4><p>사운드, 이펙트, 밸런싱 테스트, 기기별 검증</p></div>
+  </div>
+</section>
+
+<!-- 12 -->
+<section id="qa">
+  <h2><span class="no">12</span>리스크 · QA 체크리스트</h2>
+  <div class="grid g2">
+    <div>
+      <h3 style="margin-top:0">리스크와 대응</h3>
+      <div class="tbl-wrap"><table style="min-width:0">
+        <thead><tr><th>리스크</th><th>대응</th></tr></thead>
+        <tbody>
+          <tr><td>사용자가 브라우저 데이터를 삭제하면 기록이 사라짐</td><td><code>storage.persist()</code> 요청, 설정에서 .sqlite 내보내기·가져오기 제공</td></tr>
+          <tr><td>시크릿 모드·사파리의 저장소 제약</td><td>세션 한정 모드라는 안내 문구 + localStorage 폴백</td></tr>
+          <tr><td>"전체 랭킹" 기대와의 차이</td><td>UI에 "이 기기 랭킹"이라고 명시하고, P2에서 온라인 랭킹 추가</td></tr>
+          <tr><td>로컬 점수 조작 (개발자도구)</td><td>로컬 랭킹이라 영향이 적음. 온라인 확장 때 서버 검증</td></tr>
+          <tr><td>저사양 모바일에서 프레임 저하</td><td>오브젝트 풀, 파티클 상한, 블러 효과를 저품질 옵션으로 끄기</td></tr>
+          <tr><td>서비스 워커 캐시가 갱신되지 않음</td><td>CACHE 버전 문자열 + <code>sw.js</code> no-cache 헤더 + 업데이트 토스트</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <div>
+      <h3 style="margin-top:0">QA 체크리스트</h3>
+      <div class="card"><ul class="check">
+        <li>한 판이 180초를 넘지 않는다 (일시정지 시간은 제외)</li>
+        <li>브라우저를 완전히 껐다 켜도 랭킹이 유지된다</li>
+        <li>비행기 모드에서 새로고침해도 게임과 랭킹이 동작한다</li>
+        <li>닉네임 규칙 위반(1자, 11자, 특수문자, 공백만 입력)이 차단된다</li>
+        <li>동점일 때 먼저 달성한 기록이 위에 표시된다</li>
+        <li>탭을 전환하거나 화면이 꺼지면 자동으로 일시정지된다</li>
+        <li>Chrome·Safari(iOS)·Samsung Internet·Edge에서 정상 동작한다</li>
+        <li>WASM 로딩이 실패하면 localStorage 폴백으로 저장된다</li>
+        <li>새 버전을 배포하면 업데이트 안내가 뜬다</li>
+        <li>모바일 세로·가로 회전 시 캔버스가 다시 맞춰진다</li>
+      </ul></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="wrap">NEON 180 기획서 v0.1 · 2026-11-09 · 화면 이미지는 모두 이 문서용으로 직접 그린 목업입니다</footer>
+
+<script>
+// theme toggle
+(function(){
+  var btn=document.getElementById('themeBtn'), root=document.documentElement;
+  btn.addEventListener('click',function(){
+    var cur=root.getAttribute('data-theme');
+    var dark=cur?cur==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;
+    root.setAttribute('data-theme',dark?'light':'dark');
+  });
+})();
+
+// live prototype
+(function(){
+  var cv=document.getElementById('demo'), ctx=cv.getContext('2d');
+  var W=cv.width, H=cv.height;
+  var $=function(id){return document.getElementById(id)};
+  var st, running=false, best=null, last=0, raf=0;
+  var target={x:W/2,y:H/2};
+
+  function reset(){
+    st={t:30,score:0,hp:3,combo:0,since:0,p:{x:W/2,y:H/2,r:14},shards:[],haz:[],pops:[],inv:0,spawnS:0,spawnH:0};
+    for(var i=0;i<5;i++) addShard();
+  }
+  function rnd(a,b){return a+Math.random()*(b-a)}
+  function addShard(){st.shards.push({x:rnd(30,W-30),y:rnd(30,H-30),a:Math.random()*6})}
+  function addHaz(){
+    var side=Math.floor(Math.random()*4), x,y;
+    if(side===0){x=-20;y=rnd(0,H)}else if(side===1){x=W+20;y=rnd(0,H)}else if(side===2){x=rnd(0,W);y=-20}else{x=rnd(0,W);y=H+20}
+    var ang=Math.atan2(st.p.y-y,st.p.x-x)+rnd(-.5,.5), sp=rnd(90,160)*(1+(30-st.t)/30);
+    st.haz.push({x:x,y:y,vx:Math.cos(ang)*sp,vy:Math.sin(ang)*sp,r:rnd(10,18)});
+  }
+  function mult(){return Math.min(1+st.combo*0.1,5)}
+  function pos(e){
+    var r=cv.getBoundingClientRect(), pt=e.touches?e.touches[0]:e;
+    target.x=(pt.clientX-r.left)/r.width*W; target.y=(pt.clientY-r.top)/r.height*H;
+  }
+  cv.addEventListener('mousemove',pos);
+  cv.addEventListener('touchstart',function(e){pos(e);e.preventDefault()},{passive:false});
+  cv.addEventListener('touchmove',function(e){pos(e);e.preventDefault()},{passive:false});
+
+  function step(dt){
+    st.t-=dt; st.since+=dt; if(st.inv>0) st.inv-=dt;
+    if(st.since>3 && st.combo>0){st.combo=0}
+    var p=st.p; p.x+=(target.x-p.x)*Math.min(1,dt*10); p.y+=(target.y-p.y)*Math.min(1,dt*10);
+    st.spawnS+=dt; if(st.spawnS>0.6 && st.shards.length<8){st.spawnS=0;addShard()}
+    st.spawnH+=dt; var rate=Math.max(0.35,1.1-(30-st.t)*0.025); if(st.spawnH>rate){st.spawnH=0;addHaz()}
+    for(var i=st.shards.length-1;i>=0;i--){
+      var s=st.shards[i]; s.a+=dt*3;
+      if(Math.hypot(s.x-p.x,s.y-p.y)<p.r+9){
+        var g=Math.round(10*mult()); st.score+=g; st.combo++; st.since=0;
+        st.pops.push({x:s.x,y:s.y,txt:'+'+g,life:.7}); st.shards.splice(i,1);
+      }
+    }
+    for(var j=st.haz.length-1;j>=0;j--){
+      var h=st.haz[j]; h.x+=h.vx*dt; h.y+=h.vy*dt;
+      if(h.x<-60||h.x>W+60||h.y<-60||h.y>H+60){st.haz.splice(j,1);continue}
+      if(st.inv<=0 && Math.hypot(h.x-p.x,h.y-p.y)<p.r+h.r){
+        st.hp--; st.combo=0; st.inv=1.2; st.pops.push({x:p.x,y:p.y-20,txt:'HIT!',life:.8,bad:true}); st.haz.splice(j,1);
+      }
+    }
+    for(var k=st.pops.length-1;k>=0;k--){st.pops[k].life-=dt;st.pops[k].y-=dt*30;if(st.pops[k].life<=0)st.pops.splice(k,1)}
+    if(st.t<=0||st.hp<=0) end();
+  }
+  function draw(){
+    ctx.fillStyle='#0b0f1e'; ctx.fillRect(0,0,W,H);
+    ctx.strokeStyle='rgba(62,242,255,.06)'; ctx.lineWidth=1;
+    for(var gx=0;gx<W;gx+=40){ctx.beginPath();ctx.moveTo(gx,0);ctx.lineTo(gx,H);ctx.stroke()}
+    for(var gy=0;gy<H;gy+=40){ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(W,gy);ctx.stroke()}
+    ctx.shadowBlur=14;
+    st.shards.forEach(function(s){ctx.save();ctx.translate(s.x,s.y);ctx.rotate(s.a);ctx.shadowColor='#3ef2ff';ctx.fillStyle='#3ef2ff';ctx.fillRect(-7,-7,14,14);ctx.restore()});
+    st.haz.forEach(function(h){ctx.shadowColor='#ff5a5a';ctx.fillStyle='#ff5a5a';ctx.beginPath();ctx.arc(h.x,h.y,h.r,0,7);ctx.fill()});
+    var p=st.p, blink=st.inv>0 && Math.floor(st.inv*10)%2===0;
+    if(!blink){ctx.shadowColor='#3ef2ff';ctx.fillStyle='#3ef2ff';ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,7);ctx.fill();
+      ctx.shadowBlur=0;ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(p.x,p.y,p.r*.45,0,7);ctx.fill()}
+    ctx.shadowBlur=0;
+    ctx.font='700 18px JetBrains Mono, monospace'; ctx.textAlign='center';
+    st.pops.forEach(function(o){ctx.globalAlpha=Math.max(0,o.life/.7);ctx.fillStyle=o.bad?'#ff5a5a':'#3ef2ff';ctx.fillText(o.txt,o.x,o.y)});
+    ctx.globalAlpha=1;
+    ctx.fillStyle='#ffd84a'; ctx.fillRect(0,0,W*(Math.max(0,st.t)/30),4);
+    if(st.combo>=3){ctx.fillStyle='#ff4fd8';ctx.font='700 22px JetBrains Mono, monospace';ctx.fillText('COMBO ×'+mult().toFixed(1),W/2,H-24)}
+    $('dScore').textContent=st.score.toLocaleString();
+    $('dTime').textContent=Math.max(0,st.t).toFixed(1)+'s';
+    $('dHp').textContent='♥'.repeat(Math.max(0,st.hp))+'♡'.repeat(3-Math.max(0,st.hp));
+    $('dCombo').textContent='×'+mult().toFixed(1)+' ('+st.combo+')';
+  }
+  function overlay(title,sub){
+    ctx.fillStyle='rgba(11,15,30,.75)'; ctx.fillRect(0,0,W,H);
+    ctx.textAlign='center'; ctx.fillStyle='#fff'; ctx.font='900 44px Noto Sans KR, sans-serif'; ctx.fillText(title,W/2,H/2-6);
+    ctx.fillStyle='#9aa2c7'; ctx.font='500 18px Noto Sans KR, sans-serif'; ctx.fillText(sub,W/2,H/2+30);
+  }
+  function loop(ts){
+    var dt=Math.min(0.05,(ts-last)/1000); last=ts;
+    if(running){step(dt); draw(); if(running) raf=requestAnimationFrame(loop)}
+  }
+  function start(){reset();running=true;last=performance.now();$('demoBtn').textContent='다시 시작';cancelAnimationFrame(raf);raf=requestAnimationFrame(loop)}
+  function end(){
+    running=false; draw();
+    var timeUp=st.hp>0; if(timeUp) st.score+=st.hp*500;
+    if(best===null||st.score>best) best=st.score;
+    $('dScore').textContent=st.score.toLocaleString(); $('dBest').textContent=best.toLocaleString();
+    overlay(timeUp?'TIME UP!':'GAME OVER','점수 '+st.score.toLocaleString()+(timeUp?'  (HP 보너스 포함)':''));
+  }
+  $('demoBtn').addEventListener('click',start);
+  reset(); draw(); overlay('NEON 180 · 프로토타입','시작 버튼을 누르세요');
+})();
+</script>
+</body>
+</html>

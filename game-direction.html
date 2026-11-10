@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>미니게임 방향성 탐구</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Noto+Serif+KR:wght@600;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f5f0; --surface:#ffffff; --surface-2:#efece4; --text:#1d1b18; --muted:#6a645a;
+  --border:#e2ddd2; --accent:#d2552d; --accent-2:#2b6f8f; --ok:#2e8b57; --warn:#b7791f;
+  --shadow:0 1px 2px rgba(40,30,10,.05),0 8px 24px rgba(40,30,10,.06);
+  --c-a:#2b6f8f; --c-b:#d2552d; --c-c:#7a5cc2; --c-d:#2e8b57; --c-e:#8a6d3b; --c-f:#c23f8a;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15140f; --surface:#1f1d17; --surface-2:#29261e; --text:#f1ece1; --muted:#a8a091;
+    --border:#38342a; --accent:#ff8a5c; --accent-2:#6fc0e0; --ok:#5ccc8a; --warn:#e8b04c;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.3);
+    --c-a:#6fc0e0; --c-b:#ff8a5c; --c-c:#a98af0; --c-d:#5ccc8a; --c-e:#d6b47a; --c-f:#f07ab8;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15140f; --surface:#1f1d17; --surface-2:#29261e; --text:#f1ece1; --muted:#a8a091;
+  --border:#38342a; --accent:#ff8a5c; --accent-2:#6fc0e0; --ok:#5ccc8a; --warn:#e8b04c;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.3);
+  --c-a:#6fc0e0; --c-b:#ff8a5c; --c-c:#a98af0; --c-d:#5ccc8a; --c-e:#d6b47a; --c-f:#f07ab8;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Noto Sans KR",system-ui,sans-serif;line-height:1.75;font-size:15.5px}
+.wrap{max-width:1100px;margin:0 auto;padding:0 16px}
+header.hero{padding:64px 0 40px;border-bottom:1px solid var(--border);position:relative}
+.eyebrow{font-size:12.5px;letter-spacing:.14em;color:var(--accent);font-weight:700}
+h1{font-family:"Noto Serif KR",serif;font-size:clamp(30px,5vw,46px);line-height:1.25;margin:10px 0 14px;font-weight:900;letter-spacing:-.02em}
+.hero p{max-width:720px;color:var(--muted);margin:0}
+.meta{display:flex;flex-wrap:wrap;gap:6px 20px;margin-top:18px;font-size:13px;color:var(--muted)}
+.meta b{color:var(--text);font-weight:500}
+.theme-btn{position:absolute;top:18px;right:16px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:5px 10px;font:inherit;font-size:12px;cursor:pointer}
+nav.toc{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
+nav.toc .wrap{display:flex;gap:2px;overflow-x:auto;padding-top:8px;padding-bottom:8px;scrollbar-width:none}
+nav.toc a{white-space:nowrap;text-decoration:none;color:var(--muted);font-size:13px;padding:5px 10px;border-radius:8px}
+nav.toc a:hover{background:var(--surface-2);color:var(--text)}
+section{padding:48px 0 4px}
+h2{font-family:"Noto Serif KR",serif;font-size:26px;margin:0 0 6px;letter-spacing:-.01em}
+h2 .no{font-family:"Noto Sans KR",sans-serif;font-size:13px;color:var(--accent);margin-right:10px;font-weight:700;vertical-align:middle}
+h3{font-size:17px;margin:28px 0 10px}
+.lead{color:var(--muted);margin:0 0 22px;max-width:780px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;box-shadow:var(--shadow)}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(310px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.pill{display:inline-block;font-size:12px;padding:2px 9px;border-radius:99px;font-weight:500;background:var(--surface-2);color:var(--muted);margin:0 4px 4px 0}
+.pill.acc{background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent)}
+.callout{border-left:4px solid var(--accent);background:color-mix(in srgb,var(--accent) 7%,var(--surface));padding:14px 18px;border-radius:0 12px 12px 0;margin:18px 0}
+.callout b{display:block;margin-bottom:2px}
+.callout p{margin:0;font-size:14.5px}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:720px}
+th,td{padding:10px 12px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}
+th{background:var(--surface-2);font-weight:700;font-size:13px;color:var(--muted)}
+tr:last-child td{border-bottom:none}
+.q{font-size:14px;color:var(--muted)}
+.q b{color:var(--text)}
+
+/* constraint cards */
+.cons h4{margin:0 0 4px;font-size:15px}
+.cons .arrow{color:var(--accent);font-weight:700;font-size:13px;margin:6px 0 2px}
+.cons p{margin:0;font-size:14px;color:var(--muted)}
+
+/* axes */
+.axis{display:grid;grid-template-columns:110px 1fr 110px;align-items:center;gap:12px;padding:12px 0;border-bottom:1px dashed var(--border);font-size:14px}
+.axis:last-child{border-bottom:none}
+.axis .l{text-align:right;font-weight:500}
+.axis .r{font-weight:500}
+.axis .bar{height:8px;border-radius:99px;background:linear-gradient(90deg,var(--accent-2),var(--surface-2) 50%,var(--accent));position:relative}
+.axis .hint{grid-column:1/-1;font-size:12.5px;color:var(--muted);margin-top:-4px;text-align:center}
+@media (max-width:560px){.axis{grid-template-columns:70px 1fr 70px}}
+
+/* genre cards */
+.genre h4{margin:0;font-size:16px}
+.genre .fun{font-size:13.5px;color:var(--accent);margin:2px 0 10px;font-weight:500}
+.genre dl{display:grid;grid-template-columns:78px 1fr;gap:4px 10px;margin:0;font-size:13.5px}
+.genre dt{color:var(--muted)}
+.genre dd{margin:0}
+.meter{display:inline-flex;gap:3px;vertical-align:middle}
+.meter i{width:12px;height:6px;border-radius:2px;background:var(--border)}
+.meter i.on{background:var(--accent)}
+
+/* ladder */
+.ladder{display:grid;gap:10px}
+.step{display:grid;grid-template-columns:72px 1fr;gap:14px;align-items:stretch}
+.step .lv{border-radius:12px;display:grid;place-items:center;color:#fff;font-weight:900;font-size:18px}
+.step .body{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 16px}
+.step .body b{font-size:15px}
+.step .body p{margin:2px 0 0;font-size:13.5px;color:var(--muted)}
+.step .body .ex{font-size:13px;color:var(--text);margin-top:6px}
+
+/* arc */
+.arc{display:flex;border-radius:12px;overflow:hidden;font-size:13px;border:1px solid var(--border)}
+.arc div{padding:12px 12px;background:var(--surface)}
+.arc div+div{border-left:1px solid var(--border)}
+.arc b{display:block;font-size:13.5px}
+.arc .t{font-size:11.5px;color:var(--accent);font-weight:700}
+@media (max-width:700px){.arc{flex-direction:column}.arc div{flex:auto!important}.arc div+div{border-left:none;border-top:1px solid var(--border)}}
+
+/* seeds */
+.seed{display:flex;gap:12px;align-items:flex-start}
+.seed .em{flex:0 0 42px;height:42px;border-radius:12px;background:var(--surface-2);display:grid;place-items:center;font-size:20px}
+.seed h4{margin:0;font-size:15px}
+.seed p{margin:2px 0 0;font-size:13.5px;color:var(--muted)}
+.seed .tags{margin-top:6px}
+
+/* directions */
+.dir{padding:0;overflow:hidden;display:flex;flex-direction:column}
+.dir svg{display:block;width:100%;height:auto}
+.dir .in{padding:16px 18px 18px}
+.dir .code{font-weight:900;font-size:12px;letter-spacing:.1em}
+.dir h4{margin:2px 0 4px;font-size:18px;font-family:"Noto Serif KR",serif}
+.dir .pitch{font-size:14px;margin:0 0 10px}
+.dir dl{display:grid;grid-template-columns:70px 1fr;gap:5px 10px;margin:0;font-size:13.3px}
+.dir dt{color:var(--muted)}
+.dir dd{margin:0}
+.dir .pc{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;font-size:12.8px}
+.dir .pc div{background:var(--surface-2);border-radius:8px;padding:8px 10px}
+.dir .pc b{display:block;font-size:12px}
+
+/* map */
+.map svg{width:100%;height:auto;display:block}
+.map .ax{stroke:var(--border);stroke-width:1.5}
+.map .quad{fill:var(--muted);font-size:13px;font-family:"Noto Sans KR",sans-serif}
+.map .axl{fill:var(--text);font-size:13px;font-weight:700;font-family:"Noto Sans KR",sans-serif}
+.map .dot text{fill:var(--text);font-size:13px;font-weight:700;font-family:"Noto Sans KR",sans-serif}
+.map .bg{fill:var(--surface-2)}
+
+/* persona */
+.persona h4{margin:0 0 2px;font-size:15px}
+.persona .ctx{font-size:12.5px;color:var(--accent);font-weight:700}
+.persona ul{margin:8px 0 0;padding-left:18px;font-size:13.5px;color:var(--muted)}
+
+/* tone */
+.tone{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.tone .card{padding:0;overflow:hidden}
+.tone .sw{display:flex;height:56px}
+.tone .sw span{flex:1}
+.tone .t{padding:10px 14px 12px}
+.tone .t b{font-size:14.5px}
+.tone .t p{margin:2px 0 0;font-size:12.8px;color:var(--muted)}
+
+/* weight tool */
+.tool{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:20px}
+@media (max-width:780px){.tool{grid-template-columns:1fr}}
+.sl{display:grid;grid-template-columns:1fr 120px 22px;gap:10px;align-items:center;font-size:13.5px;padding:5px 0}
+.sl input{width:100%;accent-color:var(--accent)}
+.sl output{font-weight:700;text-align:right}
+.res .row{display:grid;grid-template-columns:150px 1fr 48px;gap:10px;align-items:center;font-size:13.5px;padding:6px 0}
+.res .track{height:14px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.res .fill{height:100%;border-radius:99px;transition:width .3s}
+.res .v{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+@media (max-width:480px){.res .row{grid-template-columns:96px 1fr 40px}}
+
+/* checklist */
+ol.qs{margin:0;padding-left:22px}
+ol.qs li{padding:6px 0;border-bottom:1px dashed var(--border);font-size:14.5px}
+ol.qs li:last-child{border-bottom:none}
+ol.qs li span{display:block;font-size:13px;color:var(--muted)}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;counter-reset:s}
+.steps .card{padding:14px 16px;position:relative}
+.steps .card::before{counter-increment:s;content:"STEP " counter(s);font-size:11.5px;font-weight:700;color:var(--accent);letter-spacing:.08em}
+.steps .card h4{margin:2px 0 4px;font-size:14.5px}
+.steps .card p{margin:0;font-size:13px;color:var(--muted)}
+.fill-in{font-family:"Noto Serif KR",serif;font-size:17px;line-height:2;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px 22px}
+.fill-in u{text-decoration:none;border-bottom:2px solid var(--accent);padding:0 6px;color:var(--accent)}
+footer{padding:48px 0 64px;color:var(--muted);font-size:13px;text-align:center}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <button class="theme-btn" id="themeBtn" type="button">테마 전환</button>
+  <div class="wrap">
+    <div class="eyebrow">GAME DIRECTION EXPLORATION</div>
+    <h1>3분 미니게임,<br>어떤 게임으로 만들 것인가</h1>
+    <p>장르를 고르고, 이야기를 얼마나 넣을지 정하고, 누구를 위한 게임인지 자리를 잡기 위한 탐구 자료입니다. 정답을 정해 두지 않았습니다. 후보와 판단 기준을 펼쳐 놓았으니 비교해 보고 골라서 조합하세요.</p>
+    <div class="meta">
+      <div>작성일 <b>2026-11-09</b></div>
+      <div>단계 <b>방향성 탐구 (구현 전)</b></div>
+      <div>고정 조건 <b>3~5분 · 웹/오프라인 · 로컬 랭킹 · 닉네임</b></div>
+    </div>
+  </div>
+</header>
+
+<nav class="toc"><div class="wrap">
+  <a href="#cons">1. 조건이 주는 힌트</a><a href="#axes">2. 방향 축</a><a href="#genre">3. 장르 후보</a><a href="#story">4. 시나리오 구성</a>
+  <a href="#position">5. 포지셔닝</a><a href="#dirs">6. 방향 조합 예시</a><a href="#tool">7. 비교 도구</a><a href="#ref">8. 레퍼런스</a><a href="#next">9. 결정 질문</a>
+</div></nav>
+
+<main class="wrap">
+
+<!-- 1 -->
+<section id="cons">
+  <h2><span class="no">01</span>고정 조건이 방향에 주는 힌트</h2>
+  <p class="lead">네 가지 조건은 제약이기도 하지만 게임의 성격을 꽤 많이 정해 줍니다. 장르를 고르기 전에 이 조건들이 무엇을 요구하는지 먼저 읽어 봅니다.</p>
+  <div class="grid g4">
+    <div class="card cons"><h4>⏱ 3~5분 플레이</h4><p>한 판이 끝나는 장치가 반드시 있어야 합니다.</p><div class="arrow">→ 방향에 주는 의미</div><p>고정 타이머, 목숨제, 정해진 스테이지 수 중 하나를 골라야 합니다. 설명이 길면 안 되므로 <b>첫 10초 안에 규칙을 이해</b>할 수 있어야 합니다.</p></div>
+    <div class="card cons"><h4>🌐 웹 · 오프라인</h4><p>서버 없이 정적 파일로 돌아갑니다.</p><div class="arrow">→ 방향에 주는 의미</div><p>에셋 용량이 작을수록 좋고, 음원은 라이선스가 확실해야 합니다. PC 마우스와 모바일 터치를 <b>같은 조작 방식</b>으로 처리할 수 있는 장르가 유리합니다.</p></div>
+    <div class="card cons"><h4>🏆 로컬 랭킹</h4><p>같은 기기·브라우저 안에서만 순위가 공유됩니다.</p><div class="arrow">→ 방향에 주는 의미</div><p>약점이 아니라 <b>포지션 힌트</b>입니다. 행사 부스, 교실, 가족 태블릿처럼 <b>기기 하나를 여러 명이 돌려 쓰는</b> 상황에 잘 맞습니다. 점수가 운보다 실력을 반영해야 경쟁이 성립합니다.</p></div>
+    <div class="card cons"><h4>✏️ 닉네임 입력</h4><p>플레이어가 자기 이름을 남깁니다.</p><div class="arrow">→ 방향에 주는 의미</div><p>닉네임을 <b>주인공 이름</b>으로 시나리오에 넣을 수 있습니다. "PHANTOM 대원은 산소 12%를 남기고 귀환했다"처럼 결과 화면을 이야기로 만들 수 있습니다.</p></div>
+  </div>
+</section>
+
+<!-- 2 -->
+<section id="axes">
+  <h2><span class="no">02</span>방향을 정하는 6개의 축</h2>
+  <p class="lead">장르 이름보다 먼저, 만들고 싶은 경험이 각 축의 어느 쪽에 가까운지 정해 두면 후보가 자연스럽게 좁혀집니다. 어느 쪽이 정답인 축은 없습니다.</p>
+  <div class="card">
+    <div class="axis"><div class="l">반사신경</div><div class="bar"></div><div class="r">사고력</div><div class="hint">손이 빨라야 하는가, 머리를 써야 하는가</div></div>
+    <div class="axis"><div class="l">실력</div><div class="bar"></div><div class="r">운</div><div class="hint">점수 차이가 플레이어 실력을 얼마나 반영하는가 (랭킹 경쟁에서는 실력 쪽이 유리)</div></div>
+    <div class="axis"><div class="l">긴장감</div><div class="bar"></div><div class="r">편안함</div><div class="hint">심장이 뛰는 3분인가, 쉬어 가는 3분인가</div></div>
+    <div class="axis"><div class="l">게임성</div><div class="bar"></div><div class="r">이야기</div><div class="hint">규칙 자체가 재미인가, 이야기와 세계관이 끌고 가는가</div></div>
+    <div class="axis"><div class="l">혼자 기록 갱신</div><div class="bar"></div><div class="r">남과 경쟁</div><div class="hint">어제의 나와 겨루는가, 옆 사람과 겨루는가</div></div>
+    <div class="axis"><div class="l">매판 동일</div><div class="bar"></div><div class="r">매판 랜덤</div><div class="hint">같은 패턴을 외워서 잘하는가, 매번 새 상황에 대응하는가</div></div>
+  </div>
+  <div class="callout"><b>활용 팁</b><p>축마다 원하는 쪽에 점을 찍어 보세요. 찍은 결과가 3장 장르 후보 중 어디에 가까운지 비교하면 됩니다. 예를 들어 "실력 · 긴장감 · 남과 경쟁" 쪽이라면 아케이드 계열이, "사고력 · 이야기"라면 추리·퍼즐 계열이 맞습니다.</p></div>
+</section>
+
+<!-- 3 -->
+<section id="genre">
+  <h2><span class="no">03</span>장르 후보 8가지</h2>
+  <p class="lead">3~5분 안에 끝나고 점수로 순위를 매길 수 있는 장르만 추렸습니다. 막대는 많을수록 해당 항목에 유리하다는 뜻이고, 개발 규모는 막대가 적을수록 작습니다.</p>
+  <div class="grid g3" id="genreGrid"></div>
+</section>
+
+<!-- 4 -->
+<section id="story">
+  <h2><span class="no">04</span>시나리오 구성</h2>
+  <p class="lead">3분짜리 게임에 이야기를 넣는 방법은 "얼마나 넣을지(강도)"와 "어디에 넣을지(배치)" 두 가지로 나눠 생각하면 쉽습니다.</p>
+
+  <h3>① 이야기 강도 5단계</h3>
+  <div class="ladder">
+    <div class="step"><div class="lv" style="background:#9a9284">L0</div><div class="body"><b>추상</b><p>이야기가 없습니다. 도형과 규칙만으로 재미를 만듭니다.</p><div class="ex">예: 색깔 블록 병합 퍼즐. 개발 부담이 가장 작고 순수하게 실력 경쟁이 됩니다.</div></div></div>
+    <div class="step"><div class="lv" style="background:#8a7a5a">L1</div><div class="body"><b>세계관 입히기</b><p>규칙은 그대로 두고 소재와 그림만 이야기처럼 입힙니다.</p><div class="ex">예: 블록 대신 "물약 재료", 점수 대신 "명성". 적은 비용으로 분위기가 확 달라집니다.</div></div></div>
+    <div class="step"><div class="lv" style="background:#b3683a">L2</div><div class="body"><b>액자 이야기</b><p>시작 전 10초 도입부와 끝난 뒤 결말 문장으로 플레이를 감쌉니다.</p><div class="ex">예: "마감 3분 전, 손님이 몰려온다" → 플레이 → "오늘 매출 12만 원. 점장님이 웃었다."</div></div></div>
+    <div class="step"><div class="lv" style="background:#d2552d">L3</div><div class="body"><b>점수별 결말 분기</b><p>점수 구간마다 다른 결말과 칭호를 보여 줍니다. 랭킹과 이야기가 직접 연결됩니다.</p><div class="ex">예: 3,000점 미만 "견습생" 결말, 10,000점 이상 "전설의 연금술사" 결말. 다음 결말이 궁금해서 다시 하게 됩니다.</div></div></div>
+    <div class="step"><div class="lv" style="background:#a83a1e">L4</div><div class="body"><b>누적 이야기</b><p>플레이할수록 이야기 조각이 열립니다. 판은 3분이지만 이야기는 여러 판에 걸쳐 이어집니다.</p><div class="ex">예: 누적 10판마다 사건 파일 한 장 공개. 오래 붙잡아 두지만 기록 저장 구조가 복잡해집니다.</div></div></div>
+  </div>
+  <div class="callout"><b>추천 범위</b><p>3~5분 게임에서는 <b>L1~L3</b>이 비용 대비 효과가 가장 좋습니다. 특히 L3은 랭킹 기능과 자연스럽게 맞물려서, 점수가 높을수록 더 좋은 결말을 보는 구조가 동기를 만들어 줍니다.</p></div>
+
+  <h3>② 3분 이야기 배치 (압축 3막 구조)</h3>
+  <div class="arc">
+    <div style="flex:.7"><span class="t">0:00 – 0:10</span><b>도입</b>상황 한 문장 + 목표 한 문장. 닉네임이 주인공으로 등장합니다.</div>
+    <div style="flex:1.3"><span class="t">0:10 – 1:00</span><b>1막 · 적응</b>쉬운 난이도로 규칙을 몸으로 익힙니다. 이야기는 HUD 문구로만 흘립니다.</div>
+    <div style="flex:1.3"><span class="t">1:00 – 2:00</span><b>2막 · 위기</b>사건이 터집니다(정전, 단체 손님, 폭풍). 난이도가 오르는 이유를 이야기로 설명합니다.</div>
+    <div style="flex:1"><span class="t">2:00 – 2:50</span><b>클라이맥스</b>마지막 고비. 위험이 크지만 보상도 큰 구간입니다.</div>
+    <div style="flex:1"><span class="t">종료 후</span><b>결말 · 칭호</b>점수 구간별 결말 문장과 칭호를 보여 주고 랭킹에 함께 표시합니다.</div>
+  </div>
+
+  <h3>③ 시나리오 씨앗 10개</h3>
+  <p class="q">게임 규칙과 바로 연결되는 상황 위주로 골랐습니다. 장르와 자유롭게 섞어 써도 됩니다.</p>
+  <div class="grid g2" style="margin-top:12px">
+    <div class="card seed"><div class="em">🏪</div><div><h4>마감 3분 전 편의점</h4><p>퇴근 직전 손님이 몰려듭니다. 계산, 진열, 전자레인지를 동시에 처리합니다.</p><div class="tags"><span class="pill">경영 러시</span><span class="pill">유머·일상</span></div></div></div>
+    <div class="card seed"><div class="em">🚀</div><div><h4>산소 180초</h4><p>고장 난 우주선에서 탈출 캡슐까지 남은 산소는 3분 분량입니다. 잔해를 피하며 산소통을 모읍니다.</p><div class="tags"><span class="pill">회피 아케이드</span><span class="pill">SF·긴장</span></div></div></div>
+    <div class="card seed"><div class="em">📚</div><div><h4>시험 전날 벼락치기</h4><p>내일이 시험입니다. 쏟아지는 핵심 단어를 3분 안에 머리에 넣어야 합니다.</p><div class="tags"><span class="pill">타이핑·퀴즈</span><span class="pill">학교·공감</span></div></div></div>
+    <div class="card seed"><div class="em">🗼</div><div><h4>등대지기의 밤</h4><p>폭풍 치는 밤, 불빛 타이밍을 맞춰 배들을 항구로 이끕니다.</p><div class="tags"><span class="pill">원버튼 타이밍</span><span class="pill">서정·코지</span></div></div></div>
+    <div class="card seed"><div class="em">🔍</div><div><h4>3분 탐정</h4><p>용의자가 기차를 타기 전, 흩어진 단서를 짝지어 범인을 지목합니다.</p><div class="tags"><span class="pill">추리 타임어택</span><span class="pill">누아르</span></div></div></div>
+    <div class="card seed"><div class="em">🧪</div><div><h4>마법학교 실기 시험</h4><p>재료를 합쳐 더 높은 등급의 물약을 만듭니다. 시험관이 지켜보고 있습니다.</p><div class="tags"><span class="pill">병합 퍼즐</span><span class="pill">판타지</span></div></div></div>
+    <div class="card seed"><div class="em">⚡</div><div><h4>정전된 도시</h4><p>복구 기사가 되어 끊어진 전선을 이어 동네에 불을 다시 켭니다.</p><div class="tags"><span class="pill">경로 퍼즐</span><span class="pill">도시·따뜻함</span></div></div></div>
+    <div class="card seed"><div class="em">🐈</div><div><h4>고양이 카페 러시</h4><p>손님과 고양이를 동시에 돌봅니다. 고양이는 말을 듣지 않습니다.</p><div class="tags"><span class="pill">경영 러시</span><span class="pill">귀여움</span></div></div></div>
+    <div class="card seed"><div class="em">🎪</div><div><h4>서커스 마지막 공연</h4><p>폐업 전 마지막 무대. 종목이 몇 초마다 바뀌는 마이크로게임 메들리입니다.</p><div class="tags"><span class="pill">마이크로게임</span><span class="pill">B급 유머</span></div></div></div>
+    <div class="card seed"><div class="em">🌱</div><div><h4>3분 정원</h4><p>계절이 30초마다 바뀌는 정원에서 물과 햇빛을 배분해 꽃을 피웁니다.</p><div class="tags"><span class="pill">자원 배분</span><span class="pill">힐링</span></div></div></div>
+  </div>
+</section>
+
+<!-- 5 -->
+<section id="position">
+  <h2><span class="no">05</span>포지셔닝</h2>
+  <p class="lead">누가, 어디서, 왜 이 3분을 쓰는지 정하는 단계입니다. 같은 장르라도 포지션에 따라 난이도, 톤, 결과 화면의 말투가 달라집니다.</p>
+
+  <h3>① 플레이 상황(페르소나)</h3>
+  <div class="grid g4">
+    <div class="card persona"><div class="ctx">혼자 · 모바일</div><h4>출퇴근길 짬 게이머</h4><ul><li>한 손 조작, 소리 없이도 플레이 가능해야 함</li><li>동기: 내 최고점 갱신</li><li>필요: 빠른 재시작, 중간 이탈 대응</li></ul></div>
+    <div class="card persona"><div class="ctx">공용 기기 · 다수</div><h4>행사 부스 방문객</h4><ul><li>처음 보는 게임을 줄 서서 한 번씩 플레이</li><li>동기: 오늘의 1위, 상품</li><li>필요: 설명 없이 이해, 큰 글씨 랭킹 <b>(로컬 랭킹과 가장 잘 맞음)</b></li></ul></div>
+    <div class="card persona"><div class="ctx">공용 PC · 소그룹</div><h4>교실 · 동아리 · 사무실</h4><ul><li>쉬는 시간에 돌아가며 도전</li><li>동기: 친구 이기기, 교육 효과</li><li>필요: 닉네임 구분, 공정한 규칙</li></ul></div>
+    <div class="card persona"><div class="ctx">한 태블릿 · 가족</div><h4>집 거실 파티</h4><ul><li>나이 차가 큰 사람들이 함께 플레이</li><li>동기: 웃음, 가벼운 내기</li><li>필요: 쉬운 시작, 운 요소 약간</li></ul></div>
+  </div>
+
+  <h3>② 포지셔닝 맵</h3>
+  <p class="q">6장의 방향 조합 A~F를 두 축 위에 놓았습니다. 빈 영역은 경쟁이 적은 자리일 수도 있고, 수요가 없는 자리일 수도 있습니다.</p>
+  <div class="card map" style="margin-top:12px">
+    <svg viewBox="0 0 720 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="방향 조합 포지셔닝 맵">
+      <rect class="bg" x="60" y="20" width="620" height="350" rx="10" opacity=".5"/>
+      <line class="ax" x1="370" y1="20" x2="370" y2="370"/>
+      <line class="ax" x1="60" y1="195" x2="680" y2="195"/>
+      <text class="quad" x="76" y="44">감성 · 분위기형</text>
+      <text class="quad" x="664" y="44" text-anchor="end">이야기 몰입 도전형</text>
+      <text class="quad" x="76" y="358">가볍게 즐기는 캐주얼형</text>
+      <text class="quad" x="664" y="358" text-anchor="end">순수 점수 경쟁형</text>
+      <text class="axl" x="60" y="396">← 누구나 가볍게</text>
+      <text class="axl" x="680" y="396" text-anchor="end">실력 경쟁 →</text>
+      <text class="axl" x="40" y="110" text-anchor="middle" transform="rotate(-90 40 110)">이야기 중심 →</text>
+      <text class="axl" x="40" y="290" text-anchor="middle" transform="rotate(-90 40 290)">← 게임성 중심</text>
+      <g class="dot" id="mapDots"></g>
+    </svg>
+  </div>
+
+  <h3>③ 톤 &amp; 무드 선택지</h3>
+  <div class="tone">
+    <div class="card"><div class="sw"><span style="background:#0b0f1e"></span><span style="background:#3ef2ff"></span><span style="background:#ff4fd8"></span><span style="background:#ffd84a"></span></div><div class="t"><b>네온 레트로</b><p>빠른 템포, 전자음, 경쟁심. 아케이드·회피 계열과 잘 맞습니다.</p></div></div>
+    <div class="card"><div class="sw"><span style="background:#fbe8d3"></span><span style="background:#f4b6a6"></span><span style="background:#a8d5ba"></span><span style="background:#7a6c5d"></span></div><div class="t"><b>코지 파스텔</b><p>따뜻하고 귀여움. 경영 러시·정원·카페 계열, 전 연령에 맞습니다.</p></div></div>
+    <div class="card"><div class="sw"><span style="background:#ffde00"></span><span style="background:#ff3c3c"></span><span style="background:#111111"></span><span style="background:#ffffff"></span></div><div class="t"><b>B급 유머</b><p>과장된 연출, 엉뚱한 결말 문장. 공유하고 싶어지는 결과 화면을 만들기 좋습니다.</p></div></div>
+    <div class="card"><div class="sw"><span style="background:#1a1a1a"></span><span style="background:#3d3d3d"></span><span style="background:#c9a227"></span><span style="background:#8b1e1e"></span></div><div class="t"><b>누아르 미스터리</b><p>긴장감과 몰입. 추리·단서 계열, 텍스트 비중이 높은 게임에 맞습니다.</p></div></div>
+    <div class="card"><div class="sw"><span style="background:#1b2a4a"></span><span style="background:#4a6fa5"></span><span style="background:#f2d16b"></span><span style="background:#e8eef7"></span></div><div class="t"><b>서정 · 밤바다</b><p>잔잔하고 여운이 남습니다. 원버튼·타이밍 계열의 감성형 포지션입니다.</p></div></div>
+    <div class="card"><div class="sw"><span style="background:#2d1b4e"></span><span style="background:#7b4bb7"></span><span style="background:#7bd389"></span><span style="background:#f5c26b"></span></div><div class="t"><b>판타지 동화</b><p>마법, 재료, 수집. 퍼즐·병합 계열에 세계관을 입히기 좋습니다.</p></div></div>
+  </div>
+
+  <h3>④ 포지션 선언문 템플릿</h3>
+  <div class="fill-in">
+    <u>[누가]</u>가 <u>[어떤 상황]</u>에서 <u>[3분]</u> 동안 <u>[어떤 감정]</u>을 느끼는 <u>[장르]</u> 게임.<br>
+    <u>[차별점]</u> 덕분에 <u>[비슷한 게임]</u>과 다르다. 랭킹은 <u>[무엇을 잘했는지]</u>를 증명한다.
+  </div>
+  <p class="q" style="margin-top:10px">작성 예: <b>행사 부스 방문객</b>이 <b>줄 서서 기다리다가</b> 3분 동안 <b>손에 땀을 쥐는</b> 회피 아케이드 게임. <b>닉네임이 주인공이 되는 생존 결말</b> 덕분에 일반 닷지 게임과 다르다. 랭킹은 <b>누가 가장 오래, 많이 살아남았는지</b>를 증명한다.</p>
+</section>
+
+<!-- 6 -->
+<section id="dirs">
+  <h2><span class="no">06</span>방향 조합 예시 6가지</h2>
+  <p class="lead">장르 + 시나리오 + 포지션을 하나로 묶은 예시입니다. 그대로 고르라는 뜻이 아니라, 조합하는 방식을 보여 주는 견본입니다. 이미지는 분위기를 전달하기 위해 이 문서용으로 그린 키 아트 스케치입니다.</p>
+  <div class="grid g3" id="dirGrid"></div>
+</section>
+
+<!-- 7 -->
+<section id="tool">
+  <h2><span class="no">07</span>방향 비교 도구</h2>
+  <p class="lead">본인에게 중요한 기준에 가중치(0~5)를 주면 6개 방향의 적합도가 다시 계산됩니다. 방향별 기준 점수는 이 문서 작성자의 1차 평가이므로 참고용으로만 보세요.</p>
+  <div class="card tool">
+    <div id="sliders"></div>
+    <div class="res" id="results"></div>
+  </div>
+  <div class="tbl-wrap" style="margin-top:16px"><table id="scoreTable"></table></div>
+</section>
+
+<!-- 8 -->
+<section id="ref">
+  <h2><span class="no">08</span>레퍼런스 탐색 가이드</h2>
+  <p class="lead">참고할 만한 기존 게임과 각각에서 관찰할 지점입니다. 저작권 문제로 캡처는 넣지 않았습니다. 직접 플레이하면서 아래 "캡처 체크리스트"에 맞춰 모아 두면 비교 자료가 됩니다.</p>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th style="width:18%">방향</th><th style="width:26%">참고 게임</th><th>관찰 포인트</th></tr></thead>
+    <tbody>
+      <tr><td>회피 아케이드</td><td>Super Hexagon, Geometry Wars</td><td>짧은 판에서 긴장감을 쌓는 속도 곡선. 콤보·배율이 점수 차이를 벌리는 방식</td></tr>
+      <tr><td>경영 러시</td><td>Overcooked, Diner Dash</td><td>동시에 여러 일을 처리하게 만드는 압박 구조. 주문 대기열을 화면에 보여 주는 방식</td></tr>
+      <tr><td>타이핑 · 퀴즈</td><td>The Typing of the Dead, Epistory</td><td>타이핑이라는 단순한 입력에 이야기와 긴장을 입히는 방법</td></tr>
+      <tr><td>원버튼 타이밍</td><td>Flappy Bird, Alto's Adventure</td><td>조작을 극단적으로 줄였을 때의 즉시성(전자). 단순한 조작에 분위기를 입히는 연출(후자)</td></tr>
+      <tr><td>추리 타임어택</td><td>Return of the Obra Dinn, Her Story</td><td>플레이어가 스스로 추론하게 하고 정답을 확인해 주는 구조. 단서를 보여 주는 UI</td></tr>
+      <tr><td>병합 퍼즐</td><td>Threes!, 2048, Suika Game</td><td>규칙 하나로 깊이를 만드는 법. 다음 조각 미리보기가 전략을 만드는 방식</td></tr>
+      <tr><td>마이크로게임</td><td>WarioWare 시리즈</td><td>몇 초짜리 과제를 이어 붙여 템포를 만드는 법. 지시문 한 단어로 규칙을 전달하는 방식</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>캡처 체크리스트 (레퍼런스 게임마다 같은 장면 수집)</h3>
+  <div class="grid g4">
+    <div class="card"><b>① 첫 10초</b><p class="q" style="margin:4px 0 0">규칙을 어떻게 알려 주는가. 텍스트, 애니메이션, 아니면 그냥 해 보게 두는가</p></div>
+    <div class="card"><b>② 플레이 중 HUD</b><p class="q" style="margin:4px 0 0">점수, 시간, 목숨을 어디에 얼마나 크게 두는가</p></div>
+    <div class="card"><b>③ 긴장이 최고인 순간</b><p class="q" style="margin:4px 0 0">어떤 연출로 위기를 알리는가 (색, 소리, 화면 흔들림)</p></div>
+    <div class="card"><b>④ 결과 · 랭킹 화면</b><p class="q" style="margin:4px 0 0">다시 하기 버튼까지 몇 초 걸리는가. "한 판 더"를 어떻게 유도하는가</p></div>
+  </div>
+</section>
+
+<!-- 9 -->
+<section id="next">
+  <h2><span class="no">09</span>방향을 정하기 위한 질문</h2>
+  <p class="lead">아래 질문에 답하다 보면 방향이 2~3개로 좁혀집니다. 답이 막히는 질문이 다음에 탐구할 지점입니다.</p>
+  <div class="grid g2">
+    <div class="card">
+      <ol class="qs">
+        <li>이 게임을 가장 많이 하게 될 사람은 누구인가?<span>5장 페르소나 중 하나를 고르거나 새로 정의</span></li>
+        <li>그 사람은 어디서, 어떤 기기로 하는가?<span>혼자 폰 vs 공용 PC·태블릿에 따라 랭킹 의미가 달라짐</span></li>
+        <li>3분이 끝났을 때 어떤 감정이 남아야 하는가?<span>짜릿함 / 뿌듯함 / 웃음 / 여운</span></li>
+        <li>랭킹 1위는 무엇을 잘한 사람인가?<span>반응속도, 판단력, 지식, 끈기 중 무엇을 증명하는가</span></li>
+        <li>이야기는 몇 단계(L0~L4)까지 넣을 것인가?<span>L3 이상이면 결말 문장 작성량이 늘어남</span></li>
+      </ol>
+    </div>
+    <div class="card">
+      <ol class="qs" start="6">
+        <li>다른 게임에는 없는 한 가지는 무엇인가?<span>소재, 조작, 결말, 톤 중 하나만 확실해도 충분</span></li>
+        <li>처음 하는 사람이 설명 없이 10초 안에 이해할 수 있는가?</li>
+        <li>같은 사람이 열 번째 판에도 하고 싶을까?<span>매판 무엇이 달라지는가 (랜덤, 난이도, 결말)</span></li>
+        <li>혼자 만들 수 있는 규모인가?<span>그래픽·사운드·텍스트 중 가장 부담되는 것은 무엇인가</span></li>
+        <li>버릴 수 있는 요소는 무엇인가?<span>3분 게임에서는 덜어 낸 것이 정체성이 되기도 함</span></li>
+      </ol>
+    </div>
+  </div>
+
+  <h3>탐구 다음 단계 제안</h3>
+  <div class="steps">
+    <div class="card"><h4>후보 압축</h4><p>7장 도구와 9장 질문으로 2~3개 방향만 남깁니다.</p></div>
+    <div class="card"><h4>선언문 작성</h4><p>남은 방향마다 5장 템플릿으로 포지션 선언문을 한 문단씩 씁니다.</p></div>
+    <div class="card"><h4>종이 프로토타입</h4><p>종이나 화이트보드로 30초 분량의 규칙을 직접 돌려 봅니다.</p></div>
+    <div class="card"><h4>3명에게 설명</h4><p>한 줄 피치만 듣고 "해 보고 싶다"가 나오는 방향을 찾습니다.</p></div>
+    <div class="card"><h4>최종 선택</h4><p>하나를 고른 뒤 그때 기술 설계와 개발 계획을 세웁니다.</p></div>
+  </div>
+</section>
+
+</main>
+
+<footer class="wrap">미니게임 방향성 탐구 자료 · 2026-11-09 · 키 아트는 모두 이 문서용 스케치이며 참고 게임 이름은 관찰 목적으로만 적었습니다</footer>
+
+<script>
+(function(){
+  var root=document.documentElement;
+  document.getElementById('themeBtn').addEventListener('click',function(){
+    var cur=root.getAttribute('data-theme');
+    var dark=cur?cur==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
+    root.setAttribute('data-theme',dark?'light':'dark');
+  });
+
+  function meter(n){var s='<span class="meter">';for(var i=0;i<5;i++)s+='<i class="'+(i<n?'on':'')+'"></i>';return s+'</span>'}
+
+  // ---------- genres ----------
+  var genres=[
+    {n:'회피 · 수집 아케이드',f:'피하면서 모으는 짜릿함',len:5,skill:5,story:3,dev:2,risk:'흔한 장르라서 소재나 연출로 차별점을 만들어야 함',ex:'산소 180초, 유성 피하기'},
+    {n:'경영 러시',f:'밀려드는 일을 쳐내는 쾌감',len:5,skill:4,story:4,dev:3,risk:'UI가 복잡해지기 쉬움. 작은 모바일 화면에서 터치 영역이 부족함',ex:'편의점 마감, 고양이 카페'},
+    {n:'타이핑 · 퀴즈 타임어택',f:'아는 만큼 빨라지는 성취감',len:5,skill:3,story:3,dev:2,risk:'모바일 키보드 입력이 불편함. 문제 은행을 만드는 데 시간이 듦',ex:'시험 전날 벼락치기'},
+    {n:'원버튼 타이밍',f:'단순한 조작에 몰입하는 리듬',len:4,skill:4,story:3,dev:1,risk:'깊이가 얕아 보일 수 있음. 분위기 연출이 성패를 가름',ex:'등대지기의 밤'},
+    {n:'병합 · 매치 퍼즐',f:'한 수 앞을 읽는 사고의 재미',len:4,skill:4,story:3,dev:3,risk:'3분 안에 실력 차이가 충분히 벌어지도록 템포 조정이 필요',ex:'마법학교 물약 시험'},
+    {n:'추리 · 단서 타임어택',f:'"알았다!" 하는 깨달음',len:3,skill:3,story:5,dev:4,risk:'한 번 풀면 답을 알게 되므로 사건을 여러 개 만들거나 무작위로 조합해야 함',ex:'3분 탐정'},
+    {n:'마이크로게임 메들리',f:'몇 초마다 바뀌는 혼돈과 웃음',len:5,skill:3,story:3,dev:4,risk:'미니게임을 많이 만들어야 해서 작업량이 큼',ex:'서커스 마지막 공연'},
+    {n:'자원 배분 시뮬',f:'선택이 결과로 이어지는 납득감',len:4,skill:3,story:4,dev:3,risk:'효과가 늦게 나타나서 초반이 지루할 수 있음',ex:'3분 정원, 정전된 도시'}
+  ];
+  document.getElementById('genreGrid').innerHTML=genres.map(function(g){
+    return '<div class="card genre"><h4>'+g.n+'</h4><div class="fun">핵심 재미 · '+g.f+'</div><dl>'+
+      '<dt>3분 적합</dt><dd>'+meter(g.len)+'</dd>'+
+      '<dt>실력 반영</dt><dd>'+meter(g.skill)+'</dd>'+
+      '<dt>이야기 결합</dt><dd>'+meter(g.story)+'</dd>'+
+      '<dt>개발 규모</dt><dd>'+meter(g.dev)+'</dd>'+
+      '<dt>예시 소재</dt><dd>'+g.ex+'</dd>'+
+      '<dt>주의점</dt><dd style="color:var(--muted)">'+g.risk+'</dd></dl></div>';
+  }).join('');
+
+  // ---------- directions ----------
+  var art={
+    A:'<svg viewBox="0 0 320 170" xmlns="http://www.w3.org/2000/svg"><rect width="320" height="170" fill="#0b1026"/><g fill="#fff" opacity=".6"><circle cx="30" cy="20" r="1"/><circle cx="90" cy="60" r="1"/><circle cx="250" cy="30" r="1.2"/><circle cx="290" cy="120" r="1"/><circle cx="150" cy="140" r="1"/><circle cx="200" cy="80" r=".8"/></g><circle cx="270" cy="150" r="60" fill="#1f3a6e" opacity=".6"/><g fill="#ff5a5a"><polygon points="60,40 74,46 70,60 56,58"/><polygon points="210,50 224,54 220,68 206,64"/><polygon points="120,110 136,114 130,130 116,124"/></g><circle cx="160" cy="80" r="14" fill="#e8eef7"/><circle cx="163" cy="78" r="7" fill="#3ef2ff"/><rect x="186" y="96" width="10" height="16" rx="3" fill="#7be3a0"/><rect x="16" y="150" width="140" height="8" rx="4" fill="#1b2142"/><rect x="16" y="150" width="62" height="8" rx="4" fill="#3ef2ff"/><text x="16" y="144" font-size="10" fill="#9aa2c7" font-family="sans-serif">O₂ 44%</text></svg>',
+    B:'<svg viewBox="0 0 320 170" xmlns="http://www.w3.org/2000/svg"><rect width="320" height="170" fill="#fbe8d3"/><rect x="0" y="0" width="320" height="56" fill="#f4b6a6"/><rect x="20" y="12" width="70" height="30" rx="4" fill="#fff"/><text x="55" y="33" text-anchor="middle" font-size="15" font-weight="700" fill="#d2552d" font-family="monospace">23:57</text><g fill="#7a6c5d"><rect x="120" y="14" width="40" height="34" rx="3" opacity=".3"/><rect x="170" y="14" width="40" height="34" rx="3" opacity=".3"/><rect x="220" y="14" width="40" height="34" rx="3" opacity=".3"/></g><rect x="0" y="118" width="320" height="52" fill="#a07a5a"/><rect x="40" y="104" width="70" height="16" rx="3" fill="#7a6c5d"/><g><circle cx="170" cy="90" r="14" fill="#f2c69b"/><rect x="156" y="104" width="28" height="20" rx="6" fill="#4a90c2"/><circle cx="215" cy="92" r="13" fill="#e0b088"/><rect x="202" y="105" width="26" height="18" rx="6" fill="#a8d5ba"/><circle cx="258" cy="94" r="12" fill="#f2c69b"/><rect x="246" y="106" width="24" height="16" rx="6" fill="#d2552d"/><circle cx="296" cy="96" r="11" fill="#e0b088"/><rect x="285" y="107" width="22" height="15" rx="6" fill="#7a5cc2"/></g><g fill="#fff"><rect x="150" y="62" width="40" height="16" rx="8"/></g><text x="170" y="74" text-anchor="middle" font-size="10" fill="#d2552d" font-family="sans-serif">!!</text></svg>',
+    C:'<svg viewBox="0 0 320 170" xmlns="http://www.w3.org/2000/svg"><rect width="320" height="170" fill="#2a2440"/><polygon points="230,0 280,0 320,170 150,170" fill="#f5e6a8" opacity=".12"/><rect x="0" y="130" width="320" height="40" fill="#3b3354"/><rect x="60" y="112" width="120" height="22" rx="2" fill="#efe6d2"/><line x1="120" y1="112" x2="120" y2="134" stroke="#c9bda5"/><g font-family="sans-serif" font-weight="700"><text x="40" y="40" font-size="14" fill="#a98af0">광합성</text><text x="150" y="28" font-size="12" fill="#f5c26b">미토콘드리아</text><text x="90" y="74" font-size="13" fill="#7bd389">삼권분립</text><text x="210" y="62" font-size="15" fill="#ff8a5c">E=mc²</text></g><rect x="240" y="96" width="56" height="26" rx="5" fill="#d2552d"/><text x="268" y="114" text-anchor="middle" font-size="13" font-weight="900" fill="#fff" font-family="sans-serif">D-1</text></svg>',
+    D:'<svg viewBox="0 0 320 170" xmlns="http://www.w3.org/2000/svg"><rect width="320" height="170" fill="#1b2a4a"/><polygon points="78,52 320,10 320,96" fill="#f2d16b" opacity=".18"/><path d="M0 120 Q40 110 80 120 T160 120 T240 120 T320 120 V170 H0z" fill="#22385e"/><path d="M0 134 Q40 126 80 134 T160 134 T240 134 T320 134 V170 H0z" fill="#2b4774"/><rect x="66" y="56" width="22" height="70" fill="#e8eef7"/><rect x="66" y="74" width="22" height="8" fill="#d2552d"/><rect x="66" y="98" width="22" height="8" fill="#d2552d"/><rect x="62" y="44" width="30" height="14" fill="#f2d16b"/><polygon points="60,44 94,44 77,32" fill="#4a6fa5"/><g fill="#e8eef7"><path d="M200 116 h34 l-6 8 h-22z"/><rect x="215" y="100" width="2" height="16"/><path d="M217 100 l10 12 h-10z" opacity=".8"/><path d="M262 108 h24 l-4 6 h-16z" opacity=".7"/></g><g fill="#fff" opacity=".7"><circle cx="150" cy="20" r="1"/><circle cx="40" cy="16" r="1"/><circle cx="120" cy="40" r=".8"/></g></svg>',
+    E:'<svg viewBox="0 0 320 170" xmlns="http://www.w3.org/2000/svg"><rect width="320" height="170" fill="#1a1a1a"/><rect x="20" y="20" width="280" height="130" fill="#3d2f22"/><g><rect x="40" y="34" width="56" height="44" fill="#e8dcc0" transform="rotate(-4 68 56)"/><rect x="132" y="30" width="56" height="44" fill="#e8dcc0" transform="rotate(3 160 52)"/><rect x="224" y="38" width="56" height="44" fill="#e8dcc0" transform="rotate(-2 252 60)"/><rect x="84" y="94" width="56" height="44" fill="#e8dcc0" transform="rotate(5 112 116)"/><rect x="184" y="96" width="56" height="44" fill="#e8dcc0" transform="rotate(-5 212 118)"/></g><g stroke="#c0392b" stroke-width="1.5" fill="none"><path d="M68 56 L160 52 L252 60"/><path d="M160 52 L112 116 L212 118"/></g><g fill="#c0392b"><circle cx="68" cy="56" r="3"/><circle cx="160" cy="52" r="3"/><circle cx="252" cy="60" r="3"/><circle cx="112" cy="116" r="3"/><circle cx="212" cy="118" r="3"/></g><circle cx="250" cy="122" r="18" fill="none" stroke="#c9a227" stroke-width="4"/><line x1="263" y1="135" x2="282" y2="154" stroke="#c9a227" stroke-width="6" stroke-linecap="round"/><text x="160" y="57" text-anchor="middle" font-size="18" font-weight="900" fill="#8b1e1e" font-family="serif">?</text></svg>',
+    F:'<svg viewBox="0 0 320 170" xmlns="http://www.w3.org/2000/svg"><rect width="320" height="170" fill="#2d1b4e"/><g fill="#f5c26b" opacity=".7"><circle cx="40" cy="30" r="1.4"/><circle cx="280" cy="24" r="1.4"/><circle cx="250" cy="70" r="1"/><circle cx="70" cy="80" r="1"/></g><path d="M100 96 h120 l-10 56 q-50 14 -100 0z" fill="#3a2a5e"/><ellipse cx="160" cy="96" rx="62" ry="12" fill="#7bd389"/><g><circle cx="128" cy="70" r="10" fill="#7bd389" opacity=".9"/><circle cx="160" cy="54" r="16" fill="#f5c26b" opacity=".9"/><circle cx="196" cy="72" r="8" fill="#ff8a5c" opacity=".9"/><circle cx="150" cy="22" r="22" fill="#a98af0" opacity=".85"/><circle cx="150" cy="22" r="7" fill="#fff" opacity=".5"/></g><g fill="#e8dcc0" font-family="sans-serif" font-size="10"><text x="236" y="120">→ 등급 3</text><text x="236" y="136">→ 등급 4</text></g></svg>'
+  };
+  var dirs=[
+    {k:'A',c:'--c-a',t:'산소 180',p:'고장 난 우주선, 남은 산소 3분. 잔해를 피하며 산소통을 모아 탈출 캡슐까지 버틴다.',
+      g:'회피 · 수집 아케이드',s:'L3 · 남은 산소량에 따라 생환 결말 분기',pos:'행사 부스, 실력 경쟁',tone:'네온 레트로 / SF',
+      score:'생존 시간 + 수집량 × 콤보',title:'견습 대원 → 생존 전문가 → 전설의 귀환자',
+      pro:'즉시 이해되고 실력 차이가 확실히 드러남',con:'흔한 장르라서 연출로 차별화해야 함'},
+    {k:'B',c:'--c-b',t:'편의점 마감 러시',p:'퇴근 3분 전, 몰려드는 손님. 계산·진열·데우기를 동시에 처리해 오늘 매출을 지킨다.',
+      g:'경영 러시',s:'L2~L3 · 점장님의 한마디로 결말',pos:'가족·친구, 전 연령 캐주얼',tone:'코지 파스텔 + B급 유머',
+      score:'매출 + 손님 만족도 보너스',title:'신입 알바 → 에이스 → 전설의 점장',
+      pro:'공감 가는 소재라서 결말 문장이 공유하기 좋음',con:'모바일에서 조작 UI를 설계하기 까다로움'},
+    {k:'C',c:'--c-c',t:'벼락치기',p:'시험 전날 밤. 쏟아지는 핵심 단어를 3분 안에 머리에 넣어라. 다음 날 아침 성적표가 결과다.',
+      g:'타이핑 · 퀴즈 타임어택',s:'L2 · 성적표 형식의 결과 화면',pos:'교실·동아리, 교육 겸용',tone:'밤 공부방 / 유머',
+      score:'정답 수 × 연속 정답 배율',title:'F → B+ → 장학생',
+      pro:'문제 은행만 바꾸면 과목·주제를 확장할 수 있음',con:'모바일 타이핑이 불편해서 선택형 입력이 필요할 수 있음'},
+    {k:'D',c:'--c-d',t:'등대지기의 밤',p:'폭풍 치는 밤, 불빛 타이밍 하나로 배들을 항구로 이끈다. 몇 척을 무사히 돌려보냈는가.',
+      g:'원버튼 타이밍',s:'L2~L3 · 새벽이 오면 귀항한 배 수에 따라 결말',pos:'혼자 모바일, 감성형',tone:'서정 · 밤바다',
+      score:'귀항한 배 수 × 타이밍 정확도',title:'등불 → 등대 → 바다의 별',
+      pro:'개발 규모가 가장 작고 분위기로 차별화하기 좋음',con:'점수 경쟁 요소가 약해 보일 수 있음'},
+    {k:'E',c:'--c-e',t:'3분 탐정',p:'용의자가 기차를 타기까지 3분. 흩어진 단서를 짝지어 범인과 동기를 지목하라.',
+      g:'추리 · 단서 타임어택',s:'L3~L4 · 사건 파일이 누적되며 큰 사건으로 연결',pos:'이야기 몰입, 혼자 · 소그룹',tone:'누아르 미스터리',
+      score:'정답 + 남은 시간 보너스 − 오답 감점',title:'탐정 지망생 → 명탐정 → 전설의 수사관',
+      pro:'독창성이 높고 이야기 결합이 가장 강함',con:'사건 콘텐츠 제작량이 많고 반복 플레이 설계가 어려움'},
+    {k:'F',c:'--c-f',t:'마법학교 실기 시험',p:'시험관 앞에서 3분. 같은 재료를 합쳐 더 높은 등급의 물약을 만들어라.',
+      g:'병합 퍼즐',s:'L1~L3 · 최고 등급 물약에 따라 합격 결말',pos:'퍼즐 애호가, 혼자 기록 갱신',tone:'판타지 동화',
+      score:'완성한 물약 등급 합 + 연쇄 보너스',title:'낙제 → 합격 → 수석 졸업',
+      pro:'규칙 하나로 깊이가 생기고 세계관을 입히기 쉬움',con:'비슷한 병합 게임이 많아 소재 외의 차별점이 필요함'}
+  ];
+  document.getElementById('dirGrid').innerHTML=dirs.map(function(d){
+    return '<div class="card dir">'+art[d.k]+'<div class="in"><div class="code" style="color:var('+d.c+')">DIRECTION '+d.k+'</div><h4>'+d.t+'</h4><p class="pitch">'+d.p+'</p><dl>'+
+      '<dt>장르</dt><dd>'+d.g+'</dd><dt>이야기</dt><dd>'+d.s+'</dd><dt>포지션</dt><dd>'+d.pos+'</dd><dt>톤</dt><dd>'+d.tone+'</dd>'+
+      '<dt>점수</dt><dd>'+d.score+'</dd><dt>칭호</dt><dd>'+d.title+'</dd></dl>'+
+      '<div class="pc"><div><b style="color:var(--ok)">강점</b>'+d.pro+'</div><div><b style="color:var(--warn)">고민</b>'+d.con+'</div></div></div></div>';
+  }).join('');
+
+  // ---------- map ----------
+  var pos={A:[.86,.30],B:[.42,.62],C:[.58,.36],D:[.18,.70],E:[.62,.78],F:[.30,.42]};
+  var g=document.getElementById('mapDots'), html='';
+  dirs.forEach(function(d){
+    var x=60+pos[d.k][0]*620, y=370-pos[d.k][1]*350;
+    html+='<circle cx="'+x+'" cy="'+y+'" r="20" style="fill:var('+d.c+')" opacity=".18"/><circle cx="'+x+'" cy="'+y+'" r="7" style="fill:var('+d.c+')"/><text x="'+(x+12)+'" y="'+(y-10)+'">'+d.k+' · '+d.t+'</text>';
+  });
+  g.innerHTML=html;
+
+  // ---------- weighting tool ----------
+  var crit=[
+    {k:'easy',n:'즉시 이해'},{k:'skill',n:'점수 변별력'},{k:'story',n:'이야기 표현력'},
+    {k:'dev',n:'개발 용이성'},{k:'orig',n:'독창성'},{k:'replay',n:'반복 플레이'},{k:'shared',n:'공용 기기 적합'}
+  ];
+  var sc={
+    A:{easy:5,skill:5,story:3,dev:4,orig:2,replay:4,shared:5},
+    B:{easy:4,skill:4,story:4,dev:3,orig:4,replay:4,shared:4},
+    C:{easy:5,skill:3,story:3,dev:4,orig:3,replay:3,shared:5},
+    D:{easy:5,skill:4,story:4,dev:5,orig:3,replay:3,shared:3},
+    E:{easy:3,skill:3,story:5,dev:2,orig:5,replay:2,shared:2},
+    F:{easy:4,skill:4,story:3,dev:3,orig:3,replay:5,shared:3}
+  };
+  var w={}; crit.forEach(function(c){w[c.k]=3});
+  try{var saved=JSON.parse(localStorage.getItem('dirWeights')||'null'); if(saved) w=Object.assign(w,saved)}catch(e){}
+  var sl=document.getElementById('sliders');
+  sl.innerHTML='<b style="font-size:14px">기준별 가중치</b>'+crit.map(function(c){
+    return '<label class="sl"><span>'+c.n+'</span><input type="range" min="0" max="5" step="1" value="'+w[c.k]+'" data-k="'+c.k+'"><output>'+w[c.k]+'</output></label>';
+  }).join('')+'<button type="button" id="resetW" style="margin-top:8px;font:inherit;font-size:12.5px;background:var(--surface-2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:5px 10px;cursor:pointer">가중치 초기화</button>';
+  function calc(){
+    var tw=0; crit.forEach(function(c){tw+=w[c.k]});
+    var rows=dirs.map(function(d){var s=0;crit.forEach(function(c){s+=sc[d.k][c.k]*w[c.k]});return {d:d,v:tw?s/(tw*5)*100:0}});
+    rows.sort(function(a,b){return b.v-a.v});
+    document.getElementById('results').innerHTML='<b style="font-size:14px;display:block;margin-bottom:6px">적합도 순위</b>'+rows.map(function(r,i){
+      return '<div class="row"><span><b>'+(i+1)+'.</b> '+r.d.k+' · '+r.d.t+'</span><div class="track"><div class="fill" style="width:'+r.v.toFixed(0)+'%;background:var('+r.d.c+')"></div></div><span class="v">'+r.v.toFixed(0)+'</span></div>';
+    }).join('');
+    try{localStorage.setItem('dirWeights',JSON.stringify(w))}catch(e){}
+  }
+  sl.addEventListener('input',function(e){
+    var k=e.target.getAttribute('data-k'); if(!k) return;
+    w[k]=+e.target.value; e.target.nextElementSibling.textContent=e.target.value; calc();
+  });
+  document.getElementById('resetW').addEventListener('click',function(){
+    crit.forEach(function(c){w[c.k]=3});
+    sl.querySelectorAll('input').forEach(function(i){i.value=3;i.nextElementSibling.textContent='3'});
+    calc();
+  });
+  document.getElementById('scoreTable').innerHTML='<thead><tr><th>방향</th>'+crit.map(function(c){return '<th>'+c.n+'</th>'}).join('')+'</tr></thead><tbody>'+
+    dirs.map(function(d){return '<tr><td><b style="color:var('+d.c+')">'+d.k+'</b> '+d.t+'</td>'+crit.map(function(c){return '<td>'+meter(sc[d.k][c.k])+'</td>'}).join('')+'</tr>'}).join('')+'</tbody>';
+  calc();
+})();
+</script>
+</body>
+</html>

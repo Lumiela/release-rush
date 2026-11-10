@@ -1,0 +1,103 @@
+/* 릴리즈 러시 · 게임설명서 / 매뉴얼 공통 스타일 (A4 인쇄용) */
+@page { size: A4; margin: 12mm 12mm 13mm; }
+:root {
+  --ink: #1c2233; --sub: #5b6478; --line: #d9deea; --soft: #f4f6fb;
+  --cyan: #22c6dc; --pink: #ff4fd8; --yellow: #ffcf3a; --red: #e5484d; --green: #2fae74; --navy: #11152a;
+}
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { margin: 0; font-family: "Malgun Gothic", "맑은 고딕", sans-serif; color: var(--ink); font-size: 10pt; line-height: 1.55; background: #fff; }
+h1, h2, h3 { line-height: 1.3; margin: 0; }
+h2 { font-size: 15pt; padding: 0 0 5px; margin: 0 0 10px; border-bottom: 3px solid var(--cyan); display: flex; align-items: baseline; gap: 8px; }
+h2 .no { color: var(--cyan); font-weight: 900; }
+h2 .en { font-size: 8.5pt; color: var(--sub); font-weight: 600; letter-spacing: .08em; margin-left: auto; }
+h3 { font-size: 11pt; margin: 12px 0 6px; padding-left: 8px; border-left: 4px solid var(--pink); }
+p { margin: 0 0 6px; }
+ul { margin: 0 0 6px; padding-left: 17px; } li { margin: 1px 0; }
+section { margin: 0 0 14px; }
+.page { break-before: page; }
+.sub { color: var(--sub); } .small { font-size: 8.6pt; }
+.key { display: inline-block; min-width: 1.6em; padding: 0 .45em; border: 1px solid #aab3c8; border-bottom-width: 2px; border-radius: 4px; background: #fff; font-weight: 800; font-size: .92em; line-height: 1.45; text-align: center; color: #263048; white-space: nowrap; }
+
+/* 표지 띠 */
+.band { background: var(--navy); color: #fff; border-radius: 10px; padding: 18px 24px 15px; position: relative; overflow: hidden; margin-bottom: 12px; }
+.band::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 5px; background: linear-gradient(90deg, var(--cyan), var(--pink), var(--yellow)); }
+.band .kicker { font-size: 8.5pt; letter-spacing: .25em; color: var(--cyan); font-weight: 800; }
+.band h1 { font-size: 28pt; font-weight: 900; margin: 2px 0; }
+.band h1 span { font-size: 15pt; color: var(--yellow); margin-left: 8px; }
+.band .tag { font-size: 10.5pt; color: #cfd6f2; }
+
+/* 그림 */
+figure { margin: 0 0 8px; break-inside: avoid; }
+figure img { display: block; width: 100%; border-radius: 6px; border: 1px solid #2a3150; background: var(--navy); }
+figcaption { font-size: 8.8pt; margin-top: 4px; line-height: 1.45; }
+figcaption b { color: var(--navy); }
+.t { display: inline-block; font-weight: 900; color: #fff; background: var(--navy); border-radius: 3px; padding: 0 6px; margin-right: 5px; font-size: 8.2pt; }
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 9px 12px; }
+.g3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px 10px; }
+.g4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.g3 figcaption, .g4 figcaption { font-size: 8.3pt; }
+.side { display: grid; grid-template-columns: 1.2fr 1fr; gap: 14px; align-items: start; }
+
+/* 숫자 카드 */
+.facts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 10px 0; }
+.fact { background: var(--soft); border: 1px solid var(--line); border-radius: 8px; padding: 8px; text-align: center; }
+.fact b { display: block; font-size: 16pt; font-weight: 900; color: var(--navy); line-height: 1.15; }
+.fact span { font-size: 8.4pt; color: var(--sub); }
+
+/* 흐름 칩: A → B → C */
+.chips { display: flex; flex-wrap: wrap; align-items: center; gap: 5px 4px; margin: 6px 0 10px; font-size: 9.4pt; }
+.chips span { background: var(--navy); color: #fff; border-radius: 5px; padding: 3px 9px; font-weight: 700; }
+.chips span.hl { background: var(--pink); }
+.chips span.ok { background: var(--green); }
+.chips i { font-style: normal; color: var(--cyan); font-weight: 900; }
+
+/* 번호 흐름 썸네일 */
+.flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px 16px; counter-reset: st; }
+.flow figure { position: relative; margin: 0; counter-increment: st; }
+.flow figure::before { content: counter(st); position: absolute; left: -6px; top: -7px; z-index: 2; width: 20px; height: 20px; border-radius: 50%; background: var(--cyan); color: var(--navy); font-weight: 900; font-size: 9pt; line-height: 20px; text-align: center; border: 2px solid #fff; }
+.flow figure:not(:nth-child(4n)):not(:last-child)::after { content: "▶"; position: absolute; right: -14px; top: 26%; color: var(--cyan); font-size: 10pt; }
+.flow figcaption { font-size: 8.5pt; } .flow figcaption b { display: block; font-size: 9pt; }
+
+/* 화면 번호 표시 */
+.anno { position: relative; break-inside: avoid; margin-bottom: 8px; }
+.anno img { display: block; width: 100%; border-radius: 6px; border: 1px solid #2a3150; }
+.pin { position: absolute; width: 21px; height: 21px; margin: -10.5px 0 0 -10.5px; border-radius: 50%; background: var(--pink); color: #fff; font-weight: 900; font-size: 10.5pt; line-height: 21px; text-align: center; border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,.6); }
+.legend { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px 10px; font-size: 8.8pt; }
+.legend div { display: flex; gap: 5px; align-items: baseline; }
+.legend .n { flex: none; width: 17px; height: 17px; border-radius: 50%; background: var(--pink); color: #fff; font-weight: 900; font-size: 8.4pt; line-height: 17px; text-align: center; }
+
+/* 미니게임 카드 */
+.mg { display: grid; grid-template-columns: 1fr 1fr; gap: 9px 12px; }
+.mgc { border: 1px solid var(--line); border-radius: 8px; padding: 7px; break-inside: avoid; }
+.mgc img { display: block; width: 100%; border-radius: 5px; border: 1px solid #2a3150; }
+.mgc h4 { margin: 6px 0 2px; font-size: 10.5pt; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.mgc h4 em { font-style: normal; background: var(--navy); color: var(--yellow); border-radius: 4px; padding: 0 6px; font-size: 9pt; }
+.mgc .tip { font-size: 8.8pt; color: var(--ink); }
+.mgc .tip b { color: #0b7e93; }
+
+/* 표 */
+table { width: 100%; border-collapse: collapse; margin: 0 0 8px; font-size: 9.2pt; }
+th, td { border: 1px solid var(--line); padding: 4px 7px; vertical-align: middle; text-align: left; }
+th { background: var(--soft); font-weight: 800; white-space: nowrap; }
+td.c, th.c { text-align: center; }
+td.big { font-size: 12pt; font-weight: 900; text-align: center; color: var(--navy); }
+td.big.r { color: var(--red); }
+tr { break-inside: avoid; }
+
+.note { background: #fff8de; border: 1px solid #f0dc8c; border-radius: 6px; padding: 6px 10px; font-size: 9pt; margin: 6px 0 8px; break-inside: avoid; }
+.tip2 { background: #e9fbfd; border: 1px solid #a7e6ef; border-radius: 6px; padding: 6px 10px; font-size: 9pt; margin: 6px 0 8px; break-inside: avoid; }
+
+/* 소리 */
+.bgm { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 8px; }
+.bgm div { border: 1px solid var(--line); border-radius: 8px; padding: 7px 9px; font-size: 8.7pt; line-height: 1.45; }
+.bgm b { display: block; font-size: 10.5pt; }
+.bgm .bpm { display: inline-block; background: var(--navy); color: var(--cyan); border-radius: 3px; padding: 0 5px; font-weight: 800; font-size: 8pt; margin: 2px 0 3px; }
+.bgm .m1 { border-top: 4px solid #8a94b8; } .bgm .m2 { border-top: 4px solid var(--cyan); } .bgm .m3 { border-top: 4px solid var(--red); } .bgm .m4 { border-top: 4px solid var(--yellow); }
+.sfx { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; font-size: 8.6pt; }
+.sfx div { border: 1px solid var(--line); border-radius: 6px; padding: 5px 7px; line-height: 1.35; }
+.sfx b { display: block; font-size: 9.2pt; color: var(--navy); }
+
+/* 조작 키 표 */
+.keys td:first-child { width: 22%; font-weight: 800; white-space: nowrap; }
+.keys .key { font-size: 1.05em; }

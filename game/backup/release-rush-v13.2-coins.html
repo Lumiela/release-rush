@@ -1,0 +1,2602 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>릴리즈 러시</title>
+<style>
+html,body{margin:0;height:100%;background:#05060c;overflow:hidden;font-family:"Malgun Gothic","맑은 고딕","Apple SD Gothic Neo",sans-serif;color:#e8ebff;user-select:none}
+#stage{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(100vw,177.78vh);aspect-ratio:16/9;background:#0b0f1e;overflow:hidden}
+#cv{position:absolute;inset:0;width:100%;height:100%;display:block;image-rendering:pixelated}
+#ui{position:absolute;inset:0;pointer-events:none}
+#ui>*{pointer-events:auto}
+.center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.panel{background:rgba(11,15,30,.94);border:.25em solid #3a4378;border-radius:.6em;padding:1.6em 2em;box-shadow:0 0 0 .25em #0b0f1e}
+h2{margin:0 0 .3em;font-size:2.4em;letter-spacing:-.02em}
+.sub{color:#9aa2c7;font-size:1.3em}
+.key{display:inline-block;background:#2d3561;border-radius:.3em;padding:0 .45em;font-weight:700;color:#ffd84a}
+.blink{animation:blink 1s steps(2,start) infinite}
+@keyframes blink{to{visibility:hidden}}
+/* idle */
+.idle{position:absolute;inset:0;display:grid;grid-template-columns:1.15fr 1fr;gap:3em;align-items:center;padding:0 5em}
+.logo{text-shadow:.08em .08em 0 #000,0 0 .6em #05060c}
+.logo .t1{font-size:5.2em;font-weight:900;letter-spacing:.02em;line-height:1;color:#3ef2ff;text-shadow:.08em .08em 0 #ff4fd8}
+.logo .t2{font-size:2.6em;font-weight:900;margin-top:.3em}
+.logo .t3{font-size:1.5em;color:#ffd84a;margin-top:.4em}
+.logo .start{font-size:1.7em;margin-top:2.2em;font-weight:700}
+.logo .howto{font-size:1.15em;color:#9aa2c7;margin-top:1em;line-height:1.7}
+.rank h3{margin:0 0 .5em;font-size:1.8em;color:#ffd84a}
+table.rk{width:100%;border-collapse:collapse;font-size:1.25em}
+table.rk td{padding:.3em .4em;border-bottom:.08em solid #262d55;white-space:nowrap}
+table.rk td.n{color:#9aa2c7;width:2em}
+table.rk td.s{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+table.rk td.b{text-align:right;color:#7be3a0;font-size:.8em;width:4.5em}
+table.rk tr.me td{background:rgba(62,242,255,.15);color:#3ef2ff}
+table.rk tr.top1 td.n{color:#ffd84a}
+.empty{color:#9aa2c7;font-size:1.2em;padding:1em 0}
+.warn{color:#ff8a5c;font-size:1.1em;margin-top:.8em}
+/* nickname */
+.nick input{font:inherit;font-size:2.2em;width:9em;padding:.25em .5em;border-radius:.3em;border:.12em solid #3ef2ff;background:#141933;color:#fff;outline:none;margin:.6em 0 .3em}
+.nick .err{color:#ff8a5c;font-size:1.2em;min-height:1.5em}
+.btn{font:inherit;font-size:1.5em;font-weight:700;background:#3ef2ff;color:#0b0f1e;border:none;border-radius:.4em;padding:.4em 1.2em;cursor:pointer}
+.btn.ghost{background:#2d3561;color:#e8ebff}
+/* cards */
+.picktitle{font-size:2.2em;font-weight:900;margin-bottom:.2em;text-shadow:.06em .06em 0 #000}
+.cards{display:flex;gap:1.6em;margin-top:1.4em}
+.cardc{width:15em;min-height:17em;background:#141933;border:.25em solid #3a4378;border-radius:.6em;padding:1.2em;cursor:pointer;position:relative;transition:transform .08s}
+.cardc:hover,.cardc.sel{border-color:#3ef2ff;transform:translateY(-.4em)}
+.cardc .no{position:absolute;top:.6em;right:.8em;font-size:1.3em;font-weight:900;color:#ffd84a}
+.cardc .tg{display:inline-block;font-size:1em;background:#2d3561;border-radius:.3em;padding:.05em .5em;color:#9aa2c7}
+.cardc .nm{font-size:1.9em;font-weight:900;margin:.5em 0 .4em}
+.cardc .bg{font-size:1.55em;font-weight:900;color:#ffd84a;margin:.1em 0 .45em;line-height:1.3}
+.cardc .ds{font-size:1.15em;color:#c8cff0;line-height:1.5}
+.build{display:flex;flex-wrap:wrap;justify-content:center;gap:.4em .9em;margin-top:1.2em;max-width:62em;font-size:1.15em;background:rgba(11,15,30,.85);border:.15em solid #3a4378;border-radius:.5em;padding:.5em 1em}
+.build i{font-style:normal;color:#9aa2c7}
+.build b{color:#7be3a0}
+.cardc .own{font-size:1.05em;color:#7be3a0;margin-top:.8em}
+.lineup{font-size:1.2em;color:#c8cff0;margin-top:.4em;text-shadow:.06em .06em 0 #000}
+.lineup b{color:#ffd84a}
+.lineup b.cur{color:#3ef2ff}
+.cd{margin-top:1.4em;font-size:1.2em;color:#9aa2c7;text-shadow:.06em .06em 0 #000}
+/* route */
+.routes{display:flex;gap:2em;margin-top:1.4em}
+.rt{width:24em;background:#141933;border:.3em solid #3a4378;border-radius:.6em;padding:1.4em 1.6em;cursor:pointer}
+.rt.safe.sel,.rt.safe:hover{border-color:#5ccfae}
+.rt.risk.sel,.rt.risk:hover{border-color:#ff8a5c}
+.rt .lb{font-size:1.1em;font-weight:700}
+.rt.safe .lb{color:#5ccfae}.rt.risk .lb{color:#ff8a5c}
+.rt .nm{font-size:2.2em;font-weight:900;margin:.2em 0 .3em}
+.rt .cmp{background:#0b0f1e;border-radius:.4em;padding:.4em .7em;margin-bottom:.5em;font-size:1.25em}
+.rt .cmp b{color:#ff8a5c}.rt .cmp b.s{color:#ffd84a}
+.rt .cmp.safe b{color:#5ccfae}.rt .cmp.safe b.s{color:#c8cff0}
+.rt .cmp span{display:block;font-size:.78em;color:#9aa2c7;margin-top:.2em;line-height:1.5}
+.rt .cmp em{font-style:normal;color:#ffffff;font-weight:900}
+.rt ul{margin:0;padding-left:1.2em;font-size:1.3em;line-height:1.7;color:#c8cff0}
+/* roulette */
+.rl{text-align:center;min-width:30em}
+.rl .ch{font-size:1.4em;color:#9aa2c7}
+.rl .spin{font-size:3em;font-weight:900;margin:.5em 0;min-height:1.3em}
+.rl .res{font-size:1.4em;min-height:3em;line-height:1.6}
+.rl.win .spin{color:#ffd84a}
+.rl.lose .spin{color:#9aa2c7}
+/* result */
+.res2{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:44em;background:rgba(11,15,30,.95);border:.3em solid #3ef2ff;border-radius:.8em;padding:1.1em 2.2em 1.2em;text-align:center;box-shadow:0 0 0 .3em #0b0f1e,0 0 2.5em rgba(62,242,255,.25)}
+.res2.fail{border-color:#ff8a5c;box-shadow:0 0 0 .3em #0b0f1e,0 0 2.5em rgba(255,138,92,.25)}
+.res2 .rhead{font-size:1.5em;font-weight:900;letter-spacing:.35em;color:#3ef2ff}
+.res2.fail .rhead{color:#ff8a5c}
+.res2 .rtop{display:flex;align-items:center;justify-content:center;gap:1.4em;margin:.6em 0 .3em}
+.res2 .grade{width:1.6em;height:1.6em;line-height:1.5em;font-size:5em;font-weight:900;border:.08em solid currentColor;border-radius:.18em;text-shadow:.05em .05em 0 #000;animation:stamp .37s cubic-bezier(.2,1.6,.4,1) .33s both}
+@keyframes stamp{from{transform:scale(2.6) rotate(-14deg);opacity:0}to{transform:none;opacity:1}}
+.res2 .rsc{text-align:left}
+.res2 .rlabel{font-size:1.2em;color:#9aa2c7}
+.res2 .rnum{font-size:4.6em;font-weight:900;line-height:1.05;font-variant-numeric:tabular-nums;color:#fff}
+.res2 .rbadge{display:inline-block;background:#ff4fd8;color:#fff;font-weight:900;padding:.1em .6em;border-radius:.3em;font-size:1.15em;margin-top:.2em;letter-spacing:.05em}
+.res2 .rbadge.dim{background:#2d3561;color:#c8cff0;letter-spacing:0}
+.res2 .rbadge.demo{background:#ff4fd8}
+.res2 .rbadge.top{background:#3ef2ff;color:#0b0f1e}
+.res2 .rhon{font-size:2.1em;font-weight:900;color:#ffd84a;margin-top:.35em}
+.res2 .rmsg{font-size:1.25em;color:#c8cff0;margin-top:.1em}
+.res2 .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:.6em;margin:1em 0 .8em}
+.res2 .tile{background:#141933;border:.1em solid #2d3561;border-radius:.5em;padding:.45em .3em .5em}
+.res2 .tile i{display:block;font-style:normal;font-size:1.05em;color:#9aa2c7}
+.res2 .tile b{display:block;font-size:1.9em;font-weight:900;color:#fff;margin-top:.1em}
+.res2 .tile small{font-size:.5em;color:#9aa2c7;margin-left:.2em}
+table.mrk{width:70%;margin:0 auto;border-collapse:collapse;font-size:1.2em}
+table.mrk td{padding:.18em .5em;border-bottom:.08em solid #1e2547;text-align:left}
+table.mrk td.n{width:2em;color:#9aa2c7;font-weight:900}
+table.mrk td.s{text-align:right;font-weight:900;font-variant-numeric:tabular-nums}
+table.mrk tr:first-child td{color:#ffd84a}
+table.mrk tr.me td{background:rgba(62,242,255,.16);color:#3ef2ff}
+table.mrk tr.gap td{text-align:center;color:#9aa2c7;border-bottom:none;padding:0}
+.res2 .ract{margin-top:.9em;font-size:1.3em;color:#9aa2c7}
+#demoBadge{position:absolute;right:1.2%;top:11%;display:none;pointer-events:none;background:rgba(255,79,216,.92);color:#fff;font-weight:900;padding:.35em .9em;border-radius:.3em;font-size:calc(min(100vw,177.78vh)/100*1.3);letter-spacing:.04em;z-index:5}
+#demoBadge span{animation:blink 1s steps(2,start) infinite}
+#toast{position:absolute;right:1.2%;top:1.2%;display:none;z-index:6;pointer-events:none;background:rgba(11,15,30,.95);border:.2em solid #3a4378;border-radius:.5em;padding:.45em 1.2em;font-size:calc(min(100vw,177.78vh)/100*1.35);font-weight:700;color:#fff;white-space:nowrap}
+/* items · shop */
+.cardc.item .tg.tier{color:#0b0f1e;font-weight:700}
+.cardc.t-common .tg.tier{background:#c8cff0}
+.cardc.t-rare{border-color:#5aa8ff}.cardc.t-rare .tg.tier{background:#5aa8ff}
+.cardc.t-legend{border-color:#ffd84a;box-shadow:0 0 1em rgba(255,216,74,.45)}.cardc.t-legend .tg.tier{background:#ffd84a}
+.cardc.item.sel,.cardc.face.sel{border-color:#3ef2ff;transform:translateY(-.4em)}
+.cardc.dim{opacity:.45}
+.cardc.face{display:flex;align-items:center;justify-content:center}
+.cardc.face .q{font-size:7em;font-weight:900;color:#3a4378}
+.price{font-size:1.45em;font-weight:900;color:#7be3a0;margin-top:.3em}
+.price.poor{color:#ff8a8a}
+.actions{display:flex;gap:1em;margin-top:1.1em}
+.actions .btn{font-size:1.15em;padding:.35em .9em}
+.evlast{min-height:1.5em;margin-top:.7em;font-size:1.3em;font-weight:700;text-shadow:.06em .06em 0 #000}
+.odds{font-size:1.15em;color:#c8cff0;margin-top:.3em;text-shadow:.06em .06em 0 #000}
+/* stage ready (rule card) */
+.ready{position:absolute;left:50%;top:10.5%;transform:translateX(-50%);width:66%;background:rgba(11,15,30,.96);border:.3em solid #3ef2ff;border-radius:.7em;padding:1em 1.6em 1.1em;text-align:center;box-shadow:0 0 0 .3em #0b0f1e,0 0 2em rgba(62,242,255,.25)}
+.ready.warn{border-color:#ff3b3b;box-shadow:0 0 0 .3em #0b0f1e,0 0 2em rgba(255,59,59,.35)}
+.ready.boss{border-color:#ff8a8a}
+.ready.bonus{border-color:#ffd84a;box-shadow:0 0 0 .3em #0b0f1e,0 0 2em rgba(255,216,74,.35)}
+.ready.bonus .rtag{color:#ffd84a}
+.tally.bonus{border-color:#ffd84a;box-shadow:0 0 0 .3em #0b0f1e,0 0 2em rgba(255,216,74,.3)}
+.tally.bonus .thead,.tally.bonus .rgo{color:#ffd84a}
+.ready .rtag{font-size:1.25em;color:#9aa2c7;font-weight:700}
+.ready.warn .rtag{color:#ff5a5a}
+.ready .rtitle{font-size:3em;font-weight:900;margin:.05em 0 .25em;color:#fff;line-height:1.2}
+.ready.boss .rtitle{font-size:2.3em;color:#ff8a8a}
+.ready .rkeys{font-size:.5em;vertical-align:middle;margin-left:.4em}
+.kbig{display:inline-block;min-width:2em;padding:.12em .55em;margin:0 .15em;border-radius:.35em;background:#e8ebff;color:#0b0f1e;font-weight:900;font-size:1.25em;box-shadow:0 .18em 0 #9aa2c7;line-height:1.3}
+.ready ul{list-style:none;margin:.2em auto .3em;padding:0;text-align:left;display:inline-block;font-size:1.45em;line-height:1.85}
+.ready ul b{display:inline-block;min-width:5.6em;color:#ffd84a}
+.ready ul b.p{color:#ffd84a}.ready ul b.m{color:#ff8a8a}.ready ul b.t{color:#9ad8ff}
+.ready ul.rlist b{min-width:7em}
+.ready ul.rlist .kbig{font-size:.8em}
+.ready em{font-style:normal;color:#ffd84a;font-weight:700}
+.ready em.g{color:#3ccf6e}.ready em.r{color:#ff6b6b}.ready em.y{color:#ffd84a}
+.tally{position:absolute;left:50%;top:9%;transform:translateX(-50%);width:58%;background:rgba(11,15,30,.96);border:.3em solid #7be3a0;border-radius:.7em;padding:.9em 1.6em 1em;text-align:center;box-shadow:0 0 0 .3em #0b0f1e,0 0 2em rgba(123,227,160,.3);animation:tin .25s ease-out both}
+.tally.mid{border-color:#ffd84a;box-shadow:0 0 0 .3em #0b0f1e,0 0 2em rgba(255,216,74,.3)}
+@keyframes tin{from{opacity:0;transform:translate(-50%,-.8em)}to{opacity:1;transform:translateX(-50%)}}
+.tally .thead{font-size:2.3em;font-weight:900;color:#7be3a0;text-shadow:.06em .06em 0 #000}
+.tally.mid .thead{color:#ffd84a}
+.tally .tsub{font-size:1.15em;color:#9aa2c7;margin-bottom:.4em}
+.trows{width:100%;border-collapse:collapse;font-size:1.45em}
+.trows td{padding:.22em .3em;border-bottom:.08em solid #1e2547;text-align:left;animation:rowIn .3s ease-out both}
+.trows td.l{font-weight:700;color:#e8ebff;white-space:nowrap}
+.trows td.d{color:#9aa2c7;font-size:.88em}
+.trows td.p{text-align:right;font-weight:900;color:#ffd84a;font-variant-numeric:tabular-nums;white-space:nowrap}
+.trows td.p.c{color:#ffd84a}
+.trows tr.pre td.l,.trows tr.pre td.p{color:#c8cff0}
+.trows tr.hid{display:none}
+.trows tr.time td{background:rgba(62,242,255,.08)}
+.trows tr.time td.l{color:#3ef2ff}
+.tally .ttotal{font-size:1.45em;font-weight:700;margin-top:.5em;color:#e8ebff}
+.tally .ttotal b{color:#ffd84a;font-size:1.2em}
+.tally .tnote{font-size:1.15em;color:#9ad8ff;margin-top:.3em}
+.tally .tnote.dim{color:#9aa2c7}
+.tally .rgo{font-size:1.5em;font-weight:900;margin-top:.5em;color:#7be3a0;animation:pulse 1.2s ease-in-out infinite}
+.tally.mid .rgo{color:#ffd84a}
+.ready .rgoal{font-size:1.3em;font-weight:700;margin:.25em auto .15em;padding:.3em .8em;background:#141933;border-radius:.4em;display:inline-block;color:#e8ebff}
+.ready .rgoal b{display:inline-block;padding:0 .45em;margin:0 .4em 0 .9em;border-radius:.25em;color:#0b0f1e;font-weight:900}
+.ready .rgoal b:first-child{margin-left:0}
+.ready .rgoal b.g{background:#7be3a0}.ready .rgoal b.r{background:#ff6b6b}.ready .rgoal b.y{background:#ffd84a}
+.ending{position:absolute;inset:0;display:flex;flex-direction:column;padding:2em 7em 1.4em}
+.ending .etop{text-align:center;text-shadow:.08em .08em 0 #000}
+.ending .ettl{font-size:2.7em;font-weight:900;color:#7be3a0;letter-spacing:.01em}
+.ending.fail .ettl{color:#ff8a5c}
+.ending .esub{font-size:1.2em;color:#9aa2c7;margin-top:.15em}
+.elist{flex:1;min-height:0;overflow-y:auto;margin-top:.8em;background:rgba(11,15,30,.9);border:.15em solid #3a4378;border-radius:.6em;padding:.3em 1.2em;font-size:1.06em;scrollbar-width:thin;scrollbar-color:#3a4378 transparent}
+.erow{display:grid;grid-template-columns:8.6em 1fr auto;gap:.8em;align-items:baseline;padding:.17em 0;border-bottom:.08em solid #1e2547;animation:rowIn .35s ease-out both}
+.erow .et{font-weight:900;white-space:nowrap}
+.erow .ex{color:#e8ebff;font-weight:700}
+.erow .ex i{font-style:normal;font-weight:400;color:#9aa2c7;font-size:.9em;margin-left:.6em}
+.erow .ep{font-weight:900;color:#ffd84a;font-variant-numeric:tabular-nums}
+.erow.sum{border-bottom:none;border-top:.12em solid #3a4378;margin-top:.2em}
+@keyframes rowIn{from{opacity:0;transform:translateX(-1.5em)}to{opacity:1;transform:none}}
+.efoot{text-align:center;margin-top:.7em;font-size:1.4em;color:#9aa2c7;text-shadow:.06em .06em 0 #000;min-height:2.3em}
+.efoot b{font-size:1.9em;color:#fff;font-weight:900;vertical-align:middle;margin:0 .3em;font-variant-numeric:tabular-nums}
+.ready .rmeta{font-size:1.2em;color:#c8cff0;margin-top:.2em}
+.ready .rgo{font-size:1.6em;font-weight:900;margin-top:.55em;color:#3ef2ff;animation:pulse 1.2s ease-in-out infinite}
+.ready .rgo .kbig{font-size:1em}
+.ready .rsub{font-size:.6em;color:#9aa2c7;font-weight:400}
+@keyframes pulse{50%{opacity:.55}}
+.pause{position:absolute;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;flex-direction:column}
+.pause b{font-size:3em}
+.pause span{font-size:1.4em;color:#9aa2c7;margin-top:.5em}
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="cv"></canvas>
+  <div id="ui"></div>
+  <div id="demoBadge">DEMO PLAY · <span>아무 키나 누르면 시작</span></div>
+  <div id="toast"></div>
+</div>
+<script>
+(function(){
+'use strict';
+
+// ---------- 기본 설정 ----------
+var W = 320, H = 180, S = 4;
+var TOTAL_TIME = 65;   // 보스 체력 180에 맞춰 55초에서 늘림 (일반인 봇 기준 보통 클리어 약 85%)
+var MISS_TIME = 2;   // 미스 1회당 제한 시간 감소(초). 추정치
+var TIME_BONUS = { layer:5, boss:20 };   // 남은 시간 1초당 보너스 점수 (층 클리어 / 출시). 추정치
+var CLEAR_STAMP = 0.6;                   // 클리어 순간 "CLEAR!" 도장 연출 시간(초)
+var CHOICE_TIME = 10;     // (사용 안 함) 카드·루트 선택은 시간 제한 없음
+var IDLE_ABANDON = 180;   // 선택 화면에서 입력 없이 이 시간(초)이 지나면 처음 화면으로 (부스 안전장치)
+var lastInputAt = performance.now();
+var STORE_KEY = 'releaseRush.records.v1';
+var NAME_KEY = 'releaseRush.lastName.v1';
+
+var cv = document.getElementById('cv');
+var ctx = cv.getContext('2d');
+cv.width = W * S; cv.height = H * S;
+var ui = document.getElementById('ui');
+var stage = document.getElementById('stage');
+
+function fit(){ var r = stage.getBoundingClientRect(); ui.style.fontSize = (r.width / 100) + 'px'; }
+window.addEventListener('resize', fit); fit();
+
+// 테스트용 시드 (?seed=123). 기본은 Math.random
+var seedMatch = /[?&]seed=(\d+)/.exec(location.search);
+var rand = Math.random;
+if (seedMatch) {
+  var sd = parseInt(seedMatch[1], 10) >>> 0;
+  rand = function(){ sd |= 0; sd = sd + 0x6D2B79F5 | 0; var t = Math.imul(sd ^ sd >>> 15, 1 | sd); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+}
+function ri(n){ return Math.floor(rand() * n); }
+function pick(arr){ return arr[ri(arr.length)]; }
+function shuffle(a){ a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = ri(i + 1); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function fmt(n){ return Math.round(n).toLocaleString('ko-KR'); }
+
+// ---------- 게임 데이터 ----------
+var OPP = [2, 3, 0, 1]; // 위 오른 아래 왼
+var KEYMAP = { ArrowUp:0, KeyW:0, ArrowRight:1, KeyD:1, ArrowDown:2, KeyS:2, ArrowLeft:3, KeyA:3 };
+var DIR_CODE = ['ArrowUp', 'ArrowRight', 'ArrowDown', 'ArrowLeft'];
+
+// 미니게임 풀: 판마다 4개 중 3개를 골라 1·2·3층에 무작위 배정 (스테이지 수보다 많게)
+var MG_LIST = ['timing', 'command', 'alert', 'sort', 'charge', 'mole'];
+var MG_INFO = {
+  timing:  { name:'배포 타이밍',    how:'커서가 초록 구간에 오면 Space',        short:'초록 구간에서 Space!' },
+  command: { name:'커맨드 입력',    how:'화살표 순서대로 방향키',              short:'화살표 순서대로!' },
+  alert:   { name:'장애 알림',      how:'빨간불이 초록불로 바뀌는 순간 Space',   short:'초록불에 Space!' },
+  sort:    { name:'코드 리뷰 분류', how:'버그면 ←(반려), 정상이면 →(승인)',     short:'버그 ← / 정상 →' },
+  charge:  { name:'컴파일 차지',    how:'Space를 꾹 눌렀다가 초록 구간에서 떼기', short:'꾹 → 초록에서 떼기!' },
+  mole:    { name:'알림 두더지',    how:'알림이 뜬 칸의 방향키(← ↓ →)로 끄기',   short:'알림 칸 방향키!' }
+};
+// 스테이지 시작 전 룰 카드에 보여 줄 설명
+var MG_RULES = {
+  timing:  { keys:['Space'],           doing:'커서가 <em>초록 구간</em>에 들어왔을 때 Space', perfect:'가운데 <em>노란 부분</em>에서 누르기',  miss:'초록 구간 밖에서 누르기',            tip:'연속으로 성공할수록 초록 구간이 좁아져요' },
+  command: { keys:['↑', '↓', '←', '→'], doing:'화살표를 <em>순서대로</em> 방향키로 입력',    perfect:'커맨드를 한 번도 안 틀리고 완성',      miss:'틀린 방향 → 그 커맨드 처음부터',    tip:'<em class="r">빨간 화살표</em>는 반대 방향, <em>?</em>는 차례가 되면 공개' },
+  alert:   { keys:['Space'],           doing:'신호가 <em class="g">초록불</em>로 바뀌는 순간 Space', perfect:'초록불이 켜지자마자 누르기',  miss:'빨강·노랑일 때 누르기, 초록불 놓치기', tip:'<em class="y">노란불</em>은 함정! 기다리세요' },
+  sort:    { keys:['←', '→'],          doing:'<em class="r">버그</em> 카드면 ←(반려), <em class="g">정상</em> 카드면 →(승인)', perfect:'카드가 나오자마자 맞히기', miss:'잘못 분류, 시간 초과', tip:'빨간 벌레 = 버그, 초록 체크 = 정상' },
+  charge:  { keys:['Space 꾹'],        doing:'Space를 <em>꾹 누르고</em> 빌드 게이지가 <em class="g">초록 구간</em>에 오면 <em>손을 떼기</em>', perfect:'가운데 <em>노란 부분</em>에서 떼기', miss:'초록 구간 밖에서 떼기, 끝까지 차서 <em class="r">과열</em>', tip:'초록 구간 위치는 매번 바뀌어요' },
+  mole:    { keys:['←', '↓', '→'],     doing:'<em class="r">알림</em>이 뜬 칸의 방향키로 끄기 (왼쪽 ← · 가운데 ↓ · 오른쪽 →)', perfect:'알림이 뜨자마자 끄기', miss:'다른 칸 누르기, 알림 놓치기, 빈칸 누르기', tip:'<em class="y">👑 대표님 메시지</em>는 끄지 말고 기다리세요' }
+};
+// 난이도: safe·risk는 층별 [1층, 2층, 3층], warn은 WARNING 중간보스, boss는 최종 보스
+// 일반인 반응속도 봇으로 측정해 맞춤: 위험 루트 ≈ 안전 루트의 1.5배 어려움(시간+미스 비용) → 점수 2배, 층이 오를수록 조금씩 어려워짐
+var MG_DIFF = {
+  timing: {   // speed: 커서 속도(바 길이/초), zone: 판정 구간 폭, move: 구간 이동 속도
+    safe:[{ speed:0.85, zone:0.3, move:0 }, { speed:0.9, zone:0.25, move:0 }, { speed:0.95, zone:0.19, move:0 }],
+    risk:[{ speed:1.1, zone:0.12, move:0 }, { speed:1.15, zone:0.12, move:0.12 }, { speed:1.25, zone:0.14, move:0.12 }],
+    warn:{ speed:1.2, zone:0.15, move:0.12 }, boss:{ speed:1.2, zone:0.13, move:0.18 } },
+  command: {   // len: 칸 수, rev: 버그 화살표(반대 입력) 확률, hid: 미확인 스펙(?) 확률
+    safe:[{ len:3, rev:0, hid:0 }, { len:4, rev:0, hid:0 }, { len:4, rev:0, hid:0 }],
+    risk:[{ len:4, rev:0.12, hid:0 }, { len:5, rev:0.12, hid:0.1 }, { len:5, rev:0.18, hid:0.12 }],
+    warn:{ len:4, rev:0.25, hid:0.1 }, boss:{ len:5, rev:0.15, hid:0.1 } },
+  alert: {   // win: 초록불 반응 제한 시간(초), fake: 가짜 신호(노란불) 확률
+    safe:[{ win:0.75, fake:0 }, { win:0.68, fake:0 }, { win:0.55, fake:0.15 }],
+    risk:[{ win:0.38, fake:0.35 }, { win:0.38, fake:0.35 }, { win:0.36, fake:0.4 }],
+    warn:{ win:0.38, fake:0.35 }, boss:{ win:0.38, fake:0.35 } },
+  sort: {   // time: 카드 한 장 판단 제한 시간(초)
+    safe:[{ time:1.6 }, { time:1.3 }, { time:1.05 }],
+    risk:[{ time:0.82 }, { time:0.82 }, { time:0.8 }],
+    warn:{ time:0.85 }, boss:{ time:0.8 } },
+  charge: {   // fill: 게이지 차는 속도(게이지/초), zone: 초록 구간 폭
+    safe:[{ fill:0.75, zone:0.24 }, { fill:0.85, zone:0.22 }, { fill:0.95, zone:0.2 }],
+    risk:[{ fill:1.05, zone:0.17 }, { fill:1.1, zone:0.16 }, { fill:1.1, zone:0.16 }],
+    warn:{ fill:1.1, zone:0.16 }, boss:{ fill:1.1, zone:0.16 } },
+  mole: {   // win: 알림이 떠 있는 시간(초), fake: 대표님 메시지(누르면 안 됨) 확률
+    safe:[{ win:1, fake:0 }, { win:0.95, fake:0 }, { win:0.9, fake:0.1 }],
+    risk:[{ win:0.7, fake:0.22 }, { win:0.64, fake:0.25 }, { win:0.58, fake:0.3 }],
+    warn:{ win:0.66, fake:0.25 }, boss:{ win:0.6, fake:0.3 } }
+};
+
+var MG_COUNT = { timing:1, command:0.7, alert:0.7, sort:1, charge:0.8, mole:0.9 };   // 층 작업 수 배율 (오래 걸리는 미니게임은 적게)
+
+var LAYERS = [
+  { key:'plan', name:'기획',   count:{ safe:5, risk:5 } },   // 작업 수는 루트와 상관없이 같음 (위험 루트는 1.5배 어려운 대신 점수 2배)
+  { key:'dev',  name:'개발',   count:{ safe:6, risk:6 } },
+  { key:'qa',   name:'테스트', count:{ safe:7, risk:7 } }
+];
+var TASK = { base:50, perfectMult:1.6 };   // 작업 1개 기본 점수(루트 배율 적용), 퍼펙트 배율
+var TIMING = {
+  perfectRatio:0.3,    // 판정 구간 중앙 몇 % 안이면 퍼펙트
+  lock:0.18,           // 연타 방지 (초)
+  pairTol:0.05,        // 페어 프로그래밍: 구간 바깥 여유
+  // 판정 구간 폭: 처음엔 넓게 시작해서 연속 성공(콤보)할수록 좁아짐. 미스하면 다시 넓어짐
+  widthStart:1.5, widthStep:0.05, widthMin:0.7, widthMax:0.6
+};
+// WARNING 중간보스: 다음 스테이지 미니게임을 강한 패턴으로 미리 보여 주는 점수 이벤트 (본 게임 시간은 멈춤)
+var MID = { time:8, banner:1.8, per:60 };
+// 최종 보스: 체력 바. 이번 판 미니게임 중 무작위 4개(같은 게임 연속 가능) 성공 → 그로기(연타 피버)로 체력을 깎음. 반복해서 체력 0이면 출시
+var BOSS = { key:'boss', name:'출시 D-Day', hp:180, groggyEvery:4, groggyTime:6, pressDmg:1, outageEvery:10, outagePenalty:3 };   // hp·pressDmg는 추정치
+// 보너스 스테이지: 층 클리어 후 가끔 등장. 미니게임 4종 중 하나가 무작위로 나오고, 제한 시간 안에 need번 성공하면 특수 보상
+var BONUS = { time:8, need:3, per:100, chance:{ safe:0.25, risk:0.45 } };
+
+// 피버 타임: 잘 맞힐수록 게이지가 차고, 가득 차면 '아무 키나 연타' 보너스 구간
+var FEVER = {
+  perfect:0.12, good:0.07,   // 작업 성공
+  perArrow:0.02,             // 커맨드 화살표 1칸당 (작업 수가 적은데 피버가 잦아서 3.5% → 2%)
+  perCmd:0.05,               // 커맨드 하나 완료 시
+  comboBonus:0.002,          // 콤보 1당 추가 (최대 20콤보까지)
+  mistake:0.3,               // 미스하면 감소
+  riskFill:1.25,             // 위험 루트에서는 더 빨리 참
+  duration:5,                // 연타 구간 길이(초). 미니게임과 제한 시간이 멈춤
+  perPress:20                // 연타 1회당 점수 (루트 배율 적용)
+};
+
+var ROUTES = {
+  safe:{ label:'검증된 방식', mult:1, bonus:0.2 },
+  risk:{ label:'신기술 도입', mult:2, bonus:0.4 }
+};
+// 신기술 누적 복리: 신기술을 고를 때마다 Lv이 오르고, 그 층의 난이도 +10% · 점수 +20%가 복리로 쌓임 (안전을 골라도 Lv은 유지)
+// Lv.1 = 안전의 1.5배 어려움 · 점수 ×2 → Lv.2 = 1.65배 · ×2.4 → Lv.3 = 1.82배 · ×2.88  (난이도 1.1배당 점수 1.2배 = 1.5배당 2배와 같은 비율)
+var RISK = { diff:1.5, diffRate:0.10, scoreRate:0.20 };
+function riskDiff(lv){ return RISK.diff * Math.pow(1 + RISK.diffRate, lv - 1); }
+function riskScore(lv){ return (has('hazard') ? 2.5 : ROUTES.risk.mult) * Math.pow(1 + RISK.scoreRate, lv - 1); }
+function routeLabel(k, lv){ return ROUTES[k].label + (k === 'risk' ? ' Lv.' + (lv || G.riskLv || 1) : ''); }
+// 기본 위험 난이도(Lv.1)에 복리만큼 더 어렵게: 작업 하나에 드는 '시간 + 미스' 비용이 약 1.1배씩 늘도록 맞춤
+function harden(mg, d, n){
+  if (!n || n <= 0) return d;
+  var s = Math.pow(1 + RISK.diffRate, n), r = Math.sqrt(s), o = {};
+  for (var k in d) o[k] = d[k];
+  if (mg === 'timing') { o.speed = d.speed * Math.pow(s, 0.45); o.zone = d.zone / Math.pow(s, 0.45); }
+  else if (mg === 'command') { o.rev = Math.min(0.45, d.rev * s + 0.07 * n); o.hid = Math.min(0.35, d.hid * s + 0.04 * n); }
+  else if (mg === 'alert') { o.win = Math.max(0.3, d.win / Math.pow(s, 0.35)); o.fake = Math.min(0.6, d.fake * s); }
+  else if (mg === 'sort') { o.time = Math.max(0.5, d.time / Math.pow(s, 0.35)); }
+  else if (mg === 'charge') { o.fill = d.fill * r; o.zone = d.zone / r; }
+  else if (mg === 'mole') { o.win = Math.max(0.4, d.win / Math.pow(s, 1.2)); o.fake = Math.min(0.5, d.fake * s); }
+  return o;
+}
+
+var CMD_NAMES = [
+  ['회의 소집', '요구사항 정리', '와이어프레임', '일정 산정', '기획서 리뷰', '유저 인터뷰'],
+  ['git commit', 'npm install', 'git merge --no-ff', 'API 연동', 'DB 마이그레이션', '코드 리뷰 반영'],
+  ['npm test', '버그 재현', '회귀 테스트', 'QA 체크리스트', '성능 테스트', '크로스 브라우징'],
+  ['deploy --prod', '롤백 준비', '핫픽스', '서버 재시작', '모니터링 확인', '캐시 무효화']
+];
+
+// 카드: 효과를 숫자로 보여 줘서 고득점 전략(점수 배율 vs 시간 vs 안정성)을 세울 수 있게 함
+//   big: 카드에 크게 보이는 효과 수치, desc: 보충 설명
+var CARDS = [
+  { id:'overtime',  name:'야근 수당',     tag:'점수', max:2,  big:'작업 점수 ×1.25',      desc:'모든 작업 점수에 곱해짐. 2장이면 ×1.56' },
+  { id:'bonuspay',  name:'성과급',        tag:'점수', max:2,  big:'층 클리어 ×1.5',       desc:'층 클리어 보너스(300 × 루트 배율)에 곱해짐' },
+  { id:'craft',     name:'장인 정신',     tag:'점수', max:1,  big:'퍼펙트 ×1.6 → ×2.2',   desc:'퍼펙트 판정의 점수 배율이 커짐' },
+  { id:'streak',    name:'연속 근무',     tag:'점수', max:1,  big:'10콤보↑ 점수 ×1.3',    desc:'콤보 10 이상일 때 작업 점수 ×1.3. 미스하면 콤보 0' },
+  { id:'hazard',    name:'위험 수당',     tag:'루트', max:1,  big:'위험 루트 ×2 → ×2.5',  desc:'신기술 도입 루트의 점수 배율이 커짐' },
+  { id:'flawless',  name:'무결점 배포',   tag:'점수', max:1,  big:'노미스 층 ×1.5',       desc:'층을 미스 없이 끝내면 그 층에서 번 점수 ×1.5' },
+  { id:'party',     name:'회식',          tag:'피버', max:2,  big:'피버 연타 ×1.5 · +1초', desc:'피버 연타 점수 ×1.5, 피버 시간 +1초' },
+  { id:'coffee',    name:'커피 한 잔',    tag:'시간', max:99, big:'제한 시간 +10초',      desc:'고르는 즉시 남은 시간이 10초 늘어남' },
+  { id:'refactor',  name:'리팩토링',      tag:'시간', max:99, big:'다음 층 작업 −1',      desc:'작업이 줄어 시간을 아낌' },
+  { id:'shortcut',  name:'단축키 등록',   tag:'안정', max:1,  big:'판정 여유 ×1.3',       desc:'모든 미니게임의 판정 구간·반응·판단 시간 ×1.3, 커맨드 −1칸' },
+  { id:'linter',    name:'린터',          tag:'안정', max:2,  big:'층마다 미스 1회 무시', desc:'장수만큼 무시. 콤보와 피버 게이지도 지켜 줌' },
+  { id:'lucky',     name:'행운의 커밋',   tag:'운',   max:1,  big:'룰렛 +15%p',          desc:'보너스 스테이지 등장 확률 ×1.5' }
+];
+var CARD_BY_ID = {}; CARDS.forEach(function(c){ CARD_BY_ID[c.id] = c; });
+
+var SPECIALS = [
+  { id:'opensource', name:'오픈소스 발견', desc:'다음 층 작업 절반이 완료된 상태로 시작' },
+  { id:'senior',     name:'시니어 합류',   desc:'다음 카드 보상에서 2장 선택' },
+  { id:'server',     name:'서버 증설',     desc:'제한 시간 +20초' },
+  { id:'invest',     name:'투자 유치',     desc:'즉시 +1,000점' }
+];
+
+// ---------- 아이템 (등급·확률·가격은 모두 추정치, 나중에 조정) ----------
+// 카드는 계속 쌓이는 빌드, 아이템은 즉시 효과 또는 다음 층 한정 버프
+var TIERS = {
+  common: { name:'일반', color:'#c8cff0' },
+  rare:   { name:'희귀', color:'#5aa8ff' },
+  legend: { name:'전설', color:'#ffd84a' }
+};
+var ITEMS = [
+  { id:'drink',       name:'에너지 드링크', tier:'common', big:'제한 시간 +5초',            fx:{ time:5 } },
+  { id:'postit',      name:'포스트잇',      tier:'common', big:'미스 1회 막기',             fx:{ shield:1 } },
+  { id:'snack',       name:'간식 상자',     tier:'common', big:'피버 게이지 +40%',          fx:{ fever:0.4 } },
+  { id:'coupon',      name:'보너스 쿠폰',   tier:'common', big:'즉시 +300점',               fx:{ score:[300, 300] } },
+  { id:'wallet',      name:'동전 지갑',     tier:'common', big:'코인 +8',                   fx:{ coins:8 } },
+  { id:'doubleshot',  name:'더블 샷',       tier:'rare',   big:'제한 시간 +12초',           fx:{ time:12 } },
+  { id:'focus',       name:'집중 모드',     tier:'rare',   big:'다음 층 점수 ×1.5',         fx:{ nextMult:1.5 } },
+  { id:'insurance',   name:'보험 증서',     tier:'rare',   big:'미스 2회 막기',             fx:{ shield:2 } },
+  { id:'booster',     name:'피버 부스터',   tier:'rare',   big:'피버 게이지 99%',           fx:{ feverFull:true } },
+  { id:'lotto',       name:'로또',          tier:'rare',   big:'즉시 +200~2,000점',         fx:{ score:[200, 2000] } },
+  { id:'goldkb',      name:'황금 키보드',   tier:'legend', big:'다음 층 점수 ×2',           fx:{ nextMult:2 } },
+  { id:'timemachine', name:'타임머신',      tier:'legend', big:'제한 시간 +25초',           fx:{ time:25 } },
+  { id:'pass',        name:'만능 패스',     tier:'legend', big:'다음 층 작업 3개 자동 완료', fx:{ nextAuto:3 } },
+  { id:'jackpot',     name:'대박 로또',     tier:'legend', big:'즉시 +1,000~5,000점',       fx:{ score:[1000, 5000] } }
+];
+// 등급 확률(%)
+var ODDS = {
+  mid: [   // WARNING 보상: 성공 횟수가 많을수록 좋은 등급
+    { min:6, odds:{ common:40, rare:45, legend:15 } },
+    { min:3, odds:{ common:60, rare:32, legend:8 } },
+    { min:0, odds:{ common:80, rare:18, legend:2 } }
+  ],
+  mystery: { common:60, rare:30, legend:10 },   // 랜덤 카드 (뒤집힌 카드 3장 중 1장)
+  shop:    { common:70, rare:27, legend:3 },    // 일반 상점 진열
+  bigshop: { common:0,  rare:60, legend:40 },   // 대박 상점 진열
+  gacha: {                                       // 상점 안 랜덤 뽑기
+    shop:    { common:70, rare:25, legend:5 },
+    bigshop: { common:0,  rare:55, legend:45 }
+  }
+};
+// 층 보상(카드·룰렛) 뒤에 열리는 이벤트 확률(%)
+var EVENTS = { bigshop:10, shop:35, mystery:25, none:30 };
+var PRICE = { common:6, rare:12, legend:22 };   // 일반 상점 가격(코인). 대박 상점은 30% 할인
+var SHOP = { bigDiscount:0.7, reroll:3, rerollStep:2, gacha:{ shop:5, bigshop:7 } };
+// 코인 획득: 작업 GOOD·PERFECT, 층 클리어, WARNING 성공, 보너스 스테이지 커맨드
+var COIN = { good:1, perfect:2, clear:5, mid:1, bonus:1, score:30 };   // score: 출시(보스 클리어) 때 남은 코인 1개당 점수 (추정치)
+
+// ---------- 기록 저장 ----------
+var storageOK = true;
+var memRecords = [];
+function loadRecords(){
+  try {
+    var s = localStorage.getItem(STORE_KEY);
+    var arr = s ? JSON.parse(s) : [];
+    return Array.isArray(arr) ? arr.filter(function(r){ return r && typeof r.name === 'string' && typeof r.score === 'number'; }) : [];
+  } catch (e) { storageOK = false; return memRecords.slice(); }
+}
+function saveRecord(rec){
+  var list = loadRecords(); list.push(rec);
+  try {
+    localStorage.setItem(STORE_KEY, JSON.stringify(list));
+    var back = JSON.parse(localStorage.getItem(STORE_KEY) || '[]');
+    storageOK = Array.isArray(back) && back.length === list.length;
+  } catch (e) { storageOK = false; memRecords = list; }
+}
+function clearRecords(){ try { localStorage.removeItem(STORE_KEY); } catch (e) {} memRecords = []; }
+function bestList(){
+  var best = {};
+  loadRecords().forEach(function(r){
+    var b = best[r.name];
+    if (!b || r.score > b.score || (r.score === b.score && r.t < b.t)) best[r.name] = r;
+  });
+  return Object.keys(best).map(function(k){ return best[k]; })
+    .sort(function(a, b){ return b.score - a.score || a.t - b.t; });
+}
+function getLastName(){ try { return localStorage.getItem(NAME_KEY) || ''; } catch (e) { return ''; } }
+function setLastName(n){ try { localStorage.setItem(NAME_KEY, n); } catch (e) {} }
+
+// ---------- 상태 ----------
+var scene = 'idle', sceneT = 0, T = 0;
+var G = null;           // 현재 판
+var choice = null;      // 카드·루트 선택 상태
+var RL = null;          // 룰렛 상태
+var B = null;           // 보너스 스테이지 상태
+var fx = { shake:0, flash:0, flashColor:'#ff3b3b', pops:[], msg:null };
+var resetPresses = [];
+var DEMO_IDLE_WAIT = 15;    // 대기 화면에서 이 시간(초)이 지나면 데모 플레이 시작
+var demoActive = false, D = null;
+var demoBadge = document.getElementById('demoBadge');
+
+function has(id){ return G && (G.owned[id] || 0) > 0; }
+function cnt(id){ return G ? (G.owned[id] || 0) : 0; }
+
+function newRun(name){
+  G = {
+    name:name, time:TOTAL_TIME, score:0, layer:0, routeKey:null, routes:[], riskCount:0, riskLv:0,
+    stages:shuffle(MG_LIST).slice(0, 3),          // 이번 판 1·2·3층 미니게임 (게임 시작 때 결정)
+    owned:{}, pity:0, pendingRefactor:0, pendingOpen:false, seniorPicks:0,
+    linterLeft:0, mistakes:0, layerMistakes:0, layerPoints:0,
+    queue:[], idx:0, total:0, pre:0, task:null, lastCur:0, lastDir:1, lastHitMark:null,
+    isBoss:false, isMid:false, midL:0, midMg:null, midT:0, midHits:0, midGain:0, midTotal:0,
+    outageT:0, banner:0, clearing:0, paused:false,
+    cleared:false, reachedBoss:false, maxStage:0, specials:[], playTime:0, finished:false,
+    fever:0, feverT:0, feverCount:0, feverPresses:0, feverGain:0, feverPressTotal:0,
+    combo:0, maxCombo:0, perfects:0, bonusPlayed:0, bonusWon:0,
+    coins:0, shield:0, nextBuff:{ mult:1, auto:0 }, layerMult:1, itemsGot:[],
+    missTime:0, timeHit:0, outages:0, feverSum:0, snap:null,
+    midKind:'warn',                                                           // isMid 모드 종류: 'warn'(WARNING) / 'bonus'(보너스 스테이지)
+    bossHp:0, groggy:false, groggyN:0, groggyCount:0, bossPresses:0,          // 최종 보스 체력·그로기
+    log:[]          // 엔딩 화면에 순서대로 보여 줄 게임 로그 (선택·결과)
+  };
+}
+// 게임 로그 한 줄: 태그 · 내용 · 세부 · 점수
+function logAdd(tag, text, det, pts, color){ if (G && G.log) G.log.push({ tag:tag, text:text, det:det || '', pts:pts || '', c:color || '#c8cff0' }); }
+// 층·보스 결과 한 줄 (clear: 끝까지 처리했는지)
+function logStage(clear){
+  var s = G.snap || { score:0, play:0, mist:0, fev:0, out:0 }, L = G.layer;
+  var head = G.isBoss ? '최종 보스' : (L + 1) + '층';
+  var name = G.isBoss ? BOSS.name + ' · 미니게임 섞기' : LAYERS[L].name + ' · ' + MG_INFO[G.stages[L]].name + ' · ' + routeLabel(G.routeKey);
+  var det = G.isBoss ? [clear ? '체력 0 · 그로기 ' + G.groggyCount + '회 · 미니게임 ' + G.idx + '개' : '체력 ' + Math.ceil(G.bossHp) + '/' + BOSS.hp + ' 남기고 시간 종료']
+    : [clear ? '작업 ' + G.total + '개 완료' : '작업 ' + Math.min(G.total, G.pre + G.idx) + '/' + G.total + '에서 시간 종료'];
+  var m = G.mistakes - s.mist; det.push(m ? '미스 ' + m + '회(−' + (m * MISS_TIME) + '초)' : '노미스');
+  det.push(Math.round(G.playTime - s.play) + '초 소요');
+  if (G.feverCount - s.fev) det.push('피버 ' + (G.feverCount - s.fev) + '회');
+  if (G.isBoss && G.outages - s.out) det.push('장애 ' + (G.outages - s.out) + '회');
+  logAdd(head, name, det.join(' · '), '+' + fmt(G.score - s.score), clear ? (G.isBoss ? '#ff8a8a' : '#5ccfae') : '#ff8a5c');
+}
+function lineupHTML(cur){
+  return G.stages.map(function(m, i){
+    var s = (i + 1) + '층 ' + MG_INFO[m].name;
+    return i === cur ? '<b class="cur">' + s + '</b>' : s;
+  }).join(' → ') + ' → <b>보스: 전부 랜덤</b>';
+}
+
+// ---------- 미니게임 공통 ----------
+function diffOf(mg, tier, L){ var d = MG_DIFF[mg][tier]; return Array.isArray(d) ? d[Math.max(0, Math.min(2, L))] : d; }
+function newTask(mg, tier, L){
+  var d = diffOf(mg, tier, L), easy = has('shortcut') ? 1.3 : 1;
+  var names = CMD_NAMES[tier === 'boss' ? 3 : Math.max(0, Math.min(2, L))];
+  if (tier === 'risk') d = harden(mg, d, (G.riskLv || 1) - 1);   // 신기술 누적 복리
+  var t = { mg:mg, tier:tier, d:d, miss:0, name:pick(names) };
+  if (mg === 'timing') {
+    t.speed = d.speed * Math.max(0.6, 1 - 0.15 * cnt('autocomplete'));
+    t.zoneW = Math.min(0.5, d.zone * easy); t.move = d.move; t.phase = rand() * Math.PI * 2;
+    t.cur = G.lastCur || 0; t.dir = G.lastDir || 1; t.lock = 0;
+    t.zoneVis = zoneTarget(t); placeZone(t);
+  } else if (mg === 'command') {
+    var len = Math.max(3, d.len - (has('shortcut') ? 1 : 0));
+    t.arrows = [];
+    for (var j = 0; j < len; j++) {
+      var r = rand(), type = 'n';
+      if (r < d.rev) type = 'rev'; else if (r < d.rev + d.hid) type = 'hid';
+      if (type === 'rev' && has('review')) type = 'n';
+      if (type === 'hid' && has('docs')) type = 'n';
+      t.arrows.push({ dir:ri(4), type:type });
+    }
+    t.progress = Math.min(cnt('autocomplete'), t.arrows.length - 1);
+  } else if (mg === 'alert') {
+    t.win = d.win * easy; t.fake = d.fake; alertReset(t);
+  } else if (mg === 'sort') {
+    t.time = d.time * easy; sortNext(t);
+  } else if (mg === 'charge') {
+    t.fill = d.fill; t.zone = Math.min(0.4, d.zone * easy); t.g = 0; t.hold = false; t.lock = 0; t.mark = null; chargeZone(t);
+  } else if (mg === 'mole') {
+    t.win = d.win * easy; t.fake = d.fake; moleNext(t);
+  }
+  return t;
+}
+function taskReady(){ return scene === 'play' && G && G.task && !G.ready && !G.tally && !G.paused && G.banner <= 0 && G.clearing <= 0 && !G.finished && !inFever(); }
+// 스테이지 시작 대기 화면에서 Space(또는 클릭)를 누르면 시작
+function beginStage(){
+  if (scene !== 'play' || !G || !G.ready) return;
+  G.ready = false; G.banner = 0.6;
+  fx.flash = 0.35; fx.flashColor = G.isMid ? (G.midKind === 'bonus' ? '#ffd84a' : '#ff3b3b') : '#3ef2ff';
+  renderUI();
+}
+// 입력 → 현재 미니게임 판정. 'perfect' / 'good'이면 작업 하나 처리
+function taskInput(code){
+  if (!taskReady()) return null;
+  var res = MGX[G.task.mg].input(G.task, code);
+  if (res === 'perfect' || res === 'good') taskSuccess(res);
+  return res;
+}
+function taskRelease(code){
+  if (!taskReady() || G.task.mg !== 'charge' || !isTapKey(code)) return null;
+  var res = MGX.charge.release(G.task);
+  if (res === 'perfect' || res === 'good') taskSuccess(res);
+  return res;
+}
+function taskSuccess(res){
+  var t = G.task;
+  var base = G.isMid ? (G.midKind === 'bonus' ? BONUS.per : MID.per) : TASK.base * (G.isBoss ? 1 : routeMult(G.routeKey));
+  var pts = Math.round(base * (res === 'perfect' ? perfectMult() : 1) * workMult(G.combo + (t.mg === 'command' ? 0 : 1)) * (G.isMid ? 1 : G.layerMult));
+  G.score += pts; G.layerPoints += pts;
+  G.coins += G.isMid ? COIN.mid : (res === 'perfect' ? COIN.perfect : COIN.good);
+  if (t.mg !== 'command') { G.combo++; if (G.combo > G.maxCombo) G.maxCombo = G.combo; }
+  if (res === 'perfect') G.perfects++;
+  fx.pops.push({ x:200, y:62, text:(res === 'perfect' ? 'PERFECT +' : 'GOOD +') + pts, color:res === 'perfect' ? '#ffd84a' : '#7be3a0', t:0.8 });
+  addFever(t.mg === 'command' ? FEVER.perCmd : ((res === 'perfect' ? FEVER.perfect : FEVER.good) + Math.min(G.combo, 20) * FEVER.comboBonus));
+  if (t.mg === 'timing') { G.lastCur = t.cur; G.lastDir = t.dir; }
+  if (G.isMid) {   // WARNING·보너스: 제한 시간 안에 최대한 많이. 작업이 끝없이 이어짐
+    G.midHits++; G.midGain += pts;
+    battleHit(res === 'perfect' ? 2 : 1, false);
+    if (G.midKind === 'bonus' && G.midHits === BONUS.need) { showMsg('★ 목표 달성! 특수 보상 확정', '#ffd84a', 1.2); fx.flash = 0.5; fx.flashColor = '#ffd84a'; }
+    G.task = newTask(G.midMg, G.midKind === 'bonus' ? 'safe' : 'warn', G.midL);
+    return;
+  }
+  if (G.isBoss) {   // 최종 보스: 4개 성공마다 그로기
+    G.idx++; G.groggyN++;
+    battleHit(2, false);
+    var nm = pick(G.stages);   // 같은 미니게임이 연속으로 나올 수 있음
+    G.task = newTask(nm, 'boss', 3);
+    if (G.groggyN >= BOSS.groggyEvery) { startGroggy(); return; }
+    if (nm !== t.mg) showMsg('패턴 전환! ' + MG_INFO[nm].name + ' — ' + MG_INFO[nm].short, '#ffd84a', 1.2);
+    return;
+  }
+  G.idx++;
+  var last = G.idx >= G.queue.length;
+  battleHit(G.isBoss ? 3 : (res === 'perfect' ? 2 : 1), !G.isBoss, last);
+  if (last) { layerClear(); return; }
+  G.task = newTask(G.queue[G.idx], G.isBoss ? 'boss' : G.routeKey, G.layer);
+  if (G.isBoss && G.task.mg !== t.mg) showMsg('패턴 전환! ' + MG_INFO[G.task.mg].name + ' — ' + MG_INFO[G.task.mg].short, '#ffd84a', 1.2);
+}
+function taskMiss(reason){
+  fx.pops.push({ x:110, y:72, text:reason || 'MISS', color:'#ff5a5a', t:0.7 });
+  if (G.linterLeft > 0) { G.linterLeft--; showMsg('린터가 미스를 막았다!', '#ffd84a', 0.9); return false; }
+  if (G.shield > 0) { G.shield--; showMsg('보험 아이템이 미스를 막았다! (남은 ' + G.shield + '회)', '#7be3a0', 0.9); return false; }
+  battleMiss();
+  if (!G.isMid && MISS_TIME > 0) {   // 미스 = 제한 시간 감소 (WARNING은 본 게임 시간이 멈춰 있으므로 제외)
+    G.time -= MISS_TIME; G.missTime += MISS_TIME; G.timeHit = 0.5;
+    fx.pops.push({ x:160, y:30, text:'−' + MISS_TIME + '초', color:'#ff5a5a', t:0.8 });
+  }
+  G.combo = 0; G.fever = Math.max(0, G.fever - FEVER.mistake);
+  G.mistakes++; G.layerMistakes++; if (G.task) G.task.miss++;
+  fx.shake = 0.25; fx.flash = 0.5; fx.flashColor = '#ff3b3b';
+  return true;
+}
+
+// ---------- 미니게임 ① 배포 타이밍: 커서가 초록 구간에 오면 Space ----------
+function widthFactor(){ return Math.max(TIMING.widthMin, TIMING.widthStart - TIMING.widthStep * G.combo); }
+function zoneTarget(t){ return Math.min(TIMING.widthMax, t.zoneW * widthFactor()); }
+function zoneWidth(t){ return t.zoneVis; }
+function placeZone(t){ var half = zoneTarget(t) / 2, m = 0.04; t.zoneBase = half + m + rand() * Math.max(0, 1 - 2 * (half + m)); }
+function zoneCenter(t){
+  var half = zoneWidth(t) / 2;
+  var c = t.move ? t.zoneBase + Math.sin(t.phase) * 0.18 : t.zoneBase;
+  return Math.max(half + 0.02, Math.min(1 - half - 0.02, c));
+}
+// ---------- 미니게임 ③ 장애 알림: 빨간불 → 초록불 순간 Space, 노란불은 함정 ----------
+function alertReset(t){
+  t.state = 'wait'; t.el = 0; t.wait = 0.6 + rand() * 1.0; t.goT = 0; t.fakeT = 0;
+  t.fakeAt = rand() < t.fake ? t.wait * (0.3 + rand() * 0.4) : -1;
+}
+// ---------- 미니게임 ④ 코드 리뷰 분류: 버그면 ←, 정상이면 → ----------
+function sortNext(t){ t.card = rand() < 0.5 ? 'bug' : 'ok'; t.el = 0; }
+// ---------- 미니게임 ⑤ 컴파일 차지: Space를 꾹 눌러 게이지를 채우고 초록 구간에서 떼기 ----------
+function chargeZone(t){ var half = t.zone / 2; t.zc = 0.35 + half + rand() * Math.max(0, 0.93 - half - (0.35 + half)); }
+// ---------- 미니게임 ⑥ 알림 두더지: 알림이 뜬 칸(← ↓ →)을 끄기, 대표님 메시지는 그대로 ----------
+function moleNext(t){ t.state = 'wait'; t.el = 0; t.wait = 0.35 + rand() * 0.55; t.lane = ri(3); t.trap = rand() < t.fake; }
+var MOLE_KEYS = { ArrowLeft:0, KeyA:0, ArrowDown:1, KeyS:1, ArrowRight:2, KeyD:2 };
+
+function isTapKey(code){ return code === 'Space' || code === 'Enter' || code === 'NumpadEnter'; }
+var MGX = {
+  timing: {
+    update:function(t, dt){
+      t.cur += t.dir * t.speed * dt;
+      if (t.cur >= 1) { t.cur = 2 - t.cur; t.dir = -1; } else if (t.cur <= 0) { t.cur = -t.cur; t.dir = 1; }
+      if (t.move) t.phase += dt * t.move * Math.PI * 2;
+      t.zoneVis += (zoneTarget(t) - t.zoneVis) * Math.min(1, dt * 8);
+      if (t.lock > 0) t.lock -= dt;
+    },
+    input:function(t, code){
+      if (!isTapKey(code) || t.lock > 0) return null;
+      t.lock = TIMING.lock;
+      var d = Math.abs(t.cur - zoneCenter(t)), half = zoneWidth(t) / 2, tol = has('pair') ? TIMING.pairTol : 0;
+      var res = d <= half * TIMING.perfectRatio ? 'perfect' : (d <= half + tol ? 'good' : 'miss');
+      G.lastHitMark = { res:res, x:t.cur, t:0.45 };
+      if (res === 'miss') { taskMiss(); return 'miss'; }
+      return res;
+    }
+  },
+  command: {
+    update:function(){},
+    input:function(t, code){
+      if (!KEYMAP.hasOwnProperty(code)) return null;
+      var a = t.arrows[t.progress], expect = a.type === 'rev' ? OPP[a.dir] : a.dir;
+      if (KEYMAP[code] !== expect) {
+        taskMiss();
+        if (!has('pair')) t.progress = Math.min(cnt('autocomplete'), t.arrows.length - 1);
+        return 'miss';
+      }
+      t.progress++;
+      G.combo++; if (G.combo > G.maxCombo) G.maxCombo = G.combo;
+      addFever(FEVER.perArrow + Math.min(G.combo, 20) * FEVER.comboBonus);
+      if (t.progress < t.arrows.length) { battleHit(1, false); return 'step'; }
+      return t.miss === 0 ? 'perfect' : 'good';
+    }
+  },
+  alert: {
+    update:function(t, dt){
+      t.el += dt;
+      if (t.state === 'wait') {
+        if (t.fakeAt >= 0 && t.el >= t.fakeAt) { t.state = 'fake'; t.fakeT = 0.35; t.fakeAt = -1; }
+        else if (t.el >= t.wait) { t.state = 'go'; t.goT = 0; }
+      } else if (t.state === 'fake') {
+        t.fakeT -= dt; if (t.fakeT <= 0) t.state = 'wait';
+      } else if (t.state === 'go') {
+        t.goT += dt;
+        if (t.goT > t.win) { taskMiss('늦었다!'); alertReset(t); }
+      }
+    },
+    input:function(t, code){
+      if (!isTapKey(code)) return null;
+      if (t.state !== 'go') { taskMiss(t.state === 'fake' ? '함정 신호!' : '너무 빨라!'); alertReset(t); return 'miss'; }
+      return t.goT <= t.win * 0.4 ? 'perfect' : 'good';
+    }
+  },
+  charge: {
+    update:function(t, dt){
+      if (t.lock > 0) t.lock -= dt;
+      if (t.mark) { t.mark.t -= dt; if (t.mark.t <= 0) t.mark = null; }
+      if (t.hold) {
+        t.g += t.fill * dt;
+        if (t.g >= 1) { t.g = 1; t.hold = false; t.mark = { x:1, res:'miss', t:0.45 }; taskMiss('과열! 너무 오래 눌렀다'); t.g = 0; t.lock = 0.2; chargeZone(t); }
+      }
+    },
+    input:function(t, code){   // 누르기 시작
+      if (!isTapKey(code) || t.hold || t.lock > 0) return null;
+      t.hold = true; t.g = 0; return 'hold';
+    },
+    release:function(t){       // 떼는 순간 판정
+      if (!t.hold) return null;
+      t.hold = false;
+      var d = Math.abs(t.g - t.zc), half = t.zone / 2, tol = has('pair') ? 0.04 : 0;
+      var res = d <= half * 0.35 ? 'perfect' : (d <= half + tol ? 'good' : 'miss');
+      t.mark = { x:t.g, res:res, t:0.45 };
+      if (res === 'miss') { taskMiss(t.g < t.zc ? '너무 빨리 뗐다!' : '너무 늦게 뗐다!'); t.g = 0; t.lock = 0.2; chargeZone(t); return 'miss'; }
+      return res;
+    }
+  },
+  mole: {
+    update:function(t, dt){
+      t.el += dt;
+      if (t.state === 'wait') { if (t.el >= t.wait) { t.state = 'show'; t.el = 0; } }
+      else if (t.el > (t.trap ? t.win * 1.4 : t.win)) { if (!t.trap) taskMiss('알림을 놓쳤다!'); moleNext(t); }
+    },
+    input:function(t, code){
+      if (!MOLE_KEYS.hasOwnProperty(code)) return null;
+      if (t.state !== 'show') { taskMiss('빈칸을 눌렀다!'); moleNext(t); return 'miss'; }
+      if (t.trap) { taskMiss('대표님 메시지를 껐다!'); moleNext(t); return 'miss'; }
+      if (MOLE_KEYS[code] !== t.lane) { taskMiss('엉뚱한 알림!'); moleNext(t); return 'miss'; }
+      return t.el <= t.win * 0.4 ? 'perfect' : 'good';
+    }
+  },
+  sort: {
+    update:function(t, dt){
+      t.el += dt;
+      if (t.el > t.time) { taskMiss('시간 초과!'); sortNext(t); }
+    },
+    input:function(t, code){
+      if (code !== 'ArrowLeft' && code !== 'KeyA' && code !== 'ArrowRight' && code !== 'KeyD') return null;
+      var saysBug = code === 'ArrowLeft' || code === 'KeyA';
+      if (saysBug !== (t.card === 'bug')) { taskMiss('잘못 분류!'); sortNext(t); return 'miss'; }
+      return t.el <= t.time * 0.4 ? 'perfect' : 'good';
+    }
+  }
+};
+
+// ---------- 스테이지 흐름 ----------
+function startLayer(L){
+  var isBoss = L === 3;
+  if (isBoss) { startBoss(); return; }
+  G.layer = L; G.isBoss = isBoss; G.isMid = false;
+  var count = Math.round(LAYERS[L].count[G.routeKey] * MG_COUNT[G.stages[L]]);
+  count = Math.max(1, count - G.pendingRefactor);
+  G.pendingRefactor = 0;
+  var pre = 0;
+  if (G.pendingOpen) { pre = Math.floor(count / 2); G.pendingOpen = false; }
+  // 아이템의 '다음 층' 효과 적용 (만능 패스: 작업 자동 완료, 집중 모드·황금 키보드: 이번 층 점수 배율)
+  pre = Math.min(count - 1, pre + G.nextBuff.auto);
+  G.layerMult = G.nextBuff.mult;
+  G.nextBuff = { mult:1, auto:0 };
+  var queue = [];
+  if (isBoss) {   // 최종 보스: 이번 판의 미니게임을 골고루 섞음
+    var pool = [];
+    while (pool.length < count) pool = pool.concat(shuffle(G.stages));
+    queue = pool.slice(0, count - pre);
+  } else {
+    for (var i = 0; i < count - pre; i++) queue.push(G.stages[L]);
+  }
+  G.queue = queue; G.total = count; G.pre = pre; G.idx = 0; G.lastCur = 0; G.lastDir = 1;
+  G.task = newTask(queue[0], isBoss ? 'boss' : G.routeKey, L);
+  G.layerMistakes = 0; G.layerPoints = 0; G.linterLeft = cnt('linter');
+  G.outageT = 0; G.banner = 0; G.clearing = 0; G.ready = true;   // Space를 눌러야 시작
+  G.snap = { score:G.score, play:G.playTime, mist:G.mistakes, fev:G.feverCount, out:G.outages };   // 엔딩 로그용
+  battleStart(isBoss ? 'boss' : LAYERS[L].key);
+  G.maxStage = Math.max(G.maxStage, L + 1);
+  if (isBoss) G.reachedBoss = true;
+  go('play');
+}
+// 최종 보스 시작: 체력 바 + 그로기 게이지. 리팩토링·오픈소스·만능 패스는 첫 그로기 게이지를 미리 채움
+function startBoss(){
+  G.layer = 3; G.isBoss = true; G.isMid = false; G.routeKey = G.routeKey || 'safe';
+  var pre = G.pendingRefactor + (G.pendingOpen ? 2 : 0) + G.nextBuff.auto;
+  G.pendingRefactor = 0; G.pendingOpen = false;
+  G.layerMult = G.nextBuff.mult; G.nextBuff = { mult:1, auto:0 };
+  G.bossHp = BOSS.hp; G.groggy = false; G.groggyCount = 0; G.bossPresses = 0;
+  G.groggyN = Math.min(BOSS.groggyEvery - 1, pre);
+  G.queue = []; G.total = BOSS.groggyEvery; G.pre = 0; G.idx = 0; G.lastCur = 0; G.lastDir = 1;
+  G.task = newTask(pick(G.stages), 'boss', 3);
+  G.layerMistakes = 0; G.layerPoints = 0; G.linterLeft = cnt('linter');
+  G.fever = 0;   // 보스전에서는 일반 피버 대신 그로기
+  G.outageT = 0; G.banner = 0; G.clearing = 0; G.ready = true;
+  G.snap = { score:G.score, play:G.playTime, mist:G.mistakes, fev:G.feverCount, out:G.outages };
+  battleStart('boss');
+  G.maxStage = 4; G.reachedBoss = true;
+  go('play');
+}
+function groggyDuration(){ return BOSS.groggyTime + cnt('party'); }
+function startGroggy(){
+  G.groggyN = 0; G.groggy = true; G.groggyCount++;
+  G.feverT = groggyDuration(); G.feverCount++; G.feverPresses = 0; G.feverGain = 0;
+  fx.flash = 0.8; fx.flashColor = '#ffd84a'; fx.shake = 0.3;
+  if (BT && BT.enemy) { BT.enemy.hit = 0.3; BT.enemy.kx = 8; }
+}
+function bossDamage(){ return BOSS.pressDmg * Math.pow(1.5, cnt('party')); }   // 회식 카드는 연타 피해도 ×1.5
+// 보너스 스테이지: 미니게임 4종 중 하나를 무작위로 (본 게임 시간은 멈춤, 미스해도 시간 감소 없음)
+function startBonusStage(){
+  G.bonusPlayed++;
+  G.isMid = true; G.midKind = 'bonus'; G.midL = G.layer; G.midMg = pick(MG_LIST);
+  G.midT = BONUS.time; G.midHits = 0; G.midGain = 0;
+  G.lastCur = 0; G.lastDir = 1;
+  G.task = newTask(G.midMg, 'safe', G.layer);
+  G.banner = 0; G.clearing = 0; G.ready = true;
+  battleStart(LAYERS[G.layer].key);
+  fx.flash = 0.6; fx.flashColor = '#ffd84a';
+  go('play');
+}
+// WARNING 중간보스: 다음 층 미니게임을 강한 패턴으로 미리 체험하는 점수 이벤트
+function startMid(Lnext){
+  G.isMid = true; G.midKind = 'warn'; G.midL = Lnext; G.midMg = G.stages[Lnext];
+  G.midT = MID.time; G.midHits = 0; G.midGain = 0;
+  G.lastCur = 0; G.lastDir = 1;
+  G.task = newTask(G.midMg, 'warn', Lnext);
+  G.banner = 0; G.clearing = 0; G.ready = true;   // Space를 눌러야 시작
+  battleStart(LAYERS[Lnext].key, true);
+  fx.flash = 0.7; fx.flashColor = '#ff3b3b';
+  renderUI();
+}
+function midEnd(){
+  if (G.midKind === 'bonus') { bonusEnd(); return; }
+  G.midTotal += G.midGain;
+  G.clearText = 'WARNING 종료!';
+  logAdd('⚠ WARNING', MG_INFO[G.midMg].name + ' 미리보기 (' + MID.time + '초)', '성공 ' + G.midHits + '회', '+' + fmt(G.midGain), '#ff6b6b');
+  G.tallyPlan = { kind:'mid', head:'⚠ WARNING 종료', sub:MG_INFO[G.midMg].name + ' 미리보기 ' + MID.time + '초',
+    rows:[ { label:'성공', det:G.midHits + '회', pts:G.midGain, pre:true } ],
+    note:'성공 ' + G.midHits + '회 → 보상 아이템 등급 확률 ' + oddsText(midOdds()), next:'보상 아이템 고르기' };
+  clearMoment('#ffd84a');
+  battleHit(3, true, true); battleWin();
+}
+
+function bonusEnd(){
+  var won = G.midHits >= BONUS.need, sp = won ? pick(SPECIALS) : null;
+  if (won) { applySpecial(sp); G.bonusWon++; }
+  G.clearText = won ? '★ BONUS 성공!' : 'BONUS 종료';
+  logAdd('보너스 스테이지', MG_INFO[G.midMg].name + ' ' + G.midHits + '/' + BONUS.need + (won ? ' 성공 → ★ ' + sp.name : ' 실패'), won ? sp.desc : '', G.midGain ? '+' + fmt(G.midGain) : '', '#ffd84a');
+  G.tallyPlan = { kind:'bonus', head:won ? '★ BONUS STAGE 성공!' : 'BONUS STAGE 종료', sub:MG_INFO[G.midMg].name + ' · ' + BONUS.time + '초 · 목표 ' + BONUS.need + '회',
+    rows:[ { label:'성공', det:G.midHits + '회 / 목표 ' + BONUS.need + '회', pts:G.midGain, pre:true } ],
+    note:won ? '특수 보상 ★ ' + sp.name + ' — ' + sp.desc : '목표에 못 미쳤어요. 점수는 그대로 남아요', next:'보상 카드 고르기' };
+  clearMoment('#ffd84a');
+  battleHit(3, true, true); battleWin();
+}
+
+// ---------- 점수 배율 (카드 효과가 모두 여기로 모임) ----------
+function routeMult(k, lv){ return k === 'risk' ? riskScore(lv || G.riskLv || 1) : ROUTES.safe.mult; }
+function perfectMult(){ return has('craft') ? 2.2 : TASK.perfectMult; }
+function workMult(combo){ return Math.pow(1.25, cnt('overtime')) * (has('streak') && combo >= 10 ? 1.3 : 1); }
+function feverDuration(){ return FEVER.duration + cnt('party'); }
+function x2(n){ return '×' + (Math.round(n * 100) / 100); }
+
+function inFever(){ return G && G.feverT > 0; }
+// 피버 연타: 아무 키 1회 = 점수. 꾹 누르기(자동 반복)는 인정하지 않음
+function feverPress(){
+  if (!inFever()) return;
+  var pts = Math.round(FEVER.perPress * (G.isBoss || G.isMid ? 1 : routeMult(G.routeKey)) * Math.pow(1.5, cnt('party')));
+  G.score += pts; G.feverGain += pts; G.feverSum += pts; G.feverPresses++; G.feverPressTotal++;
+  if (G.groggy) {   // 그로기: 연타한 만큼 보스 체력이 깎임
+    var dmg = bossDamage(); G.bossHp = Math.max(0, G.bossHp - dmg); G.bossPresses++;
+    fx.pops.push({ x:226 + Math.floor(rand() * 20), y:44 + Math.floor(rand() * 10), text:'-' + (Math.round(dmg * 10) / 10), color:'#ff5a5a', t:0.5 });
+    if (BT && BT.enemy) { BT.enemy.hit = 0.06; BT.enemy.kx = 3; }
+    if (G.bossHp <= 0) { G.groggy = false; G.feverT = 0; G.fever = 0; layerClear(); }
+  }
+  fx.pops.push({ x:170 + Math.floor(rand() * 70), y:70 + Math.floor(rand() * 20), text:'+' + pts, color:rand() < 0.5 ? '#ff4fd8' : '#ffd84a', t:0.5 });
+  fx.shake = 0.06;
+  battleShot();
+}
+function endFever(){
+  G.feverT = 0; G.fever = 0;
+  if (G.groggy) {
+    G.groggy = false;
+    showMsg('그로기 종료! 연타 ' + G.feverPresses + '회 · 남은 체력 ' + Math.ceil(G.bossHp) + ' — 다시 미니게임 ' + BOSS.groggyEvery + '개!', '#ffd84a', 1.6);
+    return;
+  }
+  showMsg('피버 종료! 연타 ' + G.feverPresses + '회 +' + fmt(G.feverGain) + '점', '#ff8ad8', 1.4);
+}
+function addFever(v){
+  if (inFever() || G.isBoss) return;   // 보스전은 일반 피버 대신 그로기
+  if (!G.isBoss && !G.isMid && G.routeKey === 'risk') v *= FEVER.riskFill;
+  G.fever = Math.min(1, G.fever + v);
+  if (G.fever >= 1) {
+    G.feverT = feverDuration(); G.feverCount++; G.feverPresses = 0; G.feverGain = 0;
+    fx.flash = 0.8; fx.flashColor = '#ff4fd8';
+  }
+}
+
+// 클리어 조건 달성: CLEAR 도장 연출 → 정산표(남은 시간을 점수로 환산) → Space로 다음 단계
+function layerClear(){
+  var sec = Math.max(0, Math.floor(G.time));   // 타이머 표시(초 내림)와 같은 값
+  if (G.isBoss) {
+    G.cleared = true; G.leftAtClear = sec;   // 기록용 남은 시간 (정산표에서 타이머가 0까지 줄어듦)
+    battleHit(3, true, true); battleWin();
+    G.clearText = '출시 성공!';
+    G.tallyPlan = { kind:'boss', head:'최종 보스 CLEAR!', sub:BOSS.name + ' · 그로기 ' + G.groggyCount + '회 · 연타 ' + G.bossPresses + '회로 체력 ' + BOSS.hp + ' → 0',
+      rows:[ { label:'보스전 획득 점수', det:'미니게임 ' + G.idx + '개 · 연타 포함', pts:G.score - G.snap.score, pre:true },
+             { label:'출시 보너스', det:'', pts:2000 },
+             { label:'남은 시간 보너스', det:sec + '초 × ' + TIME_BONUS.boss + '점', pts:sec * TIME_BONUS.boss, time:sec },
+             { label:'남은 코인', det:G.coins + '개 × ' + COIN.score + '점', pts:G.coins * COIN.score, coinConv:G.coins } ],
+      note:'남은 시간 ' + sec + '초와 코인 ' + G.coins + '개를 모두 점수로 바꿨습니다', next:'출시!' };
+    G.coinsConverted = G.coins;   // 엔딩 로그에 남길 환산 전 코인 수
+    clearMoment('#7be3a0');
+    return;
+  }
+  var L = G.layer, add = Math.round(300 * routeMult(G.routeKey) * Math.pow(1.5, cnt('bonuspay')));
+  G.coins += COIN.clear;
+  var rows = [ { label:'이번 층 작업 점수', det:G.total + '개 처리', pts:G.layerPoints, pre:true },
+               { label:'클리어 보너스', det:'300 ' + x2(routeMult(G.routeKey)) + (cnt('bonuspay') ? ' · 성과급 ' + x2(Math.pow(1.5, cnt('bonuspay'))) : ''), pts:add },
+               { label:'남은 시간 보너스', det:sec + '초 × ' + TIME_BONUS.layer + '점', pts:sec * TIME_BONUS.layer, time:sec } ];
+  if (has('flawless') && G.layerMistakes === 0) rows.push({ label:'무결점 배포', det:'미스 0회 · 층 점수 ×1.5', pts:Math.round((G.layerPoints + add) * 0.5) });
+  rows.push({ label:'코인', det:'층 클리어', coin:COIN.clear, pre:true });
+  G.clearText = 'STAGE CLEAR!';
+  G.tallyPlan = { kind:'layer', head:(L + 1) + '층 · ' + LAYERS[L].name + ' CLEAR!', sub:MG_INFO[G.stages[L]].name + ' · 작업 ' + G.total + '개 처리 완료',
+    rows:rows, note:'남은 시간 ' + sec + '초는 줄지 않고 다음 스테이지로 이어집니다',
+    next:L < 2 ? '⚠ WARNING (다음 스테이지 미리보기)' : '보상 고르기 → 최종 보스' };
+  clearMoment('#7be3a0');
+  battleWin();
+}
+// 클리어 순간 연출: 화면 번쩍 + 도장 + 터지는 조각
+function clearMoment(color){
+  G.clearing = CLEAR_STAMP; G.clearBurst = [];
+  for (var i = 0; i < 28; i++) { var a = i / 28 * Math.PI * 2, sp = 40 + rand() * 50; G.clearBurst.push({ x:160, y:70, vx:Math.cos(a) * sp, vy:Math.sin(a) * sp - 20, c:CONFETTI[i % CONFETTI.length] }); }
+  fx.flash = 0.7; fx.flashColor = color; fx.shake = 0.2;
+}
+// 정산표: 한 줄씩 나타나며 점수가 올라감. 점수는 올라가는 만큼 실제로 더해짐
+function openTally(){
+  var pl = G.tallyPlan; G.tallyPlan = null;
+  pl.rows.forEach(function(r){ r.cur = r.pre ? r.pts : 0; r.k = r.pre ? 1 : 0; r.dur = r.time ? 0.6 : 0.3; });   // 1.5배 빠르게
+  G.tally = { kind:pl.kind, head:pl.head, sub:pl.sub, rows:pl.rows, note:pl.note, next:pl.next, t:0, i:0, next_t:0.23, done:false };
+  renderUI();
+}
+function tallyAdd(r, v){ G.score += v; if (G.tally.kind === 'layer') G.layerPoints += v; }
+function tallyUpdate(dt){
+  var tl = G.tally; tl.t += dt;
+  if (tl.done || tl.t < tl.next_t) return;
+  var r = tl.rows[tl.i];
+  if (!r) { tallyDone(); return; }
+  if (r.k >= 1) { tl.i++; tl.next_t = tl.t + 0.19; tallyRefresh(); return; }
+  r.k = Math.min(1, r.k + dt / r.dur);
+  if (r.k > 0) tallyRefresh();
+  var target = Math.round(r.pts * r.k); tallyAdd(r, target - r.cur); r.cur = target;
+  if (r.time && tl.kind === 'boss') G.time = r.time * (1 - r.k);   // 출시: 남은 시간이 실제로 0까지 줄며 점수로 바뀜
+  if (r.coinConv != null) G.coins = Math.round(r.coinConv * (1 - r.k));   // 남은 코인도 0까지 줄며 점수로
+  var el = document.getElementById('tp' + tl.i); if (el) el.textContent = '+' + fmt(r.cur);
+  if (r.k >= 1) { tl.i++; tl.next_t = tl.t + 0.19; tallyRefresh(); }
+}
+function tallyDone(){
+  var tl = G.tally; if (tl.done) return;
+  tl.rows.forEach(function(r){ if (r.cur !== r.pts) { tallyAdd(r, r.pts - r.cur); r.cur = r.pts; r.k = 1; } });
+  tl.i = tl.rows.length; tl.done = true;
+  if (tl.kind === 'boss') { G.time = 0; G.coins = 0; }
+  if (tl.kind === 'layer' || tl.kind === 'boss') logStage(true);   // 보너스까지 더한 뒤 게임 로그에 남김
+  tallyRefresh();
+}
+// Space·Enter: 계산 중이면 바로 끝내고, 끝났으면 다음 단계로
+function tallyKey(){
+  var tl = G && G.tally; if (!tl || tl.t < 0.4) return;   // 마지막 작업의 Space 연타가 바로 넘기지 않게
+  if (!tl.done) { tallyDone(); return; }
+  G.tally = null; renderUI(); afterClear();
+}
+function tallyRowVisible(tl, r, i){ return tl.done || i < tl.i || (i === tl.i && (r.pre || r.k > 0)); }
+function tallyFootHTML(){
+  var tl = G.tally, total = 0;
+  tl.rows.forEach(function(r){ if (r.pts) total += r.cur; });
+  return tl.done ? '<div class="ttotal">' + (tl.kind === 'mid' ? 'WARNING 점수' : (tl.kind === 'bonus' ? 'BONUS 점수' : '스테이지 점수')) + ' <b>+' + fmt(total) + '</b> · 총점 <b>' + fmt(G.score) + '</b></div>' +
+      '<div class="tnote">' + tl.note + '</div>' +
+      '<div class="rgo"><span class="kbig">Space</span> 다음: ' + tl.next + '</div>'
+    : '<div class="tnote dim">계산 중… <span class="key">Space</span> 바로 보기</div>';
+}
+function tallyHTML(){
+  var tl = G.tally;
+  var rows = tl.rows.map(function(r, i){
+    var val = r.coin ? '+' + r.coin + ' 코인' : '+' + fmt(r.cur);
+    return '<tr id="tr' + i + '" class="' + (r.time ? 'time' : '') + (r.pre ? ' pre' : '') + (tallyRowVisible(tl, r, i) ? '' : ' hid') + '"><td class="l">' + (r.time ? '⏱ ' : '') + r.label + '</td><td class="d">' + r.det + '</td>' +
+      '<td class="p' + (r.coin ? ' c' : '') + '" id="tp' + i + '">' + val + '</td></tr>';
+  }).join('');
+  return '<div class="tally ' + tl.kind + '"><div class="thead">' + tl.head + '</div><div class="tsub">' + tl.sub + '</div>' +
+    '<table class="trows">' + rows + '</table><div id="tfoot">' + tallyFootHTML() + '</div></div>';
+}
+// 정산표를 다시 그리지 않고 바뀐 부분만 고침 (등장 애니메이션이 다시 재생되지 않게)
+function tallyRefresh(){
+  var tl = G.tally; if (!tl) return;
+  tl.rows.forEach(function(r, i){
+    var tr = document.getElementById('tr' + i); if (!tr) return;
+    var vis = tallyRowVisible(tl, r, i);
+    if (vis && tr.classList.contains('hid')) tr.classList.remove('hid');
+    var p = document.getElementById('tp' + i); if (p && !r.coin) p.textContent = '+' + fmt(r.cur);
+  });
+  var f = document.getElementById('tfoot'); if (f) { var h = tallyFootHTML(); if (f.getAttribute('data-h') !== h) { f.innerHTML = h; f.setAttribute('data-h', h); } }
+}
+function afterClear(){
+  if (G.isBoss) { finish(true); return; }
+  if (G.isMid && G.midKind === 'bonus') { G.isMid = false; openPick('reward'); return; }   // 보너스 스테이지 → 보상 카드
+  if (G.isMid) { G.isMid = false; openItemPick(); return; }   // WARNING 보상: 아이템 3개 중 1개
+  if (G.layer < 2) { startMid(G.layer + 1); return; }   // 1·2층 뒤에는 다음 층 미니게임 WARNING
+  afterStageEvents();
+}
+function afterStageEvents(){
+  var ch = Math.min(0.9, BONUS.chance[G.routeKey] * (has('lucky') ? 1.5 : 1));
+  if (rand() < ch) startBonusStage(); else openPick('reward');
+}
+
+// ---------- 카드·특수 보상 ----------
+function applyCard(id){
+  G.owned[id] = (G.owned[id] || 0) + 1;
+  if (id === 'coffee') G.time += 10;
+  if (id === 'refactor') G.pendingRefactor++;
+}
+function applySpecial(sp){
+  G.specials.push(sp.id);
+  if (sp.id === 'opensource') G.pendingOpen = true;
+  if (sp.id === 'senior') G.seniorPicks = 1;
+  if (sp.id === 'server') G.time += 20;
+  if (sp.id === 'invest') G.score += 1000;
+}
+function drawOffers(){
+  var pool = CARDS.filter(function(c){ return cnt(c.id) < c.max; });
+  return shuffle(pool).slice(0, 3);
+}
+function openPick(ctxName){
+  var picks = 1;
+  if (ctxName === 'reward' && G.seniorPicks > 0) { picks = 2; G.seniorPicks = 0; }
+  choice = { kind:'pick', ctx:ctxName, offers:drawOffers(), left:picks, total:picks, sel:0, t:CHOICE_TIME };
+  go('pick');
+}
+function choosePick(i){
+  if (scene !== 'pick' || !choice || !choice.offers[i]) return;
+  var c = choice.offers[i];
+  applyCard(c.id);
+  logAdd(choice.ctx === 'start' ? '시작 카드' : '보상 카드', c.name, c.big, '', '#ffd84a');
+  choice.offers.splice(i, 1);
+  choice.left--;
+  if (choice.left > 0 && choice.offers.length) { choice.sel = 0; choice.t = CHOICE_TIME; renderUI(); return; }
+  if (choice.ctx === 'start') openRoute(0); else openRoulette();
+}
+
+// ---------- 루트 선택 ----------
+function openRoute(L){
+  G.layer = L;
+  choice = { kind:'route', L:L, sel:0, t:CHOICE_TIME };
+  go('route');
+}
+function chooseRoute(key){
+  if (scene !== 'route') return;
+  G.routeKey = key; G.routes.push(key === 'safe' ? 'S' : 'R');
+  if (key === 'risk') { G.riskCount++; G.riskLv = G.riskCount; }   // 이번 층의 신기술 Lv (누적)
+  startLayer(choice.L);
+}
+
+// ---------- 룰렛 ----------
+function bonusChance(){
+  var base = ROUTES[G.routeKey].bonus;
+  return Math.min(0.9, base + G.pity + (has('lucky') ? 0.15 : 0));
+}
+function openRoulette(){
+  var chance = bonusChance();
+  var win = rand() < chance;
+  var sp = pick(SPECIALS);
+  RL = { chance:chance, win:win, sp:sp, t:0, revealed:false, revealAt:0, face:0 };
+  go('roulette');
+}
+function revealRoulette(){
+  RL.revealed = true; RL.revealAt = RL.t;
+  logAdd('룰렛', '확률 ' + Math.round(RL.chance * 100) + '% → ' + (RL.win ? '★ ' + RL.sp.name : '꽝'), RL.win ? RL.sp.desc : '다음 룰렛 확률 +15%', '', RL.win ? '#ffd84a' : '#9aa2c7');
+  if (RL.win) { applySpecial(RL.sp); G.pity = 0; fx.flash = 0.7; fx.flashColor = '#ffd84a'; }
+  else { G.pity = Math.min(0.6, G.pity + 0.15); }
+  renderUI();
+}
+function nextAfterRoulette(){
+  if (scene !== 'roulette') return;
+  openStageEvent();   // 룰렛 뒤: 상점·랜덤 카드 이벤트
+}
+function continueJourney(){
+  var next = G.layer + 1;
+  if (next <= 2) openRoute(next); else { G.routeKey = G.routeKey || 'safe'; startLayer(3); }
+}
+
+// ---------- 아이템: 뽑기 · WARNING 보상 · 랜덤 카드 · 상점 ----------
+var EV = null;   // 아이템 이벤트 상태
+function rollTier(odds){
+  var r = rand() * 100, acc = 0, ks = ['common', 'rare', 'legend'];
+  for (var i = 0; i < ks.length; i++) { acc += odds[ks[i]] || 0; if (r < acc) return ks[i]; }
+  return 'common';
+}
+function rollItem(odds){ var tier = rollTier(odds); return pick(ITEMS.filter(function(it){ return it.tier === tier; })); }
+function rollItems(odds, n){
+  var out = [], guard = 0;
+  while (out.length < n && guard++ < 60) { var it = rollItem(odds); if (out.indexOf(it) < 0) out.push(it); }
+  return out;
+}
+function oddsText(o){ return ['common', 'rare', 'legend'].filter(function(k){ return o[k] > 0; }).map(function(k){ return TIERS[k].name + ' ' + o[k] + '%'; }).join(' · '); }
+function itemLabel(it){ return '[' + TIERS[it.tier].name + '] ' + it.name; }
+// 아이템 효과 적용. 점수형은 실제로 얻은 점수를 돌려줌
+function applyItem(it){
+  var f = it.fx; G.itemsGot.push(it.id);
+  if (f.time) G.time += f.time;
+  if (f.shield) G.shield += f.shield;
+  if (f.fever) G.fever = Math.min(0.99, G.fever + f.fever);
+  if (f.feverFull) G.fever = 0.99;
+  if (f.coins) G.coins += f.coins;
+  if (f.nextMult) G.nextBuff.mult *= f.nextMult;
+  if (f.nextAuto) G.nextBuff.auto += f.nextAuto;
+  if (f.score) { var v = Math.round((f.score[0] + rand() * (f.score[1] - f.score[0])) / 10) * 10; G.score += v; return v; }
+  return null;
+}
+function gotText(it, v){ return itemLabel(it) + ' 획득! ' + it.big + (v != null ? ' → +' + fmt(v) + '점' : ''); }
+function midOdds(){ for (var i = 0; i < ODDS.mid.length; i++) if (G.midHits >= ODDS.mid[i].min) return ODDS.mid[i].odds; return ODDS.mid[ODDS.mid.length - 1].odds; }
+
+// WARNING 보상: 성공 횟수에 따라 등급 확률이 좋아지는 아이템 3개 중 1개
+function openItemPick(){
+  var odds = midOdds();
+  EV = { kind:'mid', odds:odds, offers:rollItems(odds, 3), sel:0 };
+  go('itempick');
+}
+function chooseItemPick(i){
+  if (scene !== 'itempick' || !EV || !EV.offers[i]) return;
+  var it = EV.offers[i], v = applyItem(it);
+  toast(gotText(it, v), it.tier);
+  logAdd('WARNING 보상', itemLabel(it), it.big + (v != null ? ' → +' + fmt(v) + '점' : ''), '', TIERS[it.tier].color);
+  EV = null; afterStageEvents();
+}
+// 층 보상 뒤 이벤트: 대박 상점 / 일반 상점 / 랜덤 카드 / 없음
+function openStageEvent(){
+  var r = rand() * 100, acc = 0, kind = 'none', ks = ['bigshop', 'shop', 'mystery', 'none'];
+  for (var i = 0; i < ks.length; i++) { acc += EVENTS[ks[i]]; if (r < acc) { kind = ks[i]; break; } }
+  if (kind === 'none') { continueJourney(); return; }
+  if (kind === 'mystery') { EV = { kind:'mystery', odds:ODDS.mystery, hidden:rollItems(ODDS.mystery, 3), sel:0, picked:-1, last:'' }; go('mystery'); return; }
+  EV = { kind:kind, odds:ODDS[kind], offers:[], sold:[], rerolls:0, last:'', lastTier:null, buys:[], spent:0 };
+  shopRoll(); go('shop');
+}
+function mysteryPick(i){
+  if (scene !== 'mystery' || !EV || EV.picked >= 0 || !EV.hidden[i]) return;
+  EV.picked = i;
+  var it = EV.hidden[i], v = applyItem(it);
+  EV.last = gotText(it, v); EV.lastTier = it.tier;
+  logAdd('랜덤 카드', itemLabel(it), it.big + (v != null ? ' → +' + fmt(v) + '점' : ''), '', TIERS[it.tier].color);
+  if (it.tier === 'legend') { fx.flash = 0.8; fx.flashColor = '#ffd84a'; }
+  renderUI();
+}
+function shopRoll(){ EV.offers = rollItems(EV.odds, 3); EV.sold = [false, false, false]; }
+function priceOf(it){ var p = PRICE[it.tier]; return EV.kind === 'bigshop' ? Math.round(p * SHOP.bigDiscount) : p; }
+function rerollCost(){ return SHOP.reroll + SHOP.rerollStep * EV.rerolls; }
+function gachaCost(){ return SHOP.gacha[EV.kind]; }
+function shopBuy(i){
+  if (scene !== 'shop' || !EV || !EV.offers[i] || EV.sold[i]) return;
+  var it = EV.offers[i], p = priceOf(it);
+  if (G.coins < p) { EV.last = '코인이 부족합니다 (' + p + '코인 필요)'; EV.lastTier = null; renderUI(); return; }
+  G.coins -= p; EV.sold[i] = true; EV.buys.push(it.name); EV.spent += p;
+  var v = applyItem(it); EV.last = '구매 · ' + gotText(it, v); EV.lastTier = it.tier; renderUI();
+}
+function shopReroll(){
+  if (scene !== 'shop' || !EV) return;
+  var c = rerollCost();
+  if (G.coins < c) { EV.last = '코인이 부족합니다 (새로고침 ' + c + '코인)'; EV.lastTier = null; renderUI(); return; }
+  G.coins -= c; EV.rerolls++; EV.spent += c; shopRoll(); EV.last = '진열을 새로고침했습니다'; EV.lastTier = null; renderUI();
+}
+function shopGacha(){
+  if (scene !== 'shop' || !EV) return;
+  var c = gachaCost();
+  if (G.coins < c) { EV.last = '코인이 부족합니다 (뽑기 ' + c + '코인)'; EV.lastTier = null; renderUI(); return; }
+  G.coins -= c;
+  var it = rollItem(ODDS.gacha[EV.kind]), v = applyItem(it);
+  EV.buys.push('뽑기 ' + it.name); EV.spent += c;
+  EV.last = '뽑기 결과 · ' + gotText(it, v); EV.lastTier = it.tier;
+  if (it.tier === 'legend') { fx.flash = 0.8; fx.flashColor = '#ffd84a'; }
+  renderUI();
+}
+function leaveEvent(){
+  if (scene !== 'shop' && scene !== 'mystery') return;
+  if (scene === 'shop') logAdd(EV.kind === 'bigshop' ? '대박 상점' : '일반 상점', EV.buys.length ? EV.buys.join(', ') : '구경만 하고 나감',
+    (EV.rerolls ? '새로고침 ' + EV.rerolls + '회 · ' : '') + (EV.spent ? '코인 ' + EV.spent + '개 사용' : ''), '', EV.kind === 'bigshop' ? '#ffd84a' : '#7be3a0');
+  EV = null; continueJourney();
+}
+
+// 화면 위쪽에 잠깐 뜨는 알림 (아이템 획득 등)
+var toastTimer = null;
+function toast(text, tier){
+  var el = document.getElementById('toast');
+  el.textContent = text; el.style.borderColor = tier ? TIERS[tier].color : '#3a4378'; el.style.display = 'block';
+  clearTimeout(toastTimer); toastTimer = setTimeout(function(){ el.style.display = 'none'; }, 2600);
+}
+
+// ---------- 종료 ----------
+function finish(cleared){
+  if (G.finished) return;
+  G.finished = true;
+  if (G.time < 0) G.time = 0;
+  var rec = {
+    name:G.name, score:Math.round(G.score), cleared:!!cleared, stage:G.maxStage,
+    routes:G.routes.join(''), mistakes:G.mistakes, left:G.leftAtClear != null ? G.leftAtClear : Math.ceil(G.time),
+    date:new Date().toISOString().slice(0, 10), t:Date.now()
+  };
+  if (!G.demo) saveRecord(rec);   // 데모 플레이 기록은 랭킹에 남기지 않음
+  G.record = rec;
+  if (!cleared && scene === 'play' && !G.isMid) logStage(false);   // 시간 종료된 층도 로그에 남김
+  fadeTo(openLaunch);   // 페이드아웃 → 출시 컷신 → 엔딩(게임 로그) → 결과·랭킹
+}
+
+// ---------- 화면 페이드 ----------
+var fade = { a:0, dir:0, cb:null, hold:0 };
+var FADE_TIME = 0.7;
+function fadeTo(cb){ if (fade.dir) return; fade.dir = 1; fade.cb = cb; }
+function fadeReset(){ fade.a = 0; fade.dir = 0; fade.cb = null; fade.hold = 0; ui.style.opacity = ''; }
+function fadeUpdate(dt){
+  if (!fade.dir) return;
+  if (fade.hold > 0) { fade.hold -= dt; return; }
+  fade.a += fade.dir * dt / FADE_TIME;
+  if (fade.dir > 0 && fade.a >= 1) {
+    fade.a = 1; fade.dir = -1; fade.hold = 0.25;
+    var cb = fade.cb; fade.cb = null; if (cb) cb();
+  } else if (fade.dir < 0 && fade.a <= 0) { fade.a = 0; fade.dir = 0; }
+  ui.style.opacity = String(Math.max(0, 1 - fade.a));
+}
+
+// ---------- 출시 컷신: 끝난 순간을 보여 주는 짧은 연출 (Enter·Space로 건너뛰기) ----------
+var LC = null;
+var LAUNCH_TIME = { clear:3.6, fail:3.0 };
+function openLaunch(){
+  clearTimeout(toastTimer); document.getElementById('toast').style.display = 'none';
+  LC = { t:0, dur:G.cleared ? LAUNCH_TIME.clear : LAUNCH_TIME.fail }; go('launch'); }
+function launchNext(){ if (scene !== 'launch' || fade.dir) return; fadeTo(function(){ LC = null; openEnding(); }); }
+function drawWorker(x, y, pose){   // y = 발 위치
+  var shirt = '#e8ebff', skin = '#f2c69b', hair = '#2b1d14', hop = 0;
+  if (pose === 'cheer') hop = -Math.round(Math.abs(Math.sin(T * 9)) * 4);
+  y += hop;
+  R(x + 3, y - 7, 3, 6, '#2d3561'); R(x + 8, y - 7, 3, 6, '#2d3561'); R(x + 2, y - 1, 4, 1, '#111'); R(x + 8, y - 1, 4, 1, '#111');
+  R(x + 2, y - 16, 10, 9, shirt); R(x + 6, y - 16, 2, 7, '#d2552d');
+  if (pose === 'sad') {   // 고개를 떨군 채 서 있음
+    R(x + 3, y - 21, 8, 7, skin); R(x + 3, y - 24, 8, 3, hair); R(x + 2, y - 23, 2, 5, hair);
+    R(x + 7, y - 17, 1, 1, '#111'); R(x + 9, y - 17, 1, 1, '#111'); R(x + 7, y - 15, 3, 1, '#7a4a3a');
+    R(x, y - 15, 2, 8, shirt); R(x + 12, y - 15, 2, 8, shirt);
+    if (Math.floor(T * 2) % 2) R(x + 12, y - 24, 1, 2, '#9ad8ff');   // 식은땀
+    return;
+  }
+  R(x + 3, y - 23, 8, 7, skin); R(x + 3, y - 26, 8, 3, hair); R(x + 2, y - 25, 2, 5, hair);
+  R(x + 8, y - 21, 1, 2, '#111'); R(x + 10, y - 21, 1, 2, '#111'); R(x + 7, y - 18, 3, 1, '#7a2a2a');
+  if (pose === 'cheer') { R(x, y - 27, 2, 11, shirt); R(x + 12, y - 27, 2, 11, shirt); R(x - 1, y - 29, 3, 2, skin); R(x + 12, y - 29, 3, 2, skin); }
+  else { R(x, y - 15, 2, 7, shirt); R(x + 12, y - 15, 2, 7, shirt); }
+}
+function drawLaunch(){
+  var t = LC.t, ok = G.cleared;
+  R(0, 150, W, 30, ok ? '#3a2c5c' : '#1d1830'); R(0, 150, W, 1, ok ? '#5a4a86' : '#2a2342');   // 옥상 / 사무실 바닥
+  R(96, 118, 128, 6, '#6b4f3a'); R(102, 124, 5, 26, '#4a3626'); R(213, 124, 5, 26, '#4a3626');   // 책상
+  if (ok) {
+    drawWorker(70, 150, t > 1.0 ? 'cheer' : 'stand');
+    var cw = ['#4a90c2', '#d2552d', '#7a5cc2'];
+    for (var c = 0; c < 3; c++) drawPerson(236 + c * 22, 132 - (t > 1.0 ? Math.round(Math.abs(Math.sin(T * 8 + c * 1.3)) * 3) : 0), cw[c]);   // 동료들 박수
+  } else {
+    drawWorker(70, 150, 'sad');
+    var dark = t < 1.3 ? 0 : (t < 1.8 ? 0.18 : (t < 2.3 ? 0.32 : 0.45));   // 사무실 불이 하나씩 꺼짐
+    if (dark) { ctx.globalAlpha = dark; R(0, 0, W, H, '#000000'); ctx.globalAlpha = 1; }
+  }
+  // 모니터
+  var mx = 112, my = 54, mw = 96, mh = 58;
+  R(mx - 3, my - 3, mw + 6, mh + 6, '#2d3561'); R(156, my + mh + 3, 8, 3, '#2d3561');
+  var flash = ok && t > 1.0 && t < 1.15;
+  R(mx, my, mw, mh, flash ? '#ffffff' : (ok ? '#0b1a14' : '#1a0b0f'));
+  if (!ok) { ctx.globalAlpha = 0.1 + 0.06 * Math.sin(T * 6); disc(160, 83, 70, '#ff3b3b'); disc(160, 83, 52, '#ff3b3b'); ctx.globalAlpha = 1; R(mx, my, mw, mh, '#1a0b0f'); }
+  var prog = ok ? Math.min(1, t / 1.0) : Math.min(0.72, t / 1.0 * 0.72);
+  if (ok && t > 1.0) {
+    if (!flash) { txt('SERVICE OPEN', 160, my + 22, 11, '#7be3a0', 'center'); txt('v1.0 · 배포 100%', 160, my + 40, 6, '#c8f0d8', 'center'); }
+  } else if (!ok && t > 1.0) {
+    txt('DEPLOY FAILED', 160, my + 22, 10, Math.floor(T * 4) % 2 ? '#ff5a5a' : '#a83030', 'center');
+    txt('배포 연기…', 160, my + 40, 6.5, '#ffb0b0', 'center');
+  } else {
+    txt('배포 중…', 160, my + 18, 7, '#c8cff0', 'center');
+    R(mx + 10, my + 30, mw - 20, 6, '#11152a'); R(mx + 10, my + 30, Math.round((mw - 20) * prog), 6, ok ? '#7be3a0' : '#ffb648');
+    txt(Math.round(prog * 100) + '%', 160, my + 45, 6, '#9aa2c7', 'center');
+  }
+  if (ok) {   // 불꽃놀이
+    [[66, 36, 1.1, '#ffd84a'], [254, 30, 1.45, '#ff4fd8'], [160, 20, 1.8, '#3ef2ff'], [104, 24, 2.3, '#7be3a0'], [222, 40, 2.6, '#ffd84a'], [40, 22, 2.9, '#ff8a5c']].forEach(function(b){
+      var d = t - b[2];
+      if (d > -0.35 && d < 0) { R(b[0], Math.round(b[1] + (-d / 0.35) * 70), 1, 4, '#fff1c4'); return; }   // 쏘아 올림
+      if (d < 0 || d > 1.1) return;
+      var rr = 3 + d * 24; ctx.globalAlpha = Math.max(0, 1 - d / 1.1);
+      for (var k = 0; k < 14; k++) { var a = k / 14 * Math.PI * 2; R(Math.round(b[0] + Math.cos(a) * rr), Math.round(b[1] + Math.sin(a) * rr + d * d * 10), 2, 2, b[3]); }
+      ctx.globalAlpha = 1;
+    });
+  }
+  var ca = Math.max(0, Math.min(1, (t - 1.2) / 0.4));   // 자막
+  if (ca > 0) {
+    ctx.globalAlpha = ca * 0.8; R(0, 158, W, 18, '#000'); ctx.globalAlpha = ca;
+    txt(ok ? '출시 성공! ' + G.name + ' 팀의 서비스가 세상에 나왔습니다' : '시간 종료… ' + G.name + ' 팀의 배포는 다음 스프린트로', 160, 167, 7, ok ? '#ffd84a' : '#ff8a8a', 'center');
+    ctx.globalAlpha = 1;
+  }
+  if (t > 0.6) txt('Space 건너뛰기', W - 5, 6, 4.8, '#c8cff0', 'right');
+}
+
+// ---------- 엔딩: 이번 판의 선택과 결과를 순서대로 ----------
+var END = null;
+var END_STEP = 0.32;   // 한 줄씩 나타나는 간격(초)
+function openEnding(){
+  var rows = G.log.slice();
+  rows.push({ tag:'플레이 기록', text:'퍼펙트 ' + G.perfects + '회 · 최대 콤보 ' + G.maxCombo + ' · 피버 ' + G.feverCount + '회(연타 ' + G.feverPressTotal + ')',
+    det:'미스 ' + G.mistakes + '회(−' + G.missTime + '초) · 아이템 ' + G.itemsGot.length + '개' + (G.coinsConverted != null ? ' · 남은 코인 ' + G.coinsConverted + '개 → +' + fmt(G.coinsConverted * COIN.score) + '점' : ' · 남은 코인 ' + G.coins), pts:'', c:'#9ad8ff', sum:true });
+  END = { rows:rows, shown:0, t:0, next:FADE_TIME + 0.3, doneT:-1 };
+  clearTimeout(toastTimer); document.getElementById('toast').style.display = 'none';   // 이전 알림이 엔딩을 가리지 않게
+  go('ending');
+}
+function endRowHTML(r){
+  return '<div class="erow' + (r.sum ? ' sum' : '') + '"><span class="et" style="color:' + r.c + '">' + esc(r.tag) + '</span>' +
+    '<span class="ex">' + esc(r.text) + (r.det ? '<i>' + esc(r.det) + '</i>' : '') + '</span><span class="ep">' + esc(r.pts) + '</span></div>';
+}
+function endFootHTML(){
+  if (END.shown < END.rows.length) return '<span class="key">Space</span> 모두 보기';
+  return '최종 점수<b>' + fmt(G.record ? G.record.score : G.score) + '</b><span class="key">Enter</span> 또는 <span class="key">Space</span> 결과·랭킹 보기';
+}
+function endReveal(all){
+  if (!END) return;
+  var from = END.shown;
+  END.shown = all ? END.rows.length : Math.min(END.rows.length, END.shown + 1);
+  var list = document.getElementById('elist'), foot = document.getElementById('efoot');
+  if (list) { list.insertAdjacentHTML('beforeend', END.rows.slice(from, END.shown).map(endRowHTML).join('')); list.scrollTop = list.scrollHeight; }
+  if (foot) foot.innerHTML = endFootHTML();
+}
+function endingNext(){
+  if (scene !== 'ending' || fade.dir) return;
+  if (END.shown < END.rows.length) { endReveal(true); return; }
+  fadeTo(function(){ END = null; go('result'); });
+}
+// 결과 등급 (점수 기준은 추정치)
+var GRADE = { S:25000, A:18000 };
+function gradeOf(){
+  var sc = G.record ? G.record.score : G.score;
+  if (G.cleared) return sc >= GRADE.S ? ['S', '#ffd84a'] : (sc >= GRADE.A ? ['A', '#3ef2ff'] : ['B', '#7be3a0']);
+  return G.reachedBoss ? ['C', '#ff8a5c'] : ['D', '#9aa2c7'];
+}
+// 결과창 아래 TOP 5. 내가 5위 밖이면 마지막 줄에 내 순위를 덧붙임
+function miniRank(rec, myRank){
+  // 이번 판 기록(rec.t)을 기준으로 강조. 같은 닉네임의 예전 기록이 있어도 이번 판 순위가 기준
+  var list = bestList(), top = list.slice(0, 5);
+  var row = function(r, n){ return '<tr class="' + (r.t === rec.t ? 'me' : '') + '"><td class="n">' + n + '</td><td>' + esc(r.name) + '</td><td class="s">' + fmt(r.score) + '</td></tr>'; };
+  var h = top.map(function(r, i){ return row(r, i + 1); }).join('');
+  var shown = top.some(function(r){ return r.t === rec.t; });
+  if (!shown) h += '<tr class="gap"><td colspan="3">⋯</td></tr>' + row(rec, myRank);
+  return '<table class="mrk">' + h + '</table>';
+}
+function honor(){
+  if (G.cleared && G.riskCount >= 3) return ['유니콘 스타트업 CTO', G.name + ' 팀, 신기술로 출시 성공!'];
+  if (G.cleared) return ['출시 장인', G.name + ' 팀, 서비스 출시 성공!'];
+  if (G.reachedBoss) return ['배포 직전의 개발자', '아깝다! 출시 D-Day에서 멈췄습니다'];
+  if (G.maxStage >= 3) return ['QA 통과 대기 중', '테스트까지 왔습니다. 조금만 더!'];
+  return ['열정 넘치는 인턴', '첫 커밋 완료! 수고하셨습니다'];
+}
+
+// ---------- 화면 전환 ----------
+function go(s){ scene = s; sceneT = 0; renderUI(); }
+
+function rankTable(highlight){
+  var list = bestList().slice(0, 10);
+  if (!list.length) return '<div class="empty">아직 기록이 없습니다. 첫 번째 출시자가 되어 보세요!</div>';
+  return '<table class="rk">' + list.map(function(r, i){
+    var cls = (i === 0 ? 'top1' : '') + (highlight && r.name === highlight ? ' me' : '');
+    var badge = r.cleared ? '출시 ✓' : (r.stage >= 4 ? '보스' : (r.stage || 1) + '층');
+    return '<tr class="' + cls + '"><td class="n">' + (i + 1) + '</td><td>' + esc(r.name) + '</td><td class="s">' + fmt(r.score) + '</td><td class="b">' + badge + '</td></tr>';
+  }).join('') + '</table>';
+}
+
+function renderUI(){
+  var h = '';
+  if (scene === 'idle') {
+    h = '<div class="idle" data-act="start">' +
+      '<div class="logo"><div class="t1">RELEASE RUSH</div><div class="t2">릴리즈 러시</div>' +
+      '<div class="t3">' + TOTAL_TIME + '초 안에 서비스를 출시하라!</div>' +
+      '<div class="start blink"><span class="key">Enter</span> 또는 클릭으로 시작</div>' +
+      '<div class="howto">스테이지마다 미니게임이 랜덤으로! <span class="key">Space</span> · <span class="key">방향키</span>로 업무 처리<br>층 사이 ⚠ WARNING 중간보스, 마지막엔 전부 섞인 최종 보스</div>' +
+      (storageOK ? '' : '<div class="warn">이 브라우저에서는 기록을 저장할 수 없습니다</div>') +
+      '</div><div class="panel rank"><h3>TOP 10</h3>' + rankTable() + '</div></div>';
+  } else if (scene === 'nickname') {
+    h = '<div class="center"><div class="panel nick" style="text-align:center">' +
+      '<h2>닉네임 입력</h2><div class="sub">랭킹에 표시될 이름 (1~10자)</div>' +
+      '<input id="nick" maxlength="10" autocomplete="off" spellcheck="false">' +
+      '<div class="err" id="nickErr"></div>' +
+      '<button class="btn" data-act="nickOk">시작하기</button> <button class="btn ghost" data-act="toIdle">처음으로</button>' +
+      '</div></div>';
+  } else if (scene === 'pick') {
+    var ttl = choice.ctx === 'start' ? '시작 카드를 고르세요' : '보상 카드를 고르세요';
+    if (choice.total > 1) ttl = choice.left > 1 ? '시니어 합류! 보상 카드 2장을 고르세요' : '시니어 합류! 한 장 더 고르세요';
+    h = '<div class="center"><div class="picktitle">' + ttl + '</div>' +
+      (choice.ctx === 'start' ? '<div class="lineup">이번 프로젝트 · ' + lineupHTML(-1) + '</div>' : '') +
+      '<div class="sub" style="text-shadow:.06em .06em 0 #000">숫자키 <span class="key">1</span><span class="key">2</span><span class="key">3</span> 또는 <span class="key">←</span><span class="key">→</span> + <span class="key">Enter</span></div>' +
+      '<div class="cards">' + choice.offers.map(function(c, i){
+        var own = cnt(c.id);
+        return '<div class="cardc' + (i === choice.sel ? ' sel' : '') + '" data-act="pick" data-i="' + i + '">' +
+          '<div class="no">' + (i + 1) + '</div><span class="tg">' + c.tag + '</span>' +
+          '<div class="nm">' + c.name + '</div><div class="bg">' + c.big + '</div><div class="ds">' + c.desc + '</div>' +
+          (own ? '<div class="own">보유 ' + own + '장' + (c.max < 99 ? ' / 최대 ' + c.max : '') + '</div>' : '') + '</div>';
+      }).join('') + '</div>' +
+      buildHTML() +
+      '<div class="cd">시간 제한 없음 · 천천히 전략을 세우세요 (고르는 동안 제한 시간이 멈춥니다)</div></div>';
+  } else if (scene === 'route') {
+    var L = choice.L, Ld = LAYERS[L], mg = G.stages[L];
+    h = '<div class="center"><div class="picktitle">' + (L + 1) + '층 · ' + Ld.name + ' — 「' + MG_INFO[mg].name + '」</div>' +
+      '<div class="lineup">' + lineupHTML(L) + '</div>' +
+      '<div class="sub" style="text-shadow:.06em .06em 0 #000"><span class="key">↑</span><span class="key">↓</span> 또는 <span class="key">1</span><span class="key">2</span> + <span class="key">Enter</span> · 남은 시간 ' + Math.ceil(G.time) + '초</div>' +
+      '<div class="routes">' + ['safe', 'risk'].map(function(k, i){
+        var R = ROUTES[k], nlv = G.riskCount + 1;   // 이번에 신기술을 고르면 될 Lv
+        return '<div class="rt ' + k + (i === choice.sel ? ' sel' : '') + '" data-act="route" data-k="' + k + '">' +
+          '<div class="lb">' + (i + 1) + ' · ' + (k === 'safe' ? '안전 루트' : '위험 루트') + '</div><div class="nm">' + routeLabel(k, nlv) + '</div>' +
+          (k === 'risk'
+            ? '<div class="cmp"><b>난이도 ' + x2(riskDiff(nlv)) + '</b> → <b class="s">점수 ' + x2(routeMult('risk', nlv)) + '</b><span>신기술을 고를 때마다 난이도 +' + Math.round(RISK.diffRate * 100) + '% · 점수 +' + Math.round(RISK.scoreRate * 100) + '% 복리<br>' + riskLadder(nlv) + '</span></div>'
+            : '<div class="cmp safe"><b>난이도 ×1</b> → <b class="s">점수 ×1</b><span>기준 난이도 · 신기술 Lv은 그대로 유지(현재 Lv.' + G.riskCount + ')</span></div>') +
+          '<ul>' +
+          '<li>' + MG_INFO[mg].how + '</li>' +
+          '<li>' + mgDetail(mg, k, L) + '</li>' +
+          '<li>점수 ' + x2(routeMult(k, nlv)) + ' · 룰렛 ' + Math.round(Math.min(0.9, R.bonus + G.pity + (has('lucky') ? 0.15 : 0)) * 100) + '% · 보너스 스테이지 ' + Math.round(Math.min(0.9, BONUS.chance[k] * (has('lucky') ? 1.5 : 1)) * 100) + '%</li></ul></div>';
+      }).join('') + '</div>' +
+      buildHTML() +
+      '<div class="cd">시간 제한 없음 · 고르는 동안 제한 시간이 멈춥니다</div></div>';
+  } else if (scene === 'itempick') {
+    h = '<div class="center"><div class="picktitle" style="color:#ffd84a">⚠ WARNING 보상 — 아이템 1개를 고르세요</div>' +
+      '<div class="odds">WARNING 성공 ' + G.midHits + '회 → 등급 확률 ' + oddsText(EV.odds) + ' (성공 3회↑, 6회↑이면 확률이 좋아짐)</div>' +
+      '<div class="cards">' + EV.offers.map(function(it, i){ return itemCardHTML(it, i, 'item', { sel:i === EV.sel }); }).join('') + '</div>' +
+      buildHTML() + '<div class="cd">숫자키 1·2·3 또는 ←→ + Enter · 시간 제한 없음</div></div>';
+  } else if (scene === 'mystery') {
+    var revealed = EV.picked >= 0;
+    h = '<div class="center"><div class="picktitle">★ 랜덤 카드 — 뒤집힌 카드 1장을 고르세요</div>' +
+      '<div class="odds">카드마다 등급 확률 ' + oddsText(EV.odds) + ' · 무료</div>' +
+      '<div class="cards">' + EV.hidden.map(function(it, i){
+        if (!revealed) return '<div class="cardc face' + (i === EV.sel ? ' sel' : '') + '" data-act="flip" data-i="' + i + '"><div class="no">' + (i + 1) + '</div><div class="q">?</div></div>';
+        return itemCardHTML(it, i, 'next', { sel:i === EV.picked, dim:i !== EV.picked, note:i === EV.picked ? '획득!' : '놓친 카드' });
+      }).join('') + '</div>' +
+      '<div class="evlast" style="color:' + (EV.lastTier ? TIERS[EV.lastTier].color : '#ffffff') + '">' + esc(EV.last) + '</div>' +
+      (revealed ? '<div class="actions"><button class="btn" data-act="next">Enter · 계속</button></div>' : '<div class="cd">숫자키 1·2·3 또는 ←→ + Enter</div>') +
+      buildHTML() + '</div>';
+  } else if (scene === 'shop') {
+    var bigShop = EV.kind === 'bigshop';
+    var priceLine = ['common', 'rare', 'legend'].filter(function(k){ return EV.odds[k] > 0; }).map(function(k){ return TIERS[k].name + ' ' + (bigShop ? Math.round(PRICE[k] * SHOP.bigDiscount) : PRICE[k]); }).join(' · ');
+    h = '<div class="center"><div class="picktitle" style="color:' + (bigShop ? '#ffd84a' : '#ffffff') + '">' + (bigShop ? '★ 대박 상점 ★ 희귀·전설만 30% 할인' : '일반 상점') + ' · 보유 ' + G.coins + '코인</div>' +
+      '<div class="odds">진열 등급 확률 ' + oddsText(EV.odds) + ' · 가격 ' + priceLine + '코인</div>' +
+      '<div class="cards">' + EV.offers.map(function(it, i){ return itemCardHTML(it, i, 'buy', { price:priceOf(it), sold:EV.sold[i] }); }).join('') + '</div>' +
+      '<div class="actions">' +
+        '<button class="btn ghost" data-act="reroll">R · 새로고침 ' + rerollCost() + '코인</button>' +
+        '<button class="btn ghost" data-act="gacha">G · 랜덤 뽑기 ' + gachaCost() + '코인 (' + oddsText(ODDS.gacha[EV.kind]) + ')</button>' +
+        '<button class="btn" data-act="leave">Enter · 나가기</button></div>' +
+      '<div class="evlast" style="color:' + (EV.lastTier ? TIERS[EV.lastTier].color : '#ffd84a') + '">' + esc(EV.last) + '</div>' +
+      buildHTML() + '</div>';
+  } else if (scene === 'roulette') {
+    var cls = RL.revealed ? (RL.win ? ' win' : ' lose') : '';
+    var res = '';
+    if (RL.revealed) {
+      res = RL.win ? RL.sp.desc : '꽝! 다음 룰렛 확률 +15%';
+      res += '<br><span style="color:#9aa2c7;font-size:.85em"><span class="key">Enter</span> 계속</span>';
+    }
+    h = '<div class="center"><div class="panel rl' + cls + '"><div class="ch">보상 룰렛 · 확률 ' + Math.round(RL.chance * 100) + '%</div>' +
+      '<div class="spin" id="spin">' + (RL.revealed ? (RL.win ? '★ ' + RL.sp.name : '꽝') : '…') + '</div>' +
+      '<div class="res">' + res + '</div></div></div>';
+  } else if (scene === 'play') {
+    h = G && G.paused ? '<div class="pause"><b>일시정지</b><span>아무 키나 누르면 계속합니다</span></div>'
+      : (G && G.ready ? readyHTML() : (G && G.tally ? tallyHTML() : ''));
+  } else if (scene === 'ending') {
+    h = '<div class="ending' + (G.cleared ? '' : ' fail') + '"><div class="etop">' +
+      '<div class="ettl">' + (G.cleared ? 'RELEASE NOTE v1.0 · 출시 성공!' : 'INCIDENT REPORT · 시간 종료') + '</div>' +
+      '<div class="esub">' + esc(G.name) + ' 팀의 이번 프로젝트 기록 · ' + G.stages.map(function(m){ return MG_INFO[m].name; }).join(' → ') + ' → 보스</div></div>' +
+      '<div class="elist" id="elist">' + END.rows.slice(0, END.shown).map(endRowHTML).join('') + '</div>' +
+      '<div class="efoot" id="efoot">' + endFootHTML() + '</div></div>';
+  } else if (scene === 'result') {
+    // 게임 결과창: 등급 · 점수 · 칭호 · 핵심 기록 4개 · TOP 5 (상세 내용은 엔딩 로그에서 이미 보여 줌)
+    var hn = honor(), r = G.record, gr = gradeOf();
+    var best = bestList();
+    var rank = 1 + best.filter(function(b){ return b.t !== r.t && b.score > r.score; }).length;   // 이번 판 점수가 들어갈 순위
+    var total = Math.max(best.length, rank);
+    var reach = G.cleared ? '출시 ✓' : (G.reachedBoss ? '보스' : G.maxStage + '층');
+    // 1인 1회 플레이라 개인 최고 기록 대신 전체 순위 기준 배지
+    var badge = G.demo ? '<span class="rbadge demo">DEMO · 기록 안 됨</span>'
+      : (rank === 1 ? '<span class="rbadge">★ 전체 1위!</span>' : (rank <= 10 ? '<span class="rbadge top">TOP 10 진입</span>' : ''));
+    h = '<div class="res2' + (G.cleared ? '' : ' fail') + '">' +
+      '<div class="rhead">' + (G.cleared ? 'MISSION COMPLETE' : 'TIME OVER') + '</div>' +
+      '<div class="rtop"><div class="grade" style="color:' + gr[1] + '">' + gr[0] + '</div>' +
+        '<div class="rsc"><div class="rlabel">' + esc(G.name) + ' · ' + (G.cleared ? '출시 성공' : '시간 종료') + '</div>' +
+        '<div class="rnum" id="rnum">0</div>' + badge + '</div></div>' +
+      '<div class="rhon">' + hn[0] + '</div><div class="rmsg">' + esc(hn[1]) + '</div>' +
+      '<div class="tiles">' +
+        '<div class="tile"><i>순위</i><b>' + rank + '<small>위 / ' + total + '명</small></b></div>' +
+        '<div class="tile"><i>도달</i><b>' + reach + '</b></div>' +
+        '<div class="tile"><i>퍼펙트</i><b>' + G.perfects + '<small>회</small></b></div>' +
+        '<div class="tile"><i>최대 콤보</i><b>' + G.maxCombo + '</b></div>' +
+      '</div>' + miniRank(r, rank) +
+      (G.demo ? '<div class="ract">아무 키나 누르면 게임을 시작합니다</div>'
+              : '<div class="ract"><span class="key">Enter</span> 처음 화면으로 (다음 분 차례)</div>') +
+      (storageOK ? '' : '<div class="warn">기록 저장에 실패했습니다 (브라우저 저장소 차단)</div>') +
+      '</div>';
+  }
+  ui.innerHTML = h;
+  if (scene === 'nickname') {
+    var inp = document.getElementById('nick');
+    if (demoActive) { inp.value = ''; inp.readOnly = true; }
+    else { inp.value = getLastName(); setTimeout(function(){ inp.focus(); inp.select(); }, 0); }
+  }
+}
+// ---------- 스테이지 시작 룰 카드 (Space를 눌러야 시작) ----------
+function keysHTML(mg){ return MG_RULES[mg].keys.map(function(k){ return '<span class="kbig">' + k + '</span>'; }).join(''); }
+function diffText(t){
+  var d = t.d;
+  if (t.mg === 'timing') return '커서 ' + (d.speed >= 1.2 ? '빠름' : '보통') + ' · 판정 ' + (d.zone >= 0.26 ? '넓음' : '좁음') + (d.move ? ' · 구간이 움직임' : '');
+  if (t.mg === 'command') return t.arrows.length + '칸' + (d.rev ? ' · 빨간 화살표' : '') + (d.hid ? ' · ? 화살표' : '');
+  if (t.mg === 'alert') return '반응 시간 ' + t.win.toFixed(2) + '초' + (d.fake ? ' · 노란 함정 신호' : '');
+  if (t.mg === 'charge') return '게이지 ' + (d.fill >= 1.05 ? '빠름' : '보통') + ' · 구간 ' + (d.zone >= 0.2 ? '넓음' : '좁음');
+  if (t.mg === 'mole') return '알림 ' + t.win.toFixed(2) + '초' + (d.fake ? ' · 👑 대표님 메시지' : '');
+  return '카드당 ' + t.time.toFixed(1) + '초';
+}
+function readyHTML(){
+  var go = '<div class="rgo"><span class="kbig">Space</span> 를 누르면 시작 <span class="rsub">(클릭도 가능 · 준비하는 동안 시간은 멈춰 있어요)</span></div>';
+  if (G.isBoss) {
+    return '<div class="ready boss"><div class="rtag">최종 보스 · ' + BOSS.name + '</div>' +
+      '<div class="rtitle">체력 ' + BOSS.hp + '을 0으로 만들면 출시!</div>' +
+      '<ul class="rlist">' + G.stages.map(function(m){ return '<li><b>' + MG_INFO[m].name + '</b>' + keysHTML(m) + ' <span>' + MG_RULES[m].doing + '</span></li>'; }).join('') +
+        '<li><b style="color:#ffd84a">그로기</b><span class="kbig">아무 키</span> <span>미니게임 <em>' + BOSS.groggyEvery + '개</em> 성공마다 ' + groggyDuration() + '초 동안 연타 → <em>연타한 만큼 체력 감소</em></span></li></ul>' +
+      '<div class="rgoal"><b class="g">클리어</b>랜덤 미니게임 ' + BOSS.groggyEvery + '개 → 그로기 연타, 반복해서 체력 0 <b class="r">게임오버</b>제한 시간 0초 · 미스 −' + MISS_TIME + '초 · ' + BOSS.outageEvery + '초마다 장애 −' + BOSS.outagePenalty + '초</div>' +
+      '<div class="rmeta">남은 시간 ' + Math.ceil(G.time) + '초</div>' + go + '</div>';
+  }
+  var t = G.task, mg = t.mg, r = MG_RULES[mg];
+  var bonus = G.isMid && G.midKind === 'bonus';
+  var goal = bonus
+    ? '<div class="rgoal"><b class="y">목표</b>' + BONUS.time + '초 안에 ' + BONUS.need + '번 성공 → ★ 특수 보상 <b class="g">안심</b>본 게임 시간 정지 · 미스해도 시간 감소 없음</div>'
+    : G.isMid
+    ? '<div class="rgoal"><b class="g">목표</b>' + MID.time + '초 동안 최대한 많이 <b class="y">안심</b>본 게임 시간 정지 · 미스해도 시간 감소 없음</div>'
+    : '<div class="rgoal"><b class="g">클리어</b>작업 ' + (G.total - G.pre) + '개 처리 → 다음 단계 <b class="r">게임오버</b>제한 시간 0초 · 미스 1회 −' + MISS_TIME + '초</div>';
+  var tag = bonus ? '★ BONUS STAGE · 이번엔 이 미니게임!' : G.isMid ? '⚠ WARNING · 다음 스테이지 미리보기' : (G.layer + 1) + '층 · ' + LAYERS[G.layer].name + ' · ' + routeLabel(G.routeKey);
+  var meta = bonus ? '성공 1회당 ' + BONUS.per + '점 · 쉬운 난이도 · ' + diffText(t)
+    : G.isMid
+    ? '<em class="r">' + MID.time + '초 동안 최대한 많이!</em> 못 해도 괜찮아요 · 성공할수록 보상 아이템 등급이 좋아져요'
+    : diffText(t) + ' · 점수 ' + x2(routeMult(G.routeKey)) + (G.layerMult > 1 ? ' · 아이템 ' + x2(G.layerMult) : '') + ' · 남은 시간 ' + Math.ceil(G.time) + '초';
+  return '<div class="ready' + (bonus ? ' bonus' : (G.isMid ? ' warn' : '')) + '"><div class="rtag">' + tag + '</div>' +
+    '<div class="rtitle">' + MG_INFO[mg].name + ' <span class="rkeys">' + keysHTML(mg) + '</span></div>' +
+    '<ul class="rrules">' +
+      '<li><b>하는 법</b>' + r.doing + '</li>' +
+      '<li><b class="p">PERFECT</b>' + r.perfect + ' (점수 ' + x2(perfectMult()) + ')</li>' +
+      '<li><b class="m">MISS</b>' + r.miss + '</li>' +
+      '<li><b class="t">TIP</b>' + r.tip + '</li>' +
+    '</ul>' + goal + '<div class="rmeta">' + meta + '</div>' + go + '</div>';
+}
+function itemCardHTML(it, i, act, o){
+  o = o || {};
+  return '<div class="cardc item t-' + it.tier + (o.sel ? ' sel' : '') + (o.dim ? ' dim' : '') + '" data-act="' + act + '" data-i="' + i + '">' +
+    '<div class="no">' + (i + 1) + '</div><span class="tg tier">' + TIERS[it.tier].name + '</span>' +
+    '<div class="nm">' + it.name + '</div><div class="bg">' + it.big + '</div>' +
+    (o.price != null ? '<div class="price' + (!o.sold && G.coins < o.price ? ' poor' : '') + '">' + (o.sold ? '구매 완료' : o.price + '코인') + '</div>' : '') +
+    (o.note ? '<div class="own">' + o.note + '</div>' : '') + '</div>';
+}
+// 선택 화면 아래에 지금까지 모은 카드·아이템의 효과를 숫자로 요약 (전략을 세울 수 있게)
+function buildHTML(){
+  var nb = G.nextBuff;
+  var items = [
+    ['남은 시간', Math.ceil(G.time) + '초'],
+    ['코인', G.coins],
+    ['보험', '미스 ' + G.shield + '회'],
+    ['다음 층', (nb.mult > 1 ? '점수 ' + x2(nb.mult) : '') + (nb.auto ? (nb.mult > 1 ? ' · ' : '') + '작업 ' + nb.auto + '개 자동' : '') || '-'],
+    ['작업 점수', x2(workMult(0)) + (has('streak') ? ' (10콤보↑ ' + x2(workMult(10)) + ')' : '')],
+    ['퍼펙트', x2(perfectMult())],
+    ['신기술', 'Lv.' + G.riskCount + ' · 다음 ' + x2(routeMult('risk', G.riskCount + 1))],
+    ['층 클리어', x2(Math.pow(1.5, cnt('bonuspay')))],
+    ['피버 연타', x2(Math.pow(1.5, cnt('party'))) + ' · ' + feverDuration() + '초'],
+    ['룰렛', Math.round(Math.min(0.9, ROUTES.safe.bonus + G.pity + (has('lucky') ? 0.15 : 0)) * 100) + '%~']
+  ];
+  return '<div class="build">' + items.map(function(it){ return '<span><i>' + it[0] + '</i> <b>' + it[1] + '</b></span>'; }).join('') + '</div>';
+}
+// 루트 선택 화면에 보여 줄 미니게임별 난이도 요약
+// 신기술 Lv별 난이도·점수 사다리 (지금 고를 Lv 강조)
+function riskLadder(cur){
+  var a = [];
+  for (var lv = 1; lv <= 3; lv++) a.push((lv === cur ? '<em>' : '') + 'Lv.' + lv + ' ' + x2(riskDiff(lv)) + '/' + x2(routeMult('risk', lv)) + (lv === cur ? '</em>' : ''));
+  return a.join(' · ') + ' (난이도/점수)';
+}
+function mgDetail(mg, route, L){
+  var d = diffOf(mg, route, L);
+  if (route === 'risk') d = harden(mg, d, G.riskCount);   // 이번에 고르면 될 Lv 기준
+  var n = Math.max(1, Math.round(LAYERS[L].count[route] * MG_COUNT[mg]) - G.pendingRefactor);
+  if (mg === 'timing') return '작업 ' + n + '개 · 커서 ' + (d.speed >= 1.2 ? '빠름' : '보통') + ' · 판정 ' + (d.zone >= 0.26 ? '넓음' : '좁음') + (d.move ? ' · 구간 이동' : '');
+  if (mg === 'command') return '커맨드 ' + n + '개 · ' + Math.max(3, d.len - (has('shortcut') ? 1 : 0)) + '칸' + (d.rev ? ' · 버그 화살표' : '') + (d.hid ? ' · ? 화살표' : '');
+  if (mg === 'alert') return '알림 ' + n + '개 · 반응 ' + d.win.toFixed(2) + '초' + (d.fake ? ' · 함정 신호' : '');
+  if (mg === 'charge') return '빌드 ' + n + '번 · 게이지 ' + (d.fill >= 1.05 ? '빠름' : '보통') + ' · 구간 ' + (d.zone >= 0.2 ? '넓음' : '좁음');
+  if (mg === 'mole') return '알림 ' + n + '개 · ' + d.win.toFixed(2) + '초' + (d.fake ? ' · 대표님 메시지' : '');
+  return '리뷰 ' + n + '건 · 카드당 ' + d.time.toFixed(1) + '초';
+}
+function ownedSummary(){
+  var ks = Object.keys(G.owned);
+  if (!ks.length) return '없음';
+  return ks.map(function(k){ return CARD_BY_ID[k].name + (G.owned[k] > 1 ? '×' + G.owned[k] : ''); }).join(', ');
+}
+
+function submitName(){
+  var inp = document.getElementById('nick'); if (!inp) return;
+  var v = inp.value.replace(/[\u0000-\u001f<>&"'`\\]/g, '').trim().slice(0, 10);
+  if (!v) { document.getElementById('nickErr').textContent = '닉네임을 입력해 주세요'; return; }
+  setLastName(v);
+  newRun(v);
+  openPick('start');
+}
+
+// ---------- 입력 ----------
+document.addEventListener('keydown', function(e){
+  lastInputAt = performance.now();
+  if (demoActive) {
+    if (['Shift','Control','Alt','Meta'].indexOf(e.key) >= 0) return;
+    e.preventDefault(); if (!e.repeat) stopDemo(true);
+    return;
+  }
+  if (fade.dir) { e.preventDefault(); return; }   // 화면 전환(페이드) 중에는 입력 무시
+  var tgt = e.target;
+  if (tgt && tgt.tagName === 'INPUT') {
+    if (e.key === 'Enter' && !e.isComposing && e.keyCode !== 229) { e.preventDefault(); submitName(); }
+    else if (e.key === 'Escape') { go('idle'); }
+    return;
+  }
+  if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].indexOf(e.code) >= 0) e.preventDefault();
+  // 피버 연타 중에는 F5(새로고침)·Tab 같은 브라우저 동작이 끼어들지 않게 막음
+  if (scene === 'play' && inFever() && e.code !== 'F11' && e.code !== 'F12') e.preventDefault();
+  if (e.repeat) return;
+  handleKey(e.code);
+});
+document.addEventListener('keyup', function(e){
+  if (demoActive || fade.dir) return;
+  if (scene === 'play' && G && G.task && G.task.mg === 'charge') taskRelease(e.code);
+});
+// 마우스: 컴파일 차지는 누르고 있다가 떼기
+stage.addEventListener('mousedown', function(){ if (!demoActive && scene === 'play' && G && G.task && G.task.mg === 'charge' && !G.ready && !G.tally && !inFever()) taskInput('Space'); });
+stage.addEventListener('mouseup', function(){ if (!demoActive && scene === 'play' && G && G.task && G.task.mg === 'charge') taskRelease('Space'); });
+function digit(code){ var m = /^(Digit|Numpad)([1-9])$/.exec(code); return m ? parseInt(m[2], 10) : 0; }
+function handleKey(code){
+  var isEnter = code === 'Enter' || code === 'NumpadEnter' || code === 'Space';
+  // 층을 끝낸 직후 Space 연타가 카드·루트 선택으로 넘어가지 않도록 잠깐 입력을 막음
+  if ((scene === 'pick' || scene === 'route' || scene === 'itempick' || scene === 'mystery' || scene === 'shop') && sceneT < 0.6) return;
+  if (scene === 'result' && sceneT < 0.4) return;
+  if (scene === 'idle') {
+    if (code === 'KeyR') {
+      var now = performance.now();
+      resetPresses = resetPresses.filter(function(t){ return now - t < 3000; }); resetPresses.push(now);
+      if (resetPresses.length >= 5) {
+        resetPresses = [];
+        if (window.confirm('모든 랭킹 기록을 삭제할까요? 되돌릴 수 없습니다.')) { clearRecords(); renderUI(); }
+      }
+      return;
+    }
+    if (isEnter) go('nickname');
+  } else if (scene === 'pick') {
+    var d = digit(code);
+    if (d) { choosePick(d - 1); return; }
+    if (code === 'ArrowLeft' || code === 'KeyA') { choice.sel = (choice.sel + choice.offers.length - 1) % choice.offers.length; renderUI(); }
+    else if (code === 'ArrowRight' || code === 'KeyD') { choice.sel = (choice.sel + 1) % choice.offers.length; renderUI(); }
+    else if (isEnter) choosePick(choice.sel);
+  } else if (scene === 'route') {
+    var d2 = digit(code);
+    if (d2 === 1) { chooseRoute('safe'); return; }
+    if (d2 === 2) { chooseRoute('risk'); return; }
+    if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','KeyW','KeyS','KeyA','KeyD'].indexOf(code) >= 0) { choice.sel = 1 - choice.sel; renderUI(); }
+    else if (isEnter) chooseRoute(choice.sel === 0 ? 'safe' : 'risk');
+  } else if (scene === 'itempick') {
+    var d3 = digit(code);
+    if (d3) { chooseItemPick(d3 - 1); return; }
+    if (code === 'ArrowLeft' || code === 'KeyA') { EV.sel = (EV.sel + 2) % 3; renderUI(); }
+    else if (code === 'ArrowRight' || code === 'KeyD') { EV.sel = (EV.sel + 1) % 3; renderUI(); }
+    else if (isEnter) chooseItemPick(EV.sel);
+  } else if (scene === 'mystery') {
+    if (EV.picked >= 0) { if (code === 'Enter' || code === 'NumpadEnter' || code === 'Space') leaveEvent(); return; }
+    var d4 = digit(code);
+    if (d4) { mysteryPick(d4 - 1); return; }
+    if (code === 'ArrowLeft' || code === 'KeyA') { EV.sel = (EV.sel + 2) % 3; renderUI(); }
+    else if (code === 'ArrowRight' || code === 'KeyD') { EV.sel = (EV.sel + 1) % 3; renderUI(); }
+    else if (isEnter) mysteryPick(EV.sel);
+  } else if (scene === 'shop') {
+    var d5 = digit(code);
+    if (d5) { shopBuy(d5 - 1); return; }
+    if (code === 'KeyR') shopReroll();
+    else if (code === 'KeyG') shopGacha();
+    else if (code === 'Enter' || code === 'NumpadEnter' || code === 'Escape') leaveEvent();
+  } else if (scene === 'roulette') {
+    if (isEnter && RL.revealed) nextAfterRoulette();
+  } else if (scene === 'play') {
+    if (G.paused) { G.paused = false; renderUI(); return; }
+    if (code === 'Escape') { G.paused = true; renderUI(); return; }
+    if (G.ready) { if (code === 'Space' || code === 'Enter' || code === 'NumpadEnter') beginStage(); return; }   // 룰 확인 후 시작
+    if (G.tally) { if (isEnter) tallyKey(); return; }   // 정산표: Space로 다음
+    if (inFever()) { feverPress(); return; }   // 피버 중에는 아무 키나 연타
+    taskInput(code);   // 현재 미니게임이 자기 키만 받음
+  } else if (scene === 'launch') {
+    if (LC && LC.t > 0.6 && isEnter) launchNext();   // 컷신 건너뛰기 (보스전 Space 연타가 바로 넘기지 않게 0.6초 뒤부터)
+  } else if (scene === 'ending') {
+    if (sceneT > 0.5 && isEnter) endingNext();   // Enter·Space로만 넘어감 (자동·클릭으로 넘어가지 않음)
+  } else if (scene === 'result') {
+    // 1인 1회 플레이: 다시 도전 없이 처음 화면으로 (다음 사람 차례)
+    if (code === 'Enter' || code === 'NumpadEnter' || code === 'Escape') go('idle');
+  }
+}
+stage.addEventListener('click', function(e){
+  lastInputAt = performance.now();
+  if (demoActive) { e.stopPropagation(); e.preventDefault(); stopDemo(true); }
+}, true);
+ui.addEventListener('click', function(e){
+  if (fade.dir) return;
+  var el = e.target.closest('[data-act]'); if (!el) return;
+  var act = el.getAttribute('data-act');
+  if (act === 'start' && scene === 'idle') go('nickname');
+  else if (act === 'nickOk') submitName();
+  else if (act === 'toIdle') go('idle');
+  else if (act === 'pick') choosePick(parseInt(el.getAttribute('data-i'), 10));
+  else if (act === 'route') chooseRoute(el.getAttribute('data-k'));
+  else if (act === 'item') chooseItemPick(parseInt(el.getAttribute('data-i'), 10));
+  else if (act === 'flip') mysteryPick(parseInt(el.getAttribute('data-i'), 10));
+  else if (act === 'buy') shopBuy(parseInt(el.getAttribute('data-i'), 10));
+  else if (act === 'reroll') shopReroll();
+  else if (act === 'gacha') shopGacha();
+  else if (act === 'leave' || act === 'next') leaveEvent();
+});
+stage.addEventListener('click', function(){
+  if (fade.dir) return;
+  if (scene === 'ending') return;   // 엔딩은 클릭으로 넘기지 않음
+  if (scene === 'play' && G && G.paused) { G.paused = false; renderUI(); }
+  else if (scene === 'play' && G && G.ready) beginStage();
+  else if (scene === 'play' && G && G.tally) tallyKey();
+  else if (scene === 'play' && G && inFever()) feverPress();
+  else if (scene === 'play' && G && G.task && (G.task.mg === 'timing' || G.task.mg === 'alert')) taskInput('Space');   // 마우스 클릭으로도 처리 가능
+  else if (scene === 'roulette' && RL && RL.revealed) nextAfterRoulette();
+});
+function autoPause(){ if (demoActive) return; if (scene === 'play' && G && !G.paused && !G.finished) { if (G.task && G.task.mg === 'charge') G.task.hold = false; G.paused = true; renderUI(); } }
+document.addEventListener('visibilitychange', function(){ if (document.hidden) autoPause(); });
+window.addEventListener('blur', autoPause);
+
+function showMsg(text, color, t){ fx.msg = { text:text, color:color, t:t }; }
+
+// ---------- 데모 플레이 (오락실 어트랙트 모드) ----------
+// 실제 게임 로직을 그대로 쓰고 입력만 자동으로 넣는다. 기록은 저장하지 않는다.
+function startDemo(){
+  demoActive = true;
+  D = { name:'DEMO', typed:0, wait:0.9, phase:null, resultSeen:false };
+  demoBadge.style.display = 'block';
+  fadeReset(); END = null; LC = null;   // 진행 중이던 화면 전환이 있으면 취소
+  G = null; choice = null; RL = null;
+  go('nickname');
+}
+function endDemo(){
+  demoActive = false; D = null; demoBadge.style.display = 'none'; fadeReset(); END = null; LC = null;
+  G = null; choice = null; RL = null; fx.msg = null; fx.pops = [];
+}
+function stopDemo(toStart){ endDemo(); go(toStart ? 'nickname' : 'idle'); }
+function demoTick(dt){
+  D.wait -= dt;
+  if (D.wait > 0) return;
+  if (scene === 'nickname') {
+    var inp = document.getElementById('nick');
+    if (D.typed < D.name.length) { D.typed++; if (inp) inp.value = D.name.slice(0, D.typed); D.wait = 0.2; }
+    else { newRun(D.name); G.demo = true; openPick('start'); D.wait = 1.0; }
+  } else if (scene === 'pick') {
+    if (D.phase !== 'pickSel') { choice.sel = ri(choice.offers.length); renderUI(); D.phase = 'pickSel'; D.wait = 1.0; }
+    else { D.phase = null; choosePick(choice.sel); D.wait = 1.0; }
+  } else if (scene === 'route') {
+    if (D.phase !== 'routeSel') { choice.sel = rand() < 0.5 ? 0 : 1; renderUI(); D.phase = 'routeSel'; D.wait = 1.1; }
+    else { D.phase = null; chooseRoute(choice.sel === 0 ? 'safe' : 'risk'); D.wait = 0.3; }
+  } else if (scene === 'play' && G && G.tally) {   // 데모: 정산이 끝나면 잠깐 보여 주고 다음으로
+    if (!G.tally.done) { D.wait = 0.2; return; }
+    if (D.phase !== 'tally') { D.phase = 'tally'; D.wait = 1.4; } else { D.phase = null; tallyKey(); D.wait = 0.3; }
+  } else if (scene === 'play' && G && G.ready) {   // 데모: 룰 카드를 잠깐 보여 준 뒤 시작
+    if (D.phase !== 'ready') { D.phase = 'ready'; D.wait = 2.2; } else { D.phase = null; beginStage(); D.wait = 0.3; }
+  } else if (scene === 'play' && G && inFever()) {
+    feverPress(); D.wait = 0.09 + rand() * 0.06;   // 피버 연타
+  } else if (scene === 'play' && G && G.task) {
+    D.wait = 0.02;
+    if (G.banner > 0 || G.clearing > 0 || G.finished) return;
+    var t = G.task;
+    if (t.mg === 'timing') {        // 대체로 구간 안에서, 가끔 퍼펙트·가끔 미스
+      if (t.lock > 0) return;
+      var half = zoneWidth(t) / 2, dist = Math.abs(t.cur - zoneCenter(t));
+      if (D.aim == null) D.aim = rand() < 0.5 ? half * 0.25 : half * 0.85;
+      if (dist <= D.aim) { taskInput('Space'); D.aim = null; D.wait = 0.3; }
+      else if (rand() < 0.004) { taskInput('Space'); D.aim = null; D.wait = 0.4; }
+    } else if (t.mg === 'command') {  // 빨간·? 화살표 앞에서 멈칫, 가끔 실수
+      var a = t.arrows[t.progress], expect = a.type === 'rev' ? OPP[a.dir] : a.dir;
+      if (rand() < 0.07) { taskInput(DIR_CODE[(expect + 1 + ri(3)) % 4]); D.wait = 0.55; return; }
+      taskInput(DIR_CODE[expect]);
+      D.wait = 0.22 + rand() * 0.2 + (a.type === 'rev' ? 0.3 : 0) + (a.type === 'hid' ? 0.25 : 0);
+    } else if (t.mg === 'alert') {    // 초록불에 반응, 아주 가끔 성급하게
+      if (t.state === 'go') { if (D.react == null) D.react = 0.12 + rand() * 0.22; if (t.goT >= D.react) { taskInput('Space'); D.react = null; D.wait = 0.2; } }
+      else if (rand() < 0.0015) { taskInput('Space'); D.wait = 0.4; }
+    } else if (t.mg === 'sort') {     // 잠깐 보고 판단, 가끔 오판
+      if (D.think == null) D.think = 0.25 + rand() * 0.45;
+      if (t.el >= D.think) { var ok = t.card === 'ok'; if (rand() < 0.08) ok = !ok; taskInput(ok ? 'ArrowRight' : 'ArrowLeft'); D.think = null; D.wait = 0.15; }
+    } else if (t.mg === 'charge') {   // 꾹 눌렀다가 초록 구간 근처에서 떼기
+      if (!t.hold) { if (t.lock <= 0) { taskInput('Space'); D.aim = t.zc + (rand() - 0.5) * t.zone * 1.1; } }
+      else if (t.g >= D.aim) { taskRelease('Space'); D.wait = 0.25; }
+    } else if (t.mg === 'mole') {     // 알림에 반응, 대표님 메시지는 대체로 참음
+      if (t.state === 'show') { if (D.react == null) D.react = 0.25 + rand() * 0.2; if (t.el >= D.react) { if (!t.trap || rand() < 0.1) taskInput(['ArrowLeft', 'ArrowDown', 'ArrowRight'][rand() < 0.06 ? ri(3) : t.lane]); D.react = null; D.wait = t.trap ? 0.6 : 0.15; } }
+    }
+  } else if (scene === 'itempick') {          // 데모: 아이템 하나 고르기
+    if (D.phase !== 'itemSel') { EV.sel = ri(3); renderUI(); D.phase = 'itemSel'; D.wait = 1.0; }
+    else { D.phase = null; chooseItemPick(EV.sel); D.wait = 0.8; }
+  } else if (scene === 'mystery') {           // 데모: 카드 뒤집고 결과 보기
+    if (EV.picked < 0) { if (D.phase !== 'flipSel') { EV.sel = ri(3); renderUI(); D.phase = 'flipSel'; D.wait = 0.9; } else { D.phase = null; mysteryPick(EV.sel); D.wait = 1.6; } }
+    else { leaveEvent(); D.wait = 0.6; }
+  } else if (scene === 'shop') {              // 데모: 살 수 있는 가장 싼 것 하나 사고 나가기
+    if (D.phase !== 'shopped') {
+      var best = -1;
+      EV.offers.forEach(function(it, i){ if (!EV.sold[i] && G.coins >= priceOf(it) && (best < 0 || priceOf(it) < priceOf(EV.offers[best]))) best = i; });
+      if (best >= 0) shopBuy(best);
+      D.phase = 'shopped'; D.wait = 1.4;
+    } else { D.phase = null; leaveEvent(); D.wait = 0.6; }
+  } else if (scene === 'roulette') {
+    if (!RL.revealed) { D.wait = 0.2; return; }
+    if (D.phase !== 'rlSeen') { D.phase = 'rlSeen'; D.wait = 1.6; return; }
+    D.phase = null; nextAfterRoulette(); D.wait = 0.8;
+  } else if (scene === 'ending') {         // 데모: 로그가 다 나온 뒤 잠깐 보여 주고 결과로
+    if (!END || END.shown < END.rows.length) { D.wait = 0.2; return; }
+    if (D.phase !== 'endSeen') { D.phase = 'endSeen'; D.wait = 3; return; }
+    D.phase = null; endingNext(); D.wait = 1.5;
+  } else if (scene === 'result') {
+    if (!D.resultSeen) { D.resultSeen = true; D.wait = 7; return; }
+    stopDemo(false);
+  }
+}
+
+// ---------- 업데이트 ----------
+function update(dt){
+  T += dt; sceneT += dt;
+  fadeUpdate(dt);
+  if (fx.shake > 0) fx.shake = Math.max(0, fx.shake - dt);
+  if (fx.flash > 0) fx.flash = Math.max(0, fx.flash - dt * 2.5);
+  if (fx.msg) { fx.msg.t -= dt; if (fx.msg.t <= 0) fx.msg = null; }
+  fx.pops = fx.pops.filter(function(p){ p.t -= dt; p.y -= dt * 25; return p.t > 0; });
+  if (demoActive && D) demoTick(dt);
+  else if (scene === 'idle' && sceneT > DEMO_IDLE_WAIT) startDemo();
+
+  if (scene === 'play' && G && !G.paused) battleUpdate(dt);   // 전투 연출은 안내·피버·클리어 중에도 움직임
+  if (scene === 'play' && G && !G.finished) {
+    if (G.paused) return;
+    if (G.ready) {   // 시작 대기: 시간·미니게임 정지. 부스 안전장치로 입력 없이 3분이면 처음 화면으로
+      if (!demoActive && performance.now() - lastInputAt > IDLE_ABANDON * 1000) go('idle');
+      return;
+    }
+    if (G.banner > 0) { G.banner -= dt; return; }
+    // 피버 연타 구간: 미니게임과 제한 시간이 멈춤
+    if (G.feverT > 0) { G.feverT -= dt; if (G.feverT <= 0) endFever(); return; }
+    if (G.clearing > 0) {
+      G.clearing -= dt;
+      if (G.clearBurst) G.clearBurst.forEach(function(b){ b.x += b.vx * dt; b.y += b.vy * dt; b.vy += 90 * dt; });
+      if (G.clearing <= 0) openTally();
+      return;
+    }
+    if (G.tally) {   // 정산표: 시간 정지. 부스 안전장치로 입력 없이 3분이면 처음 화면으로
+      tallyUpdate(dt);
+      if (!demoActive && performance.now() - lastInputAt > IDLE_ABANDON * 1000) go('idle');
+      return;
+    }
+    if (G.isMid) {   // 중간보스는 자체 타이머, 본 게임 시간은 멈춤
+      G.midT -= dt;
+      if (G.midT <= 0) { G.midT = 0; midEnd(); return; }
+    } else { G.time -= dt; G.playTime += dt; }
+    if (G.timeHit > 0) G.timeHit -= dt;
+    if (G.lastHitMark) { G.lastHitMark.t -= dt; if (G.lastHitMark.t <= 0) G.lastHitMark = null; }
+    MGX[G.task.mg].update(G.task, dt);
+    if (G.isBoss) {
+      G.outageT += dt;
+      if (G.outageT >= BOSS.outageEvery) {
+        G.outageT -= BOSS.outageEvery;
+        G.time -= BOSS.outagePenalty; G.outages++;
+        fx.flash = 0.8; fx.flashColor = '#ff3b3b'; fx.shake = 0.35;
+        showMsg('장애 발생! 제한 시간 −' + BOSS.outagePenalty + '초', '#ff5a5a', 1.2);
+        battleMiss(true);
+      }
+    }
+    if (!G.isMid && G.time <= 0) { G.time = 0; finish(false); }
+  } else if ((scene === 'pick' || scene === 'route') && choice) {
+    // 선택에는 시간 제한이 없음. 부스에서 자리를 비운 판이 남지 않도록 입력 없이 3분이 지나면 처음 화면으로
+    if (!demoActive && performance.now() - lastInputAt > IDLE_ABANDON * 1000) go('idle');
+  } else if (scene === 'itempick' || scene === 'mystery' || scene === 'shop') {
+    if (!demoActive && performance.now() - lastInputAt > IDLE_ABANDON * 1000) { EV = null; go('idle'); }
+  } else if (scene === 'roulette' && RL) {
+    RL.t += dt;
+    if (!RL.revealed) {
+      var f = Math.floor(RL.t * 14) % SPECIALS.length;
+      if (f !== RL.face) { RL.face = f; var sp = document.getElementById('spin'); if (sp) sp.textContent = (f % 2 ? '꽝' : SPECIALS[f].name); }
+      if (RL.t >= 1.4) revealRoulette();
+    } else if (RL.t - RL.revealAt >= 3) {
+      nextAfterRoulette();
+    }
+  } else if (scene === 'launch' && LC) {
+    if (!fade.dir) LC.t += dt;   // 페이드인이 끝난 뒤부터 연출 시작
+    if (LC.t >= LC.dur) launchNext();   // 컷신은 짧은 연출이라 끝나면 엔딩으로 이어짐
+  } else if (scene === 'ending' && END) {
+    END.t += dt;
+    if (END.shown < END.rows.length) { if (END.t >= END.next) { endReveal(false); END.next = END.t + END_STEP; } }
+    else if (END.doneT < 0) END.doneT = END.t;   // 다 나온 뒤에는 Enter·Space를 누를 때까지 그대로
+  }
+  // 결과 화면은 자동으로 처음 화면으로 돌아가지 않음 (Enter·Esc를 눌러야 다음 사람 차례)
+  if (scene === 'result' && G && G.record && !G.countDone) {   // 점수 카운트업 (약 1초)
+    var rn = document.getElementById('rnum');
+    if (rn) {
+      var k = Math.max(0, Math.min(1, (sceneT - 0.23) / 0.67)), e = 1 - Math.pow(1 - k, 3);
+      rn.textContent = fmt(Math.round(G.record.score * e));
+      if (k >= 1) G.countDone = true;
+    }
+  }
+}
+
+// ---------- 그리기 ----------
+function R(x, y, w, h, c){ ctx.fillStyle = c; ctx.fillRect(x, y, w, h); }
+function txt(s, x, y, size, color, align, weight){
+  ctx.font = (weight || 'bold') + ' ' + size + 'px "Malgun Gothic","맑은 고딕",sans-serif';
+  ctx.fillStyle = color; ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
+  ctx.fillText(s, x, y);
+}
+function hash(n){ var x = Math.sin(n * 127.1) * 43758.5453; return x - Math.floor(x); }
+
+function drawPerson(x, y, shirt){
+  R(x + 2, y, 8, 3, '#3b2b20'); R(x + 2, y + 3, 8, 5, '#3b2b20');
+  R(x + 1, y + 8, 10, 10, shirt); R(x, y + 10, 2, 6, shirt); R(x + 10, y + 10, 2, 6, shirt);
+}
+// 원(도트) 채우기
+function disc(cx, cy, r, c){ for (var dy = -r; dy <= r; dy++) { var w = Math.round(Math.sqrt(r * r - dy * dy)); R(cx - w, cy + dy, w * 2, 1, c); } }
+// 결과별 배경 ① 출시 성공: 밤샘이 끝난 새벽 도시 + 색종이 (시작 화면의 밤 도시와 대비)
+var CONFETTI = ['#ffd84a', '#ff4fd8', '#3ef2ff', '#7be3a0', '#ff8a5c', '#ffffff'];
+function drawDawn(){
+  var bands = ['#27306a', '#3b3a82', '#5f4590', '#8c4f92', '#c45f86', '#ee7f78', '#ffa46e', '#ffc884'];
+  for (var i = 0; i < bands.length; i++) R(0, i * 16, W, 16, bands[i]);
+  R(0, 128, W, 52, '#ffc884');
+  for (var st = 0; st < 14; st++) R(Math.floor(hash(st + 300) * W), Math.floor(hash(st + 340) * 30), 1, 1, '#8a90d0');   // 사라져 가는 별
+  ctx.globalAlpha = 0.35; disc(160, 118, 30, '#fff1c4'); ctx.globalAlpha = 1;
+  disc(160, 118, 20, '#ffe08a'); disc(160, 118, 15, '#fff4c8');                                                       // 떠오르는 해
+  var bx = [6, 46, 92, 196, 236, 280], bw = [34, 40, 44, 38, 40, 36], bh = [72, 96, 64, 84, 100, 70];
+  for (var b = 0; b < bx.length; b++) {
+    var top = H - bh[b];
+    R(bx[b], top, bw[b], bh[b], '#3a2c5c');
+    for (var wy = top + 6; wy < H - 6; wy += 9) for (var wx = bx[b] + 4; wx < bx[b] + bw[b] - 5; wx += 8)
+      R(wx, wy, 4, 4, hash(wx * 5 + wy * 3 + b) > 0.82 ? '#ffd8a0' : '#2e2350');   // 불이 거의 꺼진 창문
+  }
+  var conf = scene === 'launch' && LC ? Math.max(0, Math.min(1, (LC.t - 1.0) / 0.6)) : 1;   // 컷신에서는 배포가 끝난 뒤부터
+  for (var k = 0; k < Math.round(46 * conf); k++) {   // 색종이
+    var cx = (hash(k) * W + Math.sin(T * 1.5 + k) * 6 + W) % W, cy = (hash(k + 90) * H + T * (14 + hash(k + 40) * 18)) % (H + 6) - 3;
+    R(Math.round(cx), Math.round(cy), Math.floor(T * 6 + k) % 2 ? 2 : 1, 2, CONFETTI[k % CONFETTI.length]);
+  }
+}
+// 결과별 배경 ② 시간 종료: 비 오는 밤의 야근 사무실
+function drawRainOffice(){
+  R(0, 0, W, H, '#151a30'); R(0, 118, W, 62, '#1d1830'); R(0, 116, W, 2, '#2a2342');
+  R(24, 12, 272, 88, '#2a3150'); R(28, 16, 264, 80, '#0a0f22');                 // 큰 창
+  for (var bb = 0; bb < 7; bb++) { var bx = 34 + bb * 38, bh = 26 + Math.floor(hash(bb + 7) * 40); R(bx, 96 - bh, 30, bh, '#121733');
+    for (var wy = 96 - bh + 4; wy < 92; wy += 8) for (var wx = bx + 4; wx < bx + 26; wx += 7) if (hash(wx + wy * 3) > 0.86) R(wx, wy, 3, 3, '#5a5a3a'); }
+  for (var r = 0; r < 70; r++) {   // 빗줄기 (창 안쪽)
+    var rx = 28 + Math.floor(hash(r + 11) * 262), ry = 16 + ((hash(r + 61) * 80 + T * (90 + hash(r) * 40)) % 76);
+    ctx.globalAlpha = 0.55; R(rx, Math.floor(ry), 1, 4, '#6a7ac0'); ctx.globalAlpha = 1;
+  }
+  for (var f = 0; f < 3; f++) R(28 + f * 88 + 87, 16, 2, 80, '#2a3150');        // 창틀
+  R(28, 55, 264, 2, '#2a3150');
+}
+function drawBg(key, battle){   // battle: 전투 중이면 책상·동료를 치워 무대를 비움
+  if (key === 'dawn') { drawDawn(); return; }
+  if (key === 'rain') { drawRainOffice(); return; }
+  if (key === 'idle') {
+    R(0, 0, W, H, '#0d1230'); R(0, 0, W, 60, '#101640');
+    for (var i = 0; i < 40; i++) R(Math.floor(hash(i) * W), Math.floor(hash(i + 50) * 90), 1, 1, '#4a5390');
+    R(265, 16, 8, 2, '#e8e2b8'); R(263, 18, 12, 2, '#e8e2b8'); R(262, 20, 14, 6, '#e8e2b8'); R(263, 26, 12, 2, '#e8e2b8'); R(265, 28, 8, 2, '#e8e2b8');
+    R(267, 21, 3, 3, '#cfc89a'); R(271, 25, 2, 2, '#cfc89a');
+    var bx = [10, 52, 96, 150, 196, 240, 284], bw = [36, 40, 46, 40, 38, 38, 32], bh = [80, 110, 70, 125, 90, 105, 75];
+    for (var b = 0; b < bx.length; b++) {
+      var top = H - bh[b];
+      R(bx[b], top, bw[b], bh[b], b === 3 ? '#232c66' : '#1a2152');
+      for (var wy = top + 6; wy < H - 6; wy += 9) for (var wx = bx[b] + 4; wx < bx[b] + bw[b] - 5; wx += 8) {
+        var on = hash(wx * 3 + wy * 7 + b) > 0.55;
+        R(wx, wy, 4, 4, on ? (b === 3 ? '#ffd84a' : '#c9b46a') : '#121838');
+      }
+    }
+    R(156, H - 125 - 8, 28, 8, '#3ef2ff');
+    return;
+  }
+  if (key === 'boss') {
+    R(0, 0, W, H, '#140d1c'); R(0, 120, W, 60, '#1c1226');
+    var alert = 0.5 + 0.5 * Math.sin(T * 6);
+    ctx.globalAlpha = 0.15 + alert * 0.2; R(0, 0, W, H, '#ff2a2a'); ctx.globalAlpha = 1;
+    R(150, 20, 20, 6, '#3a1a1a'); R(153, 22, 14, 6, alert > 0.5 ? '#ff4a4a' : '#7a2020');
+    for (var k = 0; k < 6; k++) {
+      var x = 16 + k * 50; R(x, 32, 36, 88, '#262036'); R(x + 2, 34, 32, 84, '#1a1526');
+      for (var s = 0; s < 8; s++) {
+        R(x + 4, 38 + s * 10, 28, 7, '#2e2840');
+        var blink = hash(k * 13 + s + Math.floor(T * 4)) > 0.4;
+        R(x + 6, 40 + s * 10, 2, 2, blink ? '#7be3a0' : '#2a5a3a');
+        R(x + 10, 40 + s * 10, 2, 2, hash(k + s * 7 + Math.floor(T * 3)) > 0.75 ? '#ff4a4a' : '#5a2a2a');
+      }
+    }
+    return;
+  }
+  // 사무실 공통
+  var wall = { plan:'#2b3157', dev:'#1f2748', qa:'#2a2f46' }[key] || '#222';
+  R(0, 0, W, H, wall); R(0, 118, W, 62, '#2a2038'); R(0, 116, W, 2, '#3a2d4e');
+  for (var p = 0; p < W; p += 32) R(p, 118, 1, 62, '#251c33');
+  if (key === 'plan') {
+    R(70, 22, 180, 74, '#6b7280'); R(73, 25, 174, 68, '#dfe6f0');
+    R(82, 34, 60, 3, '#2b6f8f'); R(82, 42, 90, 3, '#d2552d'); R(82, 50, 40, 3, '#2b6f8f');
+    R(150, 34, 30, 22, '#9aa8c0'); R(152, 36, 26, 18, '#dfe6f0'); R(155, 40, 20, 2, '#5a6478'); R(155, 45, 14, 2, '#5a6478');
+    R(190, 32, 14, 14, '#ffd84a'); R(208, 32, 14, 14, '#ff9ad8'); R(226, 32, 14, 14, '#7be3a0');
+    R(190, 50, 14, 14, '#7be3a0'); R(208, 50, 14, 14, '#ffd84a');
+    R(82, 66, 120, 3, '#5a6478'); R(82, 74, 80, 3, '#5a6478');
+    if (!battle) { R(60, 104, 200, 8, '#6b4f3a'); R(66, 112, 6, 10, '#4a3626'); R(248, 112, 6, 10, '#4a3626');
+      drawPerson(96, 88, '#4a90c2'); drawPerson(206, 88, '#d2552d'); }
+  } else if (key === 'dev') {
+    R(22, 24, 44, 36, '#2d3561'); R(24, 26, 40, 32, '#3ef2ff'); ctx.globalAlpha = 0.25; R(24, 26, 40, 32, '#0b0f1e'); ctx.globalAlpha = 1;
+    var mons = [[92, 52], [132, 46], [184, 52]];
+    for (var m = 0; m < 3; m++) {
+      var mx = mons[m][0], my = mons[m][1];
+      R(mx, my, 44, 32, '#2d3561'); R(mx + 2, my + 2, 40, 26, '#0e1226');
+      for (var l = 0; l < 5; l++) R(mx + 5 + (l % 2) * 4, my + 5 + l * 4, 10 + Math.floor(hash(m * 9 + l) * 22), 2, ['#7be3a0', '#3ef2ff', '#ff8ad8', '#ffd84a', '#9aa2c7'][l]);
+      R(mx + 19, my + 32, 6, 6, '#2d3561');
+    }
+    if (!battle) { R(70, 104, 180, 8, '#6b4f3a'); R(76, 112, 6, 10, '#4a3626'); R(238, 112, 6, 10, '#4a3626');
+      drawPerson(150, 92, '#4a90c2'); }
+    R(264, 88, 12, 16, '#8a5a3a'); R(260, 74, 20, 14, '#3a8a4a'); R(264, 68, 12, 8, '#4aa85a');
+  } else if (key === 'qa') {
+    R(40, 20, 240, 80, '#8a6a4a'); R(43, 23, 234, 74, '#b8916a');
+    var notes = ['#ffd84a', '#ff9ad8', '#7be3a0', '#ffd84a', '#9ad8ff', '#ff9ad8', '#ffd84a', '#7be3a0', '#9ad8ff', '#ffd84a'];
+    for (var n = 0; n < notes.length; n++) {
+      var nx = 52 + (n % 5) * 44, ny = 30 + Math.floor(n / 5) * 32;
+      R(nx, ny, 26, 24, notes[n]); R(nx + 4, ny + 6, 16, 2, '#5a4a3a'); R(nx + 4, ny + 11, 12, 2, '#5a4a3a');
+      if (n % 3 === 0) { R(nx + 16, ny + 14, 6, 6, '#d33a3a'); R(nx + 15, ny + 16, 8, 2, '#d33a3a'); }
+    }
+    if (!battle) { R(70, 104, 180, 8, '#6b4f3a'); R(76, 112, 6, 10, '#4a3626'); R(238, 112, 6, 10, '#4a3626');
+      R(140, 90, 40, 14, '#3a4378'); R(142, 92, 36, 10, '#1a2152');
+      drawPerson(110, 90, '#7a5cc2'); }
+  }
+}
+
+var ARROW_BMP = ['....#....', '...###...', '..#####..', '.#######.', '#########', '...###...', '...###...', '...###...', '...###...'];
+var AN = ARROW_BMP.length;
+function drawArrow(x, y, dir, color, cell){
+  ctx.fillStyle = color;
+  for (var r = 0; r < AN; r++) for (var c = 0; c < AN; c++) {
+    if (ARROW_BMP[r][c] !== '#') continue;
+    var px, py;
+    if (dir === 0) { px = c; py = r; } else if (dir === 1) { px = AN - 1 - r; py = c; }
+    else if (dir === 2) { px = c; py = AN - 1 - r; } else { px = r; py = c; }
+    ctx.fillRect(x + px * cell, y + py * cell, cell, cell);
+  }
+}
+function boxBorder(x, y, w, h, c, dashed){
+  if (!dashed) { R(x, y, w, 1, c); R(x, y + h - 1, w, 1, c); R(x, y, 1, h, c); R(x + w - 1, y, 1, h, c); return; }
+  for (var i = 0; i < w; i += 3) { R(x + i, y, 2, 1, c); R(x + i, y + h - 1, 2, 1, c); }
+  for (var j = 0; j < h; j += 3) { R(x, y + j, 1, 2, c); R(x + w - 1, y + j, 1, 2, c); }
+}
+
+// ---------- 전투 연출: 직장인 주인공 vs 업무 몬스터 ----------
+// 게임 판정과는 분리된 '보여 주기용' 레이어. 작업 1개 = 몬스터 1마리, 보스 커맨드 = 보스 체력
+var BT = null;
+var GROUND = 110, HERO_X = 88;
+var ENEMY_OF = { plan:'mail', dev:'bug', qa:'slime', boss:'dday' };
+var ENEMY_COLORS = { mail:['#ffffff', '#d33a3a', '#c8cff0'], bug:['#7a4fc0', '#4a2a70', '#b48aff'], slime:['#d33a3a', '#ff7a7a', '#ffd84a'], dday:['#ffffff', '#d33a3a', '#ffd84a', '#3ef2ff'] };
+var ENEMY_NAME = { mail:'회의 요청 메일', bug:'버그', slime:'에러 로그', dday:'출시 D-Day' };
+function battleStart(key, elite){   // elite: WARNING 중간보스용 강화 몬스터
+  BT = { kind:ENEMY_OF[key] || 'bug', isBoss:key === 'boss', elite:!!elite, hero:{ st:'run', t:0, x:HERO_X - 30 }, enemy:null, shots:[], parts:[], slashes:[] };
+  spawnEnemy(true);
+}
+function spawnEnemy(first){
+  BT.enemy = { x:first ? 330 : 270, tx:BT.isBoss ? 234 : 220, st:'walk', t:0, hit:0, kx:0, wob:rand() * 6 };
+}
+function burst(x, y, n, colors, power){
+  for (var i = 0; i < n; i++) BT.parts.push({ x:x, y:y, vx:(rand() * 2 - 1) * (power || 70), vy:-rand() * (power || 70) - 15, life:0.45 + rand() * 0.35, c:colors[i % colors.length], s:rand() < 0.3 ? 2 : 1 });
+}
+function battleHit(power, kill, last){
+  if (!BT) return;
+  BT.hero.st = 'atk'; BT.hero.t = 0;
+  BT.slashes.push({ x:BT.enemy ? BT.enemy.x - 14 : HERO_X + 30, t:0, big:power >= 2 });
+  var e = BT.enemy; if (!e) return;
+  e.hit = 0.16; e.kx = power * 3;
+  burst(e.x - 6, GROUND - (BT.isBoss ? 30 : 10), power >= 2 ? 7 : 4, ['#ffffff', '#3ef2ff']);
+  if (kill) {
+    burst(e.x, GROUND - 10, BT.isBoss ? 50 : 16, ENEMY_COLORS[BT.kind], BT.isBoss ? 120 : 80);
+    BT.enemy = null;
+    if (!last) spawnEnemy(false);
+  }
+}
+function battleMiss(big){
+  if (!BT) return;
+  var e = BT.enemy; if (e) { e.st = 'atk'; e.t = 0; }
+  BT.hero.st = 'hurt'; BT.hero.t = 0;
+  burst(HERO_X + 8, GROUND - 16, big ? 10 : 5, ['#ff5a5a', '#ffd84a']);
+}
+function battleWin(){ if (BT) { BT.hero.st = 'win'; BT.hero.t = 0; } }
+function battleShot(){
+  if (!BT) return;
+  BT.hero.st = 'atk'; BT.hero.t = 0;
+  BT.shots.push({ x:HERO_X + 20, y:GROUND - 14 + Math.round(rand() * 10 - 5), vx:240 + rand() * 80, c:pick(['#ff4fd8', '#ffd84a', '#3ef2ff', '#7be3a0']), k:pick(['A', 'S', 'D', 'F', 'J', 'K', '⏎', '⌫']) });
+}
+function battleUpdate(dt){
+  if (!BT) return;
+  var h = BT.hero; h.t += dt;
+  if (h.st === 'run') { h.x += (HERO_X - h.x) * Math.min(1, dt * 6); if (Math.abs(h.x - HERO_X) < 0.5) { h.x = HERO_X; h.st = 'idle'; } }
+  if ((h.st === 'atk' && h.t > 0.2) || (h.st === 'hurt' && h.t > 0.35)) { h.st = 'idle'; h.t = 0; }
+  var e = BT.enemy;
+  if (e) {
+    e.t += dt;
+    if (e.st === 'walk') { e.x += (e.tx - e.x) * Math.min(1, dt * 9); if (Math.abs(e.x - e.tx) < 0.6) { e.x = e.tx; e.st = 'idle'; } }
+    if (e.st === 'atk' && e.t > 0.35) { e.st = 'idle'; e.t = 0; }
+    if (e.hit > 0) e.hit -= dt;
+    if (e.kx > 0) e.kx = Math.max(0, e.kx - dt * 40);
+  }
+  BT.shots = BT.shots.filter(function(s){
+    s.x += s.vx * dt;
+    if (BT.enemy && s.x >= BT.enemy.x - (BT.isBoss ? 22 : 10)) { BT.enemy.hit = 0.08; BT.enemy.kx = 2; burst(s.x, s.y, 3, [s.c, '#ffffff']); return false; }
+    return s.x < W + 10;
+  });
+  BT.slashes = BT.slashes.filter(function(s){ s.t += dt; return s.t < 0.22; });
+  BT.parts = BT.parts.filter(function(p){ p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 220 * dt; p.life -= dt; return p.life > 0 && p.y < GROUND + 2; });
+}
+
+function drawHero(){
+  var h = BT.hero, x = Math.round(h.x), y = GROUND, fev = inFever();
+  if (h.st === 'idle' || h.st === 'run') y += Math.round(Math.sin(T * (h.st === 'run' ? 18 : 5)) * 0.8);
+  if (h.st === 'atk') x += Math.round(Math.sin(Math.min(1, h.t / 0.2) * Math.PI) * 7);
+  if (h.st === 'hurt') x -= Math.round(Math.sin(Math.min(1, h.t / 0.35) * Math.PI) * 6);
+  ctx.globalAlpha = 0.35; R(x, GROUND, 14, 2, '#000'); ctx.globalAlpha = 1;
+  if (fev) { var a = Math.floor(T * 12) % 2; ctx.globalAlpha = 0.5; R(x - 2, y - 30, 18, 30, a ? '#ff4fd8' : '#ffd84a'); ctx.globalAlpha = 1; }
+  var shirt = fev ? '#ffe8fb' : '#e8ebff';
+  R(x + 3, y - 7, 3, 6, '#2d3561'); R(x + 8, y - 7, 3, 6, '#2d3561');
+  var step = (h.st === 'run') ? (Math.floor(T * 14) % 2) : 0;
+  R(x + 2 + step, y - 1, 4, 1, '#111'); R(x + 8 - step, y - 1, 4, 1, '#111');
+  R(x + 2, y - 16, 10, 9, shirt); R(x + 6, y - 16, 2, 7, '#d2552d'); R(x + 2, y - 16, 2, 2, '#9aa2c7'); R(x + 10, y - 16, 2, 2, '#9aa2c7');
+  R(x + 1, y - 15, 2, 6, shirt);
+  R(x + 3, y - 23, 8, 7, '#f2c69b'); R(x + 3, y - 26, 8, 3, '#2b1d14'); R(x + 2, y - 25, 2, 5, '#2b1d14');
+  if (h.st === 'hurt') { R(x + 8, y - 21, 1, 1, '#111'); R(x + 9, y - 20, 1, 1, '#111'); R(x + 10, y - 21, 1, 1, '#111'); }
+  else { R(x + 8, y - 21, 1, 2, '#111'); R(x + 10, y - 21, 1, 2, '#111'); R(x + 5, y - 20, 2, 1, '#2b1d14'); }
+  R(x + 8, y - 18, 2, 1, h.st === 'win' ? '#7a2a2a' : '#c08060');
+  if (h.st === 'atk') {
+    R(x + 12, y - 14, 6, 2, shirt); R(x + 16, y - 15, 2, 2, '#f2c69b');
+    R(x + 18, y - 19, 3, 11, '#c8cff0'); R(x + 19, y - 18, 1, 1, '#2d3561'); R(x + 19, y - 15, 1, 1, '#2d3561'); R(x + 19, y - 12, 1, 1, '#2d3561');
+  } else if (h.st === 'win') {
+    R(x + 11, y - 24, 2, 9, shirt); R(x + 9, y - 30, 8, 3, '#c8cff0');
+  } else {
+    R(x + 11, y - 15, 2, 6, shirt); R(x + 11, y - 10, 9, 3, '#9aa2c7'); R(x + 12, y - 9, 1, 1, '#2d3561'); R(x + 15, y - 9, 1, 1, '#2d3561'); R(x + 18, y - 9, 1, 1, '#2d3561');
+  }
+  if (h.st === 'hurt') { ctx.globalAlpha = 0.45; R(x, y - 27, 14, 27, '#ff3b3b'); ctx.globalAlpha = 1; }
+}
+
+function drawEnemy(){
+  var e = BT.enemy; if (!e) return;
+  var x = Math.round(e.x + e.kx), y = GROUND, k = BT.kind;
+  if (e.st === 'atk') x -= Math.round(Math.sin(Math.min(1, e.t / 0.35) * Math.PI) * (BT.isBoss ? 16 : 22));
+  var bob = Math.round(Math.sin(T * 6 + e.wob) * 1);
+  ctx.globalAlpha = 0.35; R(x - (BT.isBoss ? 20 : 9), GROUND, BT.isBoss ? 40 : 18, 2, '#000'); ctx.globalAlpha = 1;
+  if (BT.elite) { ctx.globalAlpha = 0.22 + 0.14 * Math.sin(T * 10); R(x - 16, y - 26, 32, 28, '#ff2a2a'); ctx.globalAlpha = 1; }
+  var bw, bh;
+  if (k === 'mail') {
+    y -= 3 + bob; bw = 20; bh = 14;
+    R(x - 10, y - 14, 20, 13, '#f0f0f0'); boxBorder(x - 10, y - 14, 20, 13, '#9aa2c7');
+    for (var i = 0; i < 6; i++) { R(x - 9 + i, y - 13 + i, 1, 1, '#d33a3a'); R(x + 8 - i, y - 13 + i, 1, 1, '#d33a3a'); }
+    R(x - 6, y - 7, 3, 1, '#111'); R(x + 3, y - 7, 3, 1, '#111'); R(x - 5, y - 6, 2, 1, '#111'); R(x + 3, y - 6, 2, 1, '#111');
+    R(x - 7, y - 1, 2, 3, '#9aa2c7'); R(x + 5, y - 1, 2, 3, '#9aa2c7');
+    R(x + 8, y - 18, 4, 4, '#d33a3a'); txt('!', x + 10, y - 16, 4, '#fff', 'center');
+  } else if (k === 'bug') {
+    bw = 24; bh = 14;
+    for (var l = 0; l < 3; l++) { var lx = x - 5 + l * 5, lf = Math.floor(T * 10 + l) % 2; R(lx, y - 3, 1, 3, '#2a1a40'); R(lx - 1 + lf, y - 1, 2, 1, '#2a1a40'); }
+    R(x - 8, y - 12, 16, 9, '#7a4fc0'); R(x - 6, y - 14, 12, 2, '#7a4fc0'); R(x - 2, y - 13, 1, 9, '#4a2a70');
+    R(x - 13, y - 11, 6, 7, '#4a2a70'); R(x - 12, y - 9, 2, 2, '#ff3b3b');
+    R(x - 13, y - 14, 1, 3, '#4a2a70'); R(x - 15, y - 15, 2, 1, '#4a2a70'); R(x - 10, y - 14, 1, 3, '#4a2a70'); R(x - 11, y - 16, 2, 1, '#4a2a70');
+  } else if (k === 'slime') {
+    var sq = Math.round(Math.sin(T * 8 + e.wob) * 1.5); bw = 20; bh = 14;
+    R(x - 10 - sq, y - 9 + sq, 20 + sq * 2, 9 - sq, '#d33a3a'); R(x - 7, y - 13 + sq, 14, 4, '#d33a3a'); R(x - 4, y - 15 + sq, 8, 2, '#e85a5a');
+    R(x - 5, y - 8 + sq, 2, 2, '#111'); R(x + 3, y - 8 + sq, 2, 2, '#111');
+    R(x - 1, y - 13 + sq, 2, 3, '#ffd84a'); R(x - 1, y - 9 + sq, 2, 1, '#ffd84a');
+  } else {
+    bw = 44; bh = 54; y -= bob;
+    R(x - 26, y - 34, 6, 16, '#e8ebff'); R(x + 20, y - 34, 6, 16, '#e8ebff');
+    R(x - 22, y - 50, 44, 46, '#e8ebff'); boxBorder(x - 22, y - 50, 44, 46, '#9aa2c7');
+    R(x - 22, y - 50, 44, 11, '#d33a3a'); txt('D-DAY', x, y - 44.5, 6, '#ffffff', 'center');
+    R(x - 15, y - 54, 3, 6, '#5a6478'); R(x + 12, y - 54, 3, 6, '#5a6478');
+    R(x - 13, y - 33, 8, 2, '#111'); R(x - 11, y - 31, 4, 3, '#ff3b3b'); R(x + 5, y - 33, 8, 2, '#111'); R(x + 7, y - 31, 4, 3, '#ff3b3b');
+    R(x - 10, y - 20, 20, 5, '#111'); for (var tth = 0; tth < 5; tth++) R(x - 9 + tth * 4, y - 20, 2, 2, '#ffffff');
+    R(x - 14, y - 4, 8, 4, '#5a6478'); R(x + 6, y - 4, 8, 4, '#5a6478');
+    if (G && G.isBoss) {
+      R(x - 20, y - 60, 40, 3, '#3a1a24'); R(x - 20, y - 60, Math.round(40 * Math.max(0, G.bossHp) / BOSS.hp), 3, '#ff3b3b');
+      if (G.groggy) {   // 그로기: 머리 위를 도는 별 + X 눈
+        for (var st = 0; st < 3; st++) { var a = T * 5 + st * 2.09; R(Math.round(x + Math.cos(a) * 16) - 1, Math.round(y - 58 + Math.sin(a) * 4) - 1, 3, 3, '#ffd84a'); }
+        R(x - 13, y - 33, 8, 5, '#e8ebff'); R(x + 5, y - 33, 8, 5, '#e8ebff');
+        for (var xi = 0; xi < 4; xi++) { R(x - 12 + xi * 2, y - 33 + xi, 1, 1, '#111'); R(x - 6 - xi * 2 + 1, y - 33 + xi, 1, 1, '#111'); R(x + 6 + xi * 2, y - 33 + xi, 1, 1, '#111'); R(x + 12 - xi * 2, y - 33 + xi, 1, 1, '#111'); }
+      }
+    }
+  }
+  if (e.hit > 0) { ctx.globalAlpha = Math.min(0.8, e.hit * 5); R(x - bw / 2, y - bh, bw, bh, '#ffffff'); ctx.globalAlpha = 1; }
+}
+
+function drawBattle(){
+  if (!BT) return;
+  ctx.globalAlpha = 0.25; R(0, GROUND + 1, W, 3, '#000'); ctx.globalAlpha = 1;
+  drawEnemy();
+  drawHero();
+  BT.slashes.forEach(function(s){
+    var a = 1 - s.t / 0.22, r = s.big ? 14 : 10;
+    ctx.globalAlpha = a;
+    for (var i = -r; i <= r; i += 2) { var dx = Math.round(Math.sqrt(Math.max(0, r * r - i * i)) * 0.5); R(s.x + dx, GROUND - 14 + i, 2, 2, s.big ? '#ffd84a' : '#ffffff'); }
+    ctx.globalAlpha = 1;
+  });
+  BT.shots.forEach(function(s){ R(s.x - 4, s.y - 4, 9, 9, s.c); R(s.x - 3, s.y - 3, 7, 7, '#1b2140'); txt(s.k, s.x + 0.5, s.y + 0.5, 5, s.c, 'center'); });
+  BT.parts.forEach(function(p){ ctx.globalAlpha = Math.min(1, p.life * 2.5); R(Math.round(p.x), Math.round(p.y), p.s, p.s, p.c); });
+  ctx.globalAlpha = 1;
+  if (BT.enemy && BT.enemy.st !== 'walk' && !BT.isBoss) txt((BT.elite ? '⚠ 강화 ' : '') + ENEMY_NAME[BT.kind], BT.enemy.x, GROUND - 28, 4.5, BT.elite ? '#ff8a8a' : '#c8cff0', 'center');
+}
+
+function drawPlay(){
+  if (inFever()) {   // 피버 중 배경 깜빡임
+    ctx.globalAlpha = 0.12 + 0.08 * Math.sin(T * 12); R(0, 0, W, H, '#ff4fd8'); ctx.globalAlpha = 1;
+  } else if (G.isMid) {   // WARNING 중 붉은 경고등, 보너스는 금빛
+    ctx.globalAlpha = 0.08 + 0.07 * Math.sin(T * 10); R(0, 0, W, H, G.midKind === 'bonus' ? '#ffd84a' : '#ff2a2a'); ctx.globalAlpha = 1;
+  }
+  drawBattle();
+  var t = G.task, info = MG_INFO[t.mg];
+  // HUD
+  ctx.globalAlpha = 0.6; R(0, 0, W, 16, '#000'); ctx.globalAlpha = 1;
+  var stageLabel = G.isMid ? (G.midKind === 'bonus' ? '★ BONUS STAGE · ' + MG_INFO[G.midMg].name : '⚠ WARNING · 다음 스테이지 ' + MG_INFO[G.midMg].name)
+    : (G.isBoss ? '보스 · ' + BOSS.name : (G.layer + 1) + '층 · ' + LAYERS[G.layer].name + ' · ' + routeLabel(G.routeKey));
+  txt(stageLabel, 5, 8, 6.5, G.isMid ? (G.midKind === 'bonus' ? '#ffd84a' : '#ff5a5a') : (G.isBoss ? '#ff8a8a' : (G.routeKey === 'risk' ? '#ff8a5c' : '#5ccfae')));
+  if (G.isMid) {
+    var mc = G.midKind === 'bonus' ? '#ffd84a' : '#ff5a5a', mt = G.midKind === 'bonus' ? BONUS.time : MID.time;
+    txt(Math.max(0, G.midT).toFixed(1) + '초', 160, 8.5, 10, mc, 'center');
+    R(0, 16, W, 2, '#11152a'); R(0, 16, Math.round(W * Math.max(0, G.midT) / mt), 2, mc);
+  } else {
+    var mm = Math.floor(Math.max(0, G.time) / 60), ss = Math.floor(Math.max(0, G.time) % 60);
+    var hitC = G.timeHit > 0 && Math.floor(T * 16) % 2;   // 미스로 시간이 깎이면 잠깐 깜빡임
+    var tr = G.tally && !G.tally.done && G.tally.rows[G.tally.i];
+    var conv = tr && tr.time && tr.k > 0;                  // 정산표에서 남은 시간을 점수로 바꾸는 중이면 하늘색으로 반짝임
+    txt((mm < 10 ? '0' : '') + mm + ':' + (ss < 10 ? '0' : '') + ss, 160, 8.5, 10, conv ? (Math.floor(T * 10) % 2 ? '#3ef2ff' : '#ffffff') : (hitC ? '#ffffff' : (G.time < 15 || G.timeHit > 0 ? '#ff5a5a' : '#ffd84a')), 'center');
+    R(0, 16, W, 2, '#11152a'); R(0, 16, Math.round(W * Math.min(1, Math.max(0, G.time) / TOTAL_TIME)), 2, G.time < 15 ? '#ff5a5a' : '#ffd84a');
+  }
+  // 작업 패널
+  var px = 60;
+  if (t.mg === 'command') { var tw0 = t.arrows.length * 25 - 3; px = Math.min(60, 160 - tw0 / 2 - 8); }
+  var pw = W - px * 2;
+  ctx.globalAlpha = 0.92; R(px, 124, pw, 52, '#0b0f1e'); ctx.globalAlpha = 1;
+  R(px, 124, pw, 1, G.isMid || G.isBoss ? '#ff5a5a' : '#3ef2ff');
+  var title = info.name + ' · ' + t.name + (G.isMid ? '   성공 ' + G.midHits + (G.midKind === 'bonus' ? '/' + BONUS.need : '') : (G.isBoss ? '   그로기까지 ' + (BOSS.groggyEvery - G.groggyN) : '   ' + Math.min(G.pre + G.idx + 1, G.total) + '/' + G.total));
+  txt(title, 160, 133, 6.5, '#9aa2c7', 'center');
+  if (G.combo >= 5) txt(G.combo + ' 콤보', px + pw - 4, 133, 5.5, G.combo >= 20 ? '#ff8ad8' : '#9ad8ff', 'right');
+  // 피버 게이지
+  var fev = inFever(), gy = 114, gh = 8;
+  if (G.isBoss && !fev) {   // 보스전: 그로기 게이지 (미니게임 4개)
+    R(px, gy, pw, gh, '#11152a'); boxBorder(px, gy, pw, gh, '#ffd84a');
+    var seg = (pw - 2) / BOSS.groggyEvery;
+    for (var gs = 0; gs < BOSS.groggyEvery; gs++) { R(Math.round(px + 1 + gs * seg), gy + 1, Math.round(seg) - 1, gh - 2, gs < G.groggyN ? (G.groggyN === BOSS.groggyEvery - 1 && Math.floor(T * 6) % 2 ? '#fff1a0' : '#ffd84a') : '#2a2f50'); }
+    var gtx = 'GROGGY 게이지 · 미니게임 ' + BOSS.groggyEvery + '개 성공하면 연타 공격';
+    txt(gtx, px + 4.6, gy + gh / 2 + 0.9, 5, '#000000'); txt(gtx, px + 4, gy + gh / 2 + 0.3, 5, '#ffffff');
+    txt(G.groggyN + '/' + BOSS.groggyEvery, px + pw - 4, gy + gh / 2 + 0.3, 5, '#ffffff', 'right');
+  } else {
+  R(px, gy, pw, gh, '#11152a'); boxBorder(px, gy, pw, gh, fev ? '#ffd84a' : '#3a4378');
+  var ratio = fev ? G.feverT / (G.groggy ? groggyDuration() : feverDuration()) : G.fever;
+  var fc = fev ? (Math.floor(T * 8) % 2 ? '#ff4fd8' : '#c22fae') : (G.fever >= 0.8 ? '#ff8ad8' : '#b0489a');
+  R(px + 1, gy + 1, Math.round((pw - 2) * ratio), gh - 2, fc);
+  txt(fev ? (G.groggy ? 'GROGGY · 연타로 체력을 깎아라!' : 'FEVER TIME · 아무 키나 연타!') : 'FEVER', px + 4, gy + gh / 2 + 0.3, 5, '#ffffff');
+  txt(fev ? G.feverT.toFixed(1) + '초' : Math.floor(G.fever * 100) + '%', px + pw - 4, gy + gh / 2 + 0.3, 5, '#ffffff', 'right');
+  }
+  if (G.isBoss) drawBossHp();
+  drawSideStats(px);
+  drawGoal();
+  if (t.mg === 'timing') drawTimingBar(t, px, pw);
+  else if (t.mg === 'command') drawArrowRow(t);
+  else if (t.mg === 'alert') drawAlert(t, px, pw);
+  else if (t.mg === 'charge') drawCharge(t, px, pw);
+  else if (t.mg === 'mole') drawMole(t, px, pw);
+  else drawSort(t, px, pw);
+  drawPlayRest(px, pw);
+}
+// 점수·코인: 플레이 박스 양옆 빈칸 (왼쪽 점수, 오른쪽 코인). 위쪽 전투 화면은 가리지 않음
+function drawSideStats(px){
+  var w = Math.min(56, px - 4), y = 124, h = 52;
+  if (w < 40) return;
+  var lx = px - 2 - w, rx = W - px + 2;
+  // 왼쪽: SCORE
+  ctx.globalAlpha = 0.92; R(lx, y, w, h, '#0b0f1e'); ctx.globalAlpha = 1;
+  R(lx, y, w, 1, '#3ef2ff');
+  txt('SCORE', lx + w / 2, y + 8, 5, '#9aa2c7', 'center');
+  var s = fmt(G.score);
+  txt(s, lx + w / 2, y + 21, s.length > 6 ? 8 : 10, '#ffffff', 'center');
+  txt((G.isMid ? (G.midKind === 'bonus' ? 'BONUS +' : 'WARNING +') + fmt(G.midGain) : (G.isBoss ? '보스전 +' : '이번 층 +') + fmt(G.isBoss ? G.score - G.snap.score : G.layerPoints)), lx + w / 2, y + 34, 4.6, '#7be3a0', 'center');
+  txt(G.mistakes ? '미스 ' + G.mistakes + '회' : '노미스', lx + w / 2, y + 44, 4.6, G.mistakes ? '#ff8a8a' : '#9aa2c7', 'center');
+  // 오른쪽: 코인
+  ctx.globalAlpha = 0.92; R(rx, y, w, h, '#0b0f1e'); ctx.globalAlpha = 1;
+  R(rx, y, w, 1, '#ffd84a');
+  txt('코인', rx + w / 2, y + 8, 5, '#9aa2c7', 'center');
+  txt(G.coins + '', rx + w / 2, y + 21, 10, '#ffd84a', 'center');
+  txt('GOOD +' + COIN.good + ' · PERFECT +' + COIN.perfect, rx + w / 2, y + 34, 4, '#9aa2c7', 'center');
+  txt('상점·뽑기에 사용', rx + w / 2, y + 44, 4.4, '#9aa2c7', 'center');
+}
+// 최종 보스 체력 바 (HUD 바로 아래 가운데)
+function drawBossHp(){
+  var x = 64, y = 19, w = 192, h = 8, r = Math.max(0, G.bossHp) / BOSS.hp;
+  R(x - 1, y - 1, w + 2, h + 2, '#0b0f1e'); boxBorder(x - 1, y - 1, w + 2, h + 2, G.groggy ? '#ffd84a' : '#ff8a8a');
+  R(x, y, w, h, '#3a1a24');
+  if (G.bossHpShow == null || G.bossHpShow < r) G.bossHpShow = r;
+  G.bossHpShow += (r - G.bossHpShow) * 0.08;   // 깎인 부분이 하얗게 남았다가 따라 줄어듦
+  R(x, y, Math.round(w * G.bossHpShow), h, '#ffffff');
+  R(x, y, Math.round(w * r), h, r < 0.3 ? (Math.floor(T * 6) % 2 ? '#ff3b3b' : '#ff7a3b') : '#ff3b3b');
+  for (var k = 1; k < 10; k++) R(x + Math.round(w * k / 10), y, 1, h, 'rgba(0,0,0,0.25)');
+  txt(BOSS.name + '  HP ' + Math.ceil(G.bossHp) + ' / ' + BOSS.hp, 160, y + h / 2 + 0.4, 5, '#ffffff', 'center');
+}
+// 위쪽 HUD 오른쪽: 이 스테이지를 끝내는 조건 (남은 작업 수 ●○)
+function drawGoal(){
+  if (G.isMid) { txt(G.midKind === 'bonus' ? '목표: ' + BONUS.need + '번 성공 → 특수 보상 · ' + G.midHits + '/' + BONUS.need : '목표: 시간 안에 최대한 많이 · 성공 ' + G.midHits, W - 5, 8, 5.5, G.midKind === 'bonus' && G.midHits >= BONUS.need ? '#7be3a0' : '#ffd84a', 'right'); return; }
+  if (G.isBoss) {
+    if (G.clearing > 0 || G.tally) { txt('CLEAR!', W - 5, 8, 6.5, Math.floor(T * 8) % 2 ? '#7be3a0' : '#ffffff', 'right'); return; }
+    if (G.groggy) { txt('그로기! 연타로 공격!', W - 5, 8, 6, Math.floor(T * 6) % 2 ? '#ffd84a' : '#ffffff', 'right'); return; }
+    var gl = BOSS.groggyEvery - G.groggyN;
+    for (var gi = 0; gi < BOSS.groggyEvery; gi++) R(W - 5 - (BOSS.groggyEvery - gi) * 5 + 1, 5, 4, 6, gi < G.groggyN ? '#ffd84a' : '#3a4378');
+    txt('그로기까지 ' + gl + '개', W - 5 - BOSS.groggyEvery * 5 - 2, 8, 5.5, gl === 1 ? '#ffd84a' : '#e8ebff', 'right');
+    return;
+  }
+  var doneN = Math.min(G.total, G.pre + G.idx), left = G.total - doneN;
+  var n = G.total, dw = n > 10 ? 3 : 4, gap = 1, x0 = W - 5 - (n * (dw + gap) - gap);
+  for (var i = 0; i < n; i++) R(x0 + i * (dw + gap), 5, dw, 6, i < doneN ? '#7be3a0' : '#3a4378');
+  if (left === 0) { txt('CLEAR!', x0 - 3, 8, 6.5, Math.floor(T * 8) % 2 ? '#7be3a0' : '#ffffff', 'right'); return; }
+  var lastOne = left === 1 && !G.tally && G.clearing <= 0;
+  txt((G.isBoss ? '출시까지 ' : '클리어까지 ') + left + '개' + (lastOne ? ' · 마지막!' : ''), x0 - 3, 8, 5.5,
+    lastOne ? (Math.floor(T * 4) % 2 ? '#ffd84a' : '#7be3a0') : '#e8ebff', 'right');
+}
+function hintLine(text, color, x){
+  if (inFever()) txt('피버 중 — 아무 키나 연타!', x || 160, 172, 5.5, '#ff8ad8', 'center');
+  else txt(text, x || 160, 172, 5.5, color || '#9aa2c7', 'center');
+}
+
+// ① 배포 타이밍: 커서가 왕복, 초록 구간(가운데 노랑 = 퍼펙트)
+function drawTimingBar(t, px, pw){
+  var bx = px + 12, bw = pw - 24, by = 143, bh = 14;
+  R(bx - 1, by - 1, bw + 2, bh + 2, '#3a4378'); R(bx, by, bw, bh, '#161b36');
+  var zc = zoneCenter(t), zw = zoneWidth(t);
+  var zx = Math.round(bx + (zc - zw / 2) * bw), zwp = Math.round(zw * bw);
+  R(zx, by, zwp, bh, inFever() ? '#c22fae' : '#2b8a6e');
+  var pwp = Math.max(2, Math.round(zw * TIMING.perfectRatio * bw)), pxp = Math.round(bx + zc * bw - pwp / 2);
+  R(pxp, by, pwp, bh, '#ffd84a');
+  if (G.lastHitMark) {   // 방금 누른 위치 표시
+    var hx = Math.round(bx + G.lastHitMark.x * bw);
+    ctx.globalAlpha = Math.min(1, G.lastHitMark.t * 2.5);
+    R(hx - 1, by - 3, 3, bh + 6, G.lastHitMark.res === 'miss' ? '#ff5a5a' : (G.lastHitMark.res === 'perfect' ? '#ffd84a' : '#7be3a0'));
+    ctx.globalAlpha = 1;
+  }
+  var cx = Math.round(bx + t.cur * bw);
+  R(cx - 1, by - 4, 3, bh + 8, '#ffffff');
+  R(cx - 3, by - 6, 7, 2, '#ffffff'); R(cx - 2, by - 4, 5, 1, '#ffffff');
+  var pct = Math.round(widthFactor() * 100);
+  hintLine('Space 또는 클릭 — 커서가 초록 구간에 오면!', null, 150);
+  if (!inFever()) txt('구간 ' + pct + '%', px + pw - 6, 172, 5.5, pct >= 110 ? '#7be3a0' : (pct <= 80 ? '#ff8a5c' : '#ffd84a'), 'right');
+}
+
+// ② 커맨드 입력: 방향키 줄
+function drawArrowRow(t){
+  var n = t.arrows.length, bw = 22, gap = 3, totalW = n * bw + (n - 1) * gap;
+  var ax = Math.round(160 - totalW / 2), ay = 143;
+  var bob = Math.round(Math.sin(T * 10) * 0.6);
+  for (var i = 0; i < n; i++) {
+    var a = t.arrows[i], bx = ax + i * (bw + gap), by = ay;
+    var isDone = i < t.progress, isCur = i === t.progress;
+    if (isCur) by += bob;
+    if (isDone) {
+      R(bx, by, bw, bw, '#2b8a6e');
+      drawArrow(bx + 2, by + 2, a.type === 'rev' ? OPP[a.dir] : a.dir, '#ffffff', 2);
+      continue;
+    }
+    R(bx, by, bw, bw, '#1b2140');
+    var bc = a.type === 'rev' ? '#ff5a5a' : (a.type === 'hid' ? '#9aa2c7' : '#e8ebff');
+    boxBorder(bx, by, bw, bw, bc, a.type === 'hid');
+    if (isCur) boxBorder(bx - 1, by - 1, bw + 2, bw + 2, '#ffffff');
+    if (a.type === 'hid' && !isCur) txt('?', bx + bw / 2, by + bw / 2 + 0.5, 10, '#9aa2c7', 'center');
+    else drawArrow(bx + 2, by + 2, a.dir, a.type === 'rev' ? '#ff5a5a' : '#e8ebff', 2);
+  }
+  var hasRev = t.arrows.some(function(a, i){ return a.type === 'rev' && i >= t.progress; });
+  var hasHid = t.arrows.some(function(a, i){ return a.type === 'hid' && i > t.progress; });
+  if (hasRev || hasHid) hintLine((hasRev ? '빨간 화살표는 반대 방향으로!' : '') + (hasRev && hasHid ? '   ' : '') + (hasHid ? '? 는 차례가 되면 공개' : ''), '#ff8a8a');
+  else hintLine('방향키(또는 WASD)로 화살표 순서대로');
+}
+
+// ③ 장애 알림: 신호등 (빨강 대기 / 노랑 함정 / 초록 지금)
+function drawAlert(t, px, pw){
+  var cx = 160, y = 140;
+  R(cx - 36, y, 72, 24, '#161b36'); boxBorder(cx - 36, y, 72, 24, '#3a4378');
+  var lamps = [['wait', '#e8433a', '#4a1a1a'], ['fake', '#ffd84a', '#4a3e12'], ['go', '#3ccf6e', '#16402a']];
+  for (var i = 0; i < 3; i++) {
+    var on = t.state === lamps[i][0], lx = cx - 30 + i * 21, c = on ? lamps[i][1] : lamps[i][2];
+    if (on) { ctx.globalAlpha = 0.35; R(lx - 3, y + 1, 22, 22, c); ctx.globalAlpha = 1; }
+    R(lx + 2, y + 4, 12, 16, c); R(lx, y + 6, 16, 12, c);
+  }
+  var label = t.state === 'go' ? '지금!' : (t.state === 'fake' ? '함정!' : '대기…');
+  var lc = t.state === 'go' ? '#3ccf6e' : (t.state === 'fake' ? '#ffd84a' : '#ff8a8a');
+  txt(label, cx + 60, y + 12, 9, lc, 'center');
+  txt('알림 감시', cx - 60, y + 12, 6, '#9aa2c7', 'center');
+  if (t.state === 'go') { R(cx - 36, y + 26, 72, 2, '#11152a'); R(cx - 36, y + 26, Math.round(72 * Math.max(0, 1 - t.goT / t.win)), 2, '#3ccf6e'); }
+  hintLine('Space — 초록불이 켜지는 순간! 빨강·노랑일 때 누르면 미스');
+}
+
+// ④ 코드 리뷰 분류: 버그면 ←(반려), 정상이면 →(승인)
+function drawBugIcon(x, y){
+  R(x + 3, y, 5, 3, '#8a1a1a'); R(x + 2, y + 3, 7, 8, '#d33a3a'); R(x + 5, y + 3, 1, 8, '#8a1a1a');
+  R(x, y + 4, 2, 1, '#8a1a1a'); R(x, y + 7, 2, 1, '#8a1a1a'); R(x + 9, y + 4, 2, 1, '#8a1a1a'); R(x + 9, y + 7, 2, 1, '#8a1a1a');
+  R(x + 4, y + 1, 1, 1, '#ffffff'); R(x + 6, y + 1, 1, 1, '#ffffff');
+}
+function drawCheckIcon(x, y){
+  var pts = [[0, 5], [1, 6], [2, 7], [3, 8], [4, 7], [5, 6], [6, 5], [7, 4], [8, 3], [9, 2], [10, 1]];
+  pts.forEach(function(p){ R(x + p[0], y + p[1], 2, 2, '#2b8a6e'); });
+}
+function drawSort(t, px, pw){
+  var cx = 160, y = 138, slide = Math.min(1, t.el / 0.12);
+  var x = Math.round(cx - 33 + (1 - slide) * 24);
+  ctx.globalAlpha = Math.max(0.3, slide);
+  R(x, y, 66, 24, '#eef1ff'); boxBorder(x, y, 66, 24, t.card === 'bug' ? '#d33a3a' : '#2b8a6e');
+  if (t.card === 'bug') { drawBugIcon(x + 6, y + 6); txt('버그 발견', x + 41, y + 12, 7, '#b82a2a', 'center'); }
+  else { drawCheckIcon(x + 5, y + 7); txt('정상 코드', x + 41, y + 12, 7, '#1d7a50', 'center'); }
+  ctx.globalAlpha = 1;
+  R(x, y + 26, 66, 2, '#11152a'); R(x, y + 26, Math.round(66 * Math.max(0, 1 - t.el / t.time)), 2, t.el > t.time * 0.7 ? '#ff5a5a' : '#ffd84a');
+  txt('← 반려', px + 20, y + 12, 7, '#ff8a8a', 'center');
+  txt('승인 →', px + pw - 20, y + 12, 7, '#7be3a0', 'center');
+  hintLine('버그면 ←(반려), 정상이면 →(승인) · A / D 도 가능');
+}
+
+// ⑤ 컴파일 차지: 빌드 게이지(왼쪽→오른쪽), 초록 구간에서 떼기, 끝은 과열
+function drawCharge(t, px, pw){
+  var bx = px + 14, bw = pw - 28, by = 143, bh = 14;
+  R(bx - 1, by - 1, bw + 2, bh + 2, '#3a4378'); R(bx, by, bw, bh, '#161b36');
+  R(bx + bw - 6, by, 6, bh, '#5a1a1a');   // 과열 구간
+  var zx = Math.round(bx + (t.zc - t.zone / 2) * bw), zw = Math.round(t.zone * bw);
+  R(zx, by, zw, bh, '#2b8a6e');
+  var pw2 = Math.max(2, Math.round(t.zone * 0.35 * bw)); R(Math.round(bx + t.zc * bw - pw2 / 2), by, pw2, bh, '#ffd84a');
+  var gw = Math.round(t.g * bw);
+  if (gw > 0) { ctx.globalAlpha = 0.85; R(bx, by + 3, gw, bh - 6, t.g > t.zc + t.zone / 2 ? '#ff8a5c' : '#3ef2ff'); ctx.globalAlpha = 1; R(bx + gw - 1, by - 3, 2, bh + 6, '#ffffff'); }
+  if (t.mark) { ctx.globalAlpha = Math.min(1, t.mark.t * 2.5); R(Math.round(bx + t.mark.x * bw) - 1, by - 3, 3, bh + 6, t.mark.res === 'miss' ? '#ff5a5a' : (t.mark.res === 'perfect' ? '#ffd84a' : '#7be3a0')); ctx.globalAlpha = 1; }
+  txt(t.hold ? '빌드 중… ' + Math.round(t.g * 100) + '%' : '대기', bx, by - 6, 5.5, t.hold ? '#3ef2ff' : '#9aa2c7');
+  txt('과열', bx + bw, by - 6, 5, '#ff8a8a', 'right');
+  hintLine(t.hold ? '초록 구간에서 손을 떼세요!' : 'Space(또는 마우스)를 꾹 누르세요', t.hold ? '#7be3a0' : null);
+}
+// ⑥ 알림 두더지: 칸 3개(← ↓ →)
+function drawMole(t, px, pw){
+  var keys = ['←', '↓', '→'], names = ['메일', '메신저', '캘린더'];
+  for (var i = 0; i < 3; i++) {
+    var x = 160 + (i - 1) * 56 - 22, y = 139, on = t.state === 'show' && t.lane === i;
+    R(x, y, 44, 24, on ? (t.trap ? '#4a3e12' : '#4a1a1a') : '#161b36');
+    boxBorder(x, y, 44, 24, on ? (t.trap ? '#ffd84a' : '#ff5a5a') : '#3a4378');
+    if (on && !t.trap) {   // 알림: 빨간 종
+      var sh = Math.round(Math.sin(T * 40) * 1);
+      R(x + 17 + sh, y + 5, 10, 9, '#ff5a5a'); R(x + 15 + sh, y + 13, 14, 2, '#ff5a5a'); R(x + 21 + sh, y + 15, 2, 2, '#ffd84a'); R(x + 20 + sh, y + 3, 4, 2, '#ff5a5a');
+      txt('알림!', x + 22, y + 20.5, 5, '#ffffff', 'center');
+      R(x, y + 24, Math.round(44 * Math.max(0, 1 - t.el / t.win)), 2, '#ffd84a');
+    } else if (on) {       // 대표님 메시지: 끄면 안 됨
+      R(x + 15, y + 6, 14, 6, '#ffd84a'); R(x + 15, y + 3, 2, 3, '#ffd84a'); R(x + 21, y + 2, 2, 4, '#ffd84a'); R(x + 27, y + 3, 2, 3, '#ffd84a');
+      txt('대표님 · 끄지 마!', x + 22, y + 18, 4.6, '#ffd84a', 'center');
+    } else txt(names[i], x + 22, y + 12, 5, '#5a6478', 'center');
+    R(x + 1, y + 1, 9, 8, on && !t.trap ? '#ff5a5a' : '#2a2f50'); txt(keys[i], x + 5.5, y + 5.2, 6, '#ffffff', 'center');   // 누를 키
+  }
+  hintLine('알림 칸의 방향키 ← ↓ → · 대표님 메시지는 그대로 두기', t.state === 'show' && t.trap ? '#ffd84a' : null);
+}
+
+// 카드 효과를 현재 상태 기준 짧은 수치로
+function cardShort(k){
+  var n = cnt(k);
+  switch (k) {
+    case 'overtime': return '작업 점수 ' + x2(Math.pow(1.25, n));
+    case 'bonuspay': return '층 클리어 ' + x2(Math.pow(1.5, n));
+    case 'craft':    return '퍼펙트 ×2.2';
+    case 'streak':   return '10콤보↑ ×1.3' + (G.combo >= 10 ? ' ON' : '');
+    case 'hazard':   return '위험 루트 ×2.5';
+    case 'flawless': return '노미스 층 ×1.5' + (G.layerMistakes === 0 && !G.isBoss && !G.isMid ? ' 유지' : '');
+    case 'party':    return '피버 ' + x2(Math.pow(1.5, n)) + ' +' + n + '초';
+    case 'shortcut': return '판정 여유 ×1.3';
+    case 'linter':   return '미스 무시 ' + G.linterLeft + '/' + n;
+    case 'lucky':    return '룰렛 +15%p';
+  }
+  return null;   // 커피·리팩토링처럼 즉시 효과 카드는 표시하지 않음
+}
+var SIDE_H = 14, SIDE_GAP = 15;
+function sideBox(x, y, label, value, color){
+  ctx.globalAlpha = 0.88; R(x, y, 58, SIDE_H, '#141933'); ctx.globalAlpha = 1;
+  R(x, y, 1, SIDE_H, color);
+  txt(label, x + 3, y + 4, 4.8, '#c8cff0', 'left', 'normal');
+  txt(value, x + 3, y + 10.2, 5.2, color);
+}
+function drawSideCards(){
+  var keys = Object.keys(G.owned).filter(function(k){ return cardShort(k); });
+  var y = 22, max = 6;
+  keys.slice(0, max).forEach(function(k){
+    var n = G.owned[k];
+    sideBox(2, y, CARD_BY_ID[k].name + (n > 1 ? ' ×' + n : ''), cardShort(k), '#ffd84a');
+    y += SIDE_GAP;
+  });
+  if (keys.length > max) txt('+' + (keys.length - max) + '장 더', 4, y + 4, 4.5, '#9aa2c7');
+}
+function drawSideItems(){
+  var x = W - 60, y = 22;
+  if (!G.isBoss && !G.isMid) { sideBox(x, y, '룰렛 확률', Math.round(bonusChance() * 100) + '%', '#ffd84a'); y += SIDE_GAP; }
+  if (G.shield > 0) { sideBox(x, y, '보험 (아이템)', '미스 ' + G.shield + '회 막기', '#7be3a0'); y += SIDE_GAP; }
+  if (G.layerMult > 1 && !G.isMid) { sideBox(x, y, '이번 층 (아이템)', '점수 ' + x2(G.layerMult), '#ff8ad8'); y += SIDE_GAP; }
+  var nb = G.nextBuff;
+  if (nb.mult > 1) { sideBox(x, y, '다음 층 (아이템)', '점수 ' + x2(nb.mult), '#9ad8ff'); y += SIDE_GAP; }
+  if (nb.auto > 0) { sideBox(x, y, '다음 층 (아이템)', '작업 ' + nb.auto + '개 자동', '#9ad8ff'); y += SIDE_GAP; }
+}
+function drawPlayRest(px, pw){
+  drawSideCards();   // 왼쪽: 보유 카드 이름 + 효과 수치
+  drawSideItems();   // 오른쪽: 코인 · 룰렛 · 아이템 효과
+  // 피버 연타 화면
+  if (inFever() && G.groggy) {   // 그로기: 보스와 체력 바가 보이도록 왼쪽에 안내
+    var gp = 0.5 + 0.5 * Math.sin(T * 14);
+    ctx.globalAlpha = 0.8; R(62, 30, 140, 40, '#1a1406'); ctx.globalAlpha = 1; boxBorder(62, 30, 140, 40, '#ffd84a');
+    txt('GROGGY! 아무 키나 연타!', 132, 39, 8.5, gp > 0.5 ? '#ffd84a' : '#ff8a5c', 'center');
+    txt(G.feverPresses + ' HIT  ·  체력 −' + (Math.round(G.feverPresses * bossDamage() * 10) / 10), 132, 52, 7, '#ffffff', 'center');
+    txt('남은 ' + G.feverT.toFixed(1) + '초 · 제한 시간 정지 중', 132, 63, 5, '#ffd8a0', 'center');
+  } else if (inFever()) {
+    var pulse = 0.5 + 0.5 * Math.sin(T * 14);
+    ctx.globalAlpha = 0.82; R(0, 20, W, 44, '#14061a'); ctx.globalAlpha = 1;
+    R(0, 20, W, 1, '#ff4fd8'); R(0, 63, W, 1, '#ff4fd8');
+    txt('FEVER TIME! 아무 키나 연타!', 160, 30, 11, pulse > 0.5 ? '#ff4fd8' : '#ffd84a', 'center');
+    txt(G.feverPresses + ' HIT', 160, 46, 12, '#ffffff', 'center');
+    txt('+' + fmt(G.feverGain) + '점 · 남은 ' + G.feverT.toFixed(1) + '초 · 제한 시간 정지 중', 160, 58, 5.5, '#ff8ad8', 'center');
+  }
+  // 팝업·메시지
+  fx.pops.forEach(function(p){ ctx.globalAlpha = Math.min(1, p.t * 2); txt(p.text, p.x + 0.7, p.y + 0.7, 8, '#000000', 'center'); txt(p.text, p.x, p.y, 8, p.color, 'center'); });
+  ctx.globalAlpha = 1;
+  if (fx.msg) {
+    ctx.globalAlpha = 0.85; R(0, 48, W, 18, '#000'); ctx.globalAlpha = 1;
+    txt(fx.msg.text, 160, 57, 8, fx.msg.color, 'center');
+  }
+  if (G.banner > 0) {   // Space로 시작한 직후 짧은 START 신호
+    var sc = 1 + (0.6 - G.banner) * 0.6;
+    ctx.globalAlpha = Math.min(1, G.banner * 3);
+    var stx = G.isMid ? (G.midKind === 'bonus' ? 'BONUS START!' : 'WARNING START!') : (G.isBoss ? 'BOSS START!' : 'START!');
+    txt(stx, 160.8, 70.8, 18 * sc, '#000000', 'center');
+    txt(stx, 160, 70, 18 * sc, G.isMid ? (G.midKind === 'bonus' ? '#ffd84a' : '#ff5a5a') : (G.isBoss ? '#ff5a5a' : '#3ef2ff'), 'center');
+    ctx.globalAlpha = 1;
+  }
+  if (G.clearing > 0) {   // 클리어 조건 달성 순간: 도장처럼 찍히는 CLEAR 글자 + 터지는 조각
+    var ct = CLEAR_STAMP - G.clearing, sc2 = ct < 0.18 ? 2.2 - ct / 0.18 * 1.2 : 1;
+    var col = G.isMid ? '#ffd84a' : (G.isBoss ? '#7be3a0' : '#3ef2ff');   // WARNING·보너스는 금색
+    ctx.globalAlpha = Math.min(0.55, ct * 3); R(0, 44, W, 50, '#000'); ctx.globalAlpha = 1;
+    if (G.clearBurst) G.clearBurst.forEach(function(b){ R(Math.round(b.x), Math.round(b.y), 2, 2, b.c); });
+    txt(G.clearText, 161.2, 70.2, 20 * sc2, '#000000', 'center');
+    txt(G.clearText, 160, 69, 20 * sc2, col, 'center');
+    if (ct > 0.3) txt(G.isMid ? '성공 ' + G.midHits + '회' : (G.isBoss ? '체력 0 · 그로기 ' + G.groggyCount + '회' : '작업 ' + G.total + '/' + G.total + ' 처리 완료'), 160, 86, 6.5, '#ffffff', 'center');
+  }
+}
+
+function draw(){
+  ctx.setTransform(S, 0, 0, S, 0, 0);
+  ctx.imageSmoothingEnabled = false;
+  ctx.save();
+  if (fx.shake > 0) ctx.translate(Math.round((Math.random() * 2 - 1) * 3), Math.round((Math.random() * 2 - 1) * 2));
+  var bgKey = 'idle';
+  if (G && (scene === 'launch' || scene === 'ending' || scene === 'result')) bgKey = G.cleared ? 'dawn' : 'rain';   // 끝난 뒤: 결과별 배경
+  else if (G && (scene === 'play' || scene === 'route' || scene === 'pick' || scene === 'roulette' || scene === 'itempick' || scene === 'mystery' || scene === 'shop')) {
+    bgKey = scene === 'pick' && choice && choice.ctx === 'start' ? 'plan' : (G.layer === 3 ? 'boss' : LAYERS[G.isMid ? G.midL : G.layer].key);
+  }
+  drawBg(bgKey, scene === 'play');
+  var dim = scene === 'launch' ? 0 : (scene === 'result' ? 0.3 : (scene === 'ending' ? 0.5 : 0.55));
+  if (scene !== 'play' && scene !== 'idle' && dim > 0) { ctx.globalAlpha = dim; R(0, 0, W, H, '#05060c'); ctx.globalAlpha = 1; }
+  if (scene === 'launch' && G && LC) drawLaunch();
+  if (scene === 'idle') { ctx.globalAlpha = 0.35; R(0, 0, W, H, '#05060c'); ctx.globalAlpha = 0.35; R(0, 0, 175, H, '#05060c'); ctx.globalAlpha = 1; }
+  if (scene === 'play' && G) drawPlay();
+  ctx.restore();
+  if (fx.flash > 0) { ctx.globalAlpha = Math.min(0.5, fx.flash * 0.5); R(0, 0, W, H, fx.flashColor); ctx.globalAlpha = 1; }
+  if (fade.a > 0) { ctx.globalAlpha = Math.min(1, fade.a); R(0, 0, W, H, '#000000'); ctx.globalAlpha = 1; }
+}
+
+// ---------- 루프 ----------
+var last = performance.now(), frozen = false;   // frozen: 점검용 화면 고정
+function frame(now){
+  var dt = Math.min(0.05, (now - last) / 1000); last = now;
+  if (!frozen) update(dt);
+  draw();
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+renderUI();
+if (/[?&]demo\b/.test(location.search)) startDemo();   // 주소 끝에 ?demo 를 붙이면 바로 데모 재생
+
+// 점검용 훅 (게임 동작에는 영향 없음)
+window.__RR = {
+  get scene(){ return scene; }, get G(){ return G; }, get choice(){ return choice; }, get RL(){ return RL; },
+  step:function(sec){ var n = Math.round(sec * 60); for (var i = 0; i < n; i++) update(1 / 60); draw(); },
+  key:function(code){ document.dispatchEvent(new KeyboardEvent('keydown', { code:code, key:code, bubbles:true })); },
+  records:loadRecords, best:bestList, get storageOK(){ return storageOK; },
+  get demo(){ return demoActive; }, startDemo:startDemo,
+  get B(){ return B; }, get EV(){ return EV; }, get END(){ return END; }, get fade(){ return fade; }, get LC(){ return LC; }, freeze:function(b){ frozen = !!b; }, consts:{ BOSS:BOSS, BONUS:BONUS, RISK:RISK, MG_DIFF:MG_DIFF, LAYERS:LAYERS, MG_COUNT:MG_COUNT, ROUTES:ROUTES, FEVER:FEVER },
+  mg:{ newTask:newTask, harden:harden, MGX:MGX, zoneCenter:zoneCenter, zoneWidth:zoneWidth }, upd:function(dt){ update(dt); }, keyup:function(code){ return taskRelease(code); },
+  events:{ openStageEvent:openStageEvent, openItemPick:openItemPick },
+  roll:{ tier:rollTier, item:rollItem, apply:applyItem, ODDS:ODDS, EVENTS:EVENTS, ITEMS:ITEMS },
+  task:function(){ return G && G.task; },
+  input:function(code){ return taskInput(code); },
+  zone:function(){ var t = G.task; return { cur:t.cur, c:zoneCenter(t), w:zoneWidth(t), target:zoneTarget(t), factor:widthFactor() }; },
+  // 지금 작업을 정답으로 처리 (흐름 점검용)
+  cheat:function(){
+    var t = G && G.task; if (!t) return null;
+    if (t.mg === 'timing') { t.cur = zoneCenter(t); t.lock = 0; return taskInput('Space'); }
+    if (t.mg === 'command') { var a = t.arrows[t.progress]; return taskInput(DIR_CODE[a.type === 'rev' ? OPP[a.dir] : a.dir]); }
+    if (t.mg === 'alert') { t.state = 'go'; t.goT = 0; return taskInput('Space'); }
+    if (t.mg === 'sort') { t.el = 0; return taskInput(t.card === 'ok' ? 'ArrowRight' : 'ArrowLeft'); }
+    if (t.mg === 'charge') { t.lock = 0; t.hold = false; taskInput('Space'); t.g = t.zc; return taskRelease('Space'); }
+    if (t.mg === 'mole') { t.state = 'show'; t.trap = false; t.el = 0; return taskInput(['ArrowLeft', 'ArrowDown', 'ArrowRight'][t.lane]); }
+  }
+};
+})();
+</script>
+</body>
+</html>

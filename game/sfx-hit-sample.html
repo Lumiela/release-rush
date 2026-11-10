@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>릴리즈 러시 · 타격음 샘플 (#49)</title>
+<style>
+  body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; background: #0b0f1e; color: #e8ebff; font-family: "Malgun Gothic", sans-serif; }
+  h1 { font-size: 22px; margin: 0; } p { margin: 0; color: #9aa2c7; font-size: 14px; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  button { font: inherit; font-size: 16px; font-weight: 700; padding: 14px 20px; border: 0; border-radius: 8px; background: #2d3561; color: #fff; cursor: pointer; min-width: 170px; }
+  button:hover { background: #3ef2ff; color: #0b0f1e; } button small { display: block; font-weight: 400; font-size: 12px; opacity: .8; margin-top: 4px; }
+</style>
+</head>
+<body>
+<h1>몬스터 타격음 샘플</h1>
+<p>게임(v15.1)에 들어간 소리와 같은 코드입니다. 숫자키 1~5로도 재생됩니다.</p>
+<div class="row">
+  <button data-s="hit">1 · 타격 <small>작업 GOOD</small></button>
+  <button data-s="hitBig">2 · 강타 <small>PERFECT · 보스</small></button>
+  <button data-s="ko">3 · 처치 <small>몬스터를 쓰러뜨림</small></button>
+  <button data-s="tap">4 · 키캡 명중 <small>피버 · 그로기 연타</small></button>
+  <button data-s="combo">5 · 실제처럼 <small>퍼펙트 + 강타 · 연타</small></button>
+</div>
+<script>
+var A = null, M = null;
+function ctx(){ if (!A) { A = new (window.AudioContext || window.webkitAudioContext)(); M = A.createGain(); M.gain.value = 0.32; M.connect(A.destination); } if (A.state === 'suspended') A.resume(); return A; }
+function sTone(o){ var a = A, t = a.currentTime + (o.at || 0), d = o.dur || 0.1, osc = a.createOscillator(), g = a.createGain();
+  osc.type = o.type || 'square'; osc.frequency.setValueAtTime(o.f, t); if (o.f2) osc.frequency.exponentialRampToValueAtTime(o.f2, t + d);
+  var v = o.vol == null ? 0.3 : o.vol; g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + (o.atk || 0.005)); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+  osc.connect(g); g.connect(M); osc.start(t); osc.stop(t + d + 0.02); }
+function sNoise(o){ var a = A, t = a.currentTime + (o.at || 0), d = o.dur || 0.1, buf = a.createBuffer(1, Math.max(1, Math.floor(a.sampleRate * d)), a.sampleRate), ch = buf.getChannelData(0);
+  for (var i = 0; i < ch.length; i++) ch[i] = Math.random() * 2 - 1;
+  var src = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain(); src.buffer = buf; f.type = o.ftype || 'lowpass'; f.frequency.value = o.freq || 2000;
+  g.gain.setValueAtTime(o.vol == null ? 0.3 : o.vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + d); src.connect(f); f.connect(g); g.connect(M); src.start(t); }
+var SFX = {
+  hit:    function(){ sNoise({ dur:0.06, vol:0.2, freq:1800 }); sTone({ f:190, f2:70, dur:0.08, vol:0.2 }); },
+  hitBig: function(){ sNoise({ dur:0.1, vol:0.26, freq:2600 }); sTone({ f:260, f2:60, dur:0.12, vol:0.24 }); sTone({ f:1320, dur:0.04, vol:0.08, type:'triangle' }); },
+  ko:     function(){ sNoise({ dur:0.24, vol:0.24, freq:900 }); sTone({ f:320, f2:45, dur:0.26, vol:0.22 }); sTone({ f:880, f2:440, dur:0.12, vol:0.08, at:0.04, type:'triangle' }); },
+  tap:    function(){ sNoise({ dur:0.03, vol:0.1, freq:3500, ftype:'highpass' }); },
+  perfect:function(){ [1047, 1568].forEach(function(f, i){ sTone({ f:f, dur:0.07, at:i * 0.05, vol:0.22 }); }); },
+  combo:  function(){ SFX.perfect(); SFX.hitBig(); for (var i = 1; i <= 8; i++) setTimeout(SFX.tap, 400 + i * 90); setTimeout(SFX.ko, 1300); }
+};
+function play(n){ ctx(); SFX[n](); }
+document.querySelectorAll('button').forEach(function(b){ b.onclick = function(){ play(b.dataset.s); }; });
+document.addEventListener('keydown', function(e){ var k = ['hit', 'hitBig', 'ko', 'tap', 'combo'][+e.key - 1]; if (k) play(k); });
+</script>
+</body>
+</html>

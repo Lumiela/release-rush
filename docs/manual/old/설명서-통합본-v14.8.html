@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>릴리즈 러시 · 게임 설명서</title>
+<style>
+  @page { size: A4; margin: 13mm 13mm 14mm; }
+  :root {
+    --ink: #1c2233; --sub: #5b6478; --line: #d9deea; --bg-soft: #f4f6fb;
+    --cyan: #22c6dc; --pink: #ff4fd8; --yellow: #ffcf3a; --red: #e5484d; --green: #2fae74; --navy: #11152a;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { margin: 0; font-family: "Malgun Gothic", "맑은 고딕", "Apple SD Gothic Neo", sans-serif; color: var(--ink); font-size: 10pt; line-height: 1.6; background: #fff; }
+  h1, h2, h3 { line-height: 1.3; margin: 0; }
+  h2 { font-size: 15pt; padding: 0 0 5px; margin: 0 0 10px; border-bottom: 3px solid var(--cyan); display: flex; align-items: baseline; gap: 8px; }
+  h2 .no { color: var(--cyan); font-weight: 900; }
+  h2 .en { font-size: 8.5pt; color: var(--sub); font-weight: 600; letter-spacing: .08em; margin-left: auto; }
+  h3 { font-size: 11.5pt; margin: 14px 0 6px; padding-left: 8px; border-left: 4px solid var(--pink); }
+  p { margin: 0 0 7px; }
+  ul, ol { margin: 0 0 8px; padding-left: 18px; }
+  li { margin: 1px 0; }
+  b, strong { font-weight: 800; }
+  .sub { color: var(--sub); }
+  .small { font-size: 8.6pt; }
+  section { margin: 0 0 16px; }
+  .page { break-before: page; }
+  .key { display: inline-block; min-width: 1.6em; padding: 0 .45em; border: 1px solid #aab3c8; border-bottom-width: 2px; border-radius: 4px; background: #fff; font-weight: 800; font-size: .9em; line-height: 1.45; text-align: center; color: #263048; white-space: nowrap; }
+
+  /* 표지 */
+  .cover { height: 268mm; display: flex; flex-direction: column; break-after: page; }
+  .cover .band { background: var(--navy); color: #fff; border-radius: 10px; padding: 22px 26px 18px; position: relative; overflow: hidden; }
+  .cover .band::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 5px; background: linear-gradient(90deg, var(--cyan), var(--pink), var(--yellow)); }
+  .cover .kicker { font-size: 9pt; letter-spacing: .25em; color: var(--cyan); font-weight: 800; }
+  .cover h1 { font-size: 34pt; font-weight: 900; margin: 4px 0 2px; }
+  .cover h1 span { font-size: 17pt; color: var(--yellow); margin-left: 8px; letter-spacing: .04em; }
+  .cover .tag { font-size: 11.5pt; color: #cfd6f2; }
+  .cover .hero { margin: 14px 0 12px; border-radius: 8px; overflow: hidden; border: 1px solid #222a48; }
+  .cover .hero img { display: block; width: 100%; }
+  .facts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
+  .fact { background: var(--bg-soft); border: 1px solid var(--line); border-radius: 8px; padding: 9px 10px; text-align: center; }
+  .fact b { display: block; font-size: 17pt; font-weight: 900; color: var(--navy); line-height: 1.15; }
+  .fact span { font-size: 8.6pt; color: var(--sub); }
+  .toc { columns: 2; column-gap: 22px; font-size: 9.6pt; border-top: 1px solid var(--line); padding-top: 10px; margin-top: auto; }
+  .toc div { break-inside: avoid; display: flex; gap: 6px; padding: 2px 0; border-bottom: 1px dotted var(--line); }
+  .toc div i { font-style: normal; color: var(--cyan); font-weight: 900; width: 1.6em; }
+  .cover .credit { font-size: 8.6pt; color: var(--sub); margin-top: 8px; text-align: right; }
+
+  /* 그림 */
+  figure { margin: 0 0 10px; break-inside: avoid; }
+  figure img { display: block; width: 100%; border-radius: 6px; border: 1px solid #2a3150; background: var(--navy); }
+  figcaption { font-size: 8.8pt; color: var(--ink); margin-top: 5px; line-height: 1.5; }
+  figcaption b { color: var(--navy); }
+  figcaption .t { display: inline-block; font-weight: 900; color: #fff; background: var(--navy); border-radius: 3px; padding: 0 6px; margin-right: 5px; font-size: 8.2pt; }
+  .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; }
+  .g3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px 10px; }
+  .g4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .g4 figcaption, .g3 figcaption { font-size: 8.3pt; }
+  .side { display: grid; grid-template-columns: 1.25fr 1fr; gap: 14px; align-items: start; }
+
+  /* 표 */
+  table { width: 100%; border-collapse: collapse; margin: 0 0 10px; font-size: 9.2pt; break-inside: auto; }
+  th, td { border: 1px solid var(--line); padding: 5px 8px; vertical-align: top; text-align: left; }
+  th { background: var(--bg-soft); font-weight: 800; white-space: nowrap; }
+  tr { break-inside: avoid; }
+  td.c { text-align: center; }
+
+  .note { background: #fff8de; border: 1px solid #f0dc8c; border-radius: 6px; padding: 7px 10px; font-size: 9pt; margin: 6px 0 10px; break-inside: avoid; }
+  .tip { background: #e9fbfd; border: 1px solid #a7e6ef; border-radius: 6px; padding: 7px 10px; font-size: 9pt; margin: 6px 0 10px; break-inside: avoid; }
+
+  /* 화면 구성 (번호 표시) */
+  .anno { position: relative; break-inside: avoid; margin-bottom: 8px; }
+  .anno img { display: block; width: 100%; border-radius: 6px; border: 1px solid #2a3150; }
+  .pin { position: absolute; width: 21px; height: 21px; margin: -10.5px 0 0 -10.5px; border-radius: 50%; background: var(--pink); color: #fff; font-weight: 900; font-size: 10.5pt; line-height: 21px; text-align: center; border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,.6); }
+  .legend { display: grid; grid-template-columns: 1fr 1fr; gap: 3px 16px; font-size: 9pt; }
+  .legend div { display: flex; gap: 7px; align-items: baseline; break-inside: avoid; }
+  .legend .n { flex: none; width: 18px; height: 18px; border-radius: 50%; background: var(--pink); color: #fff; font-weight: 900; font-size: 8.5pt; line-height: 18px; text-align: center; }
+
+  /* 미니게임 카드 */
+  .mg { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; }
+  .mgc { border: 1px solid var(--line); border-radius: 8px; padding: 8px; break-inside: avoid; background: #fff; }
+  .mgc img { display: block; width: 100%; border-radius: 5px; border: 1px solid #2a3150; }
+  .mgc h4 { margin: 6px 0 3px; font-size: 10.5pt; display: flex; align-items: center; gap: 6px; }
+  .mgc h4 em { font-style: normal; background: var(--navy); color: var(--yellow); border-radius: 4px; padding: 0 6px; font-size: 9pt; }
+  .mgc .row { font-size: 8.7pt; line-height: 1.55; }
+  .mgc .row b.pf, .mgc .row b.ms { display: inline-block; min-width: 4.6em; }
+  .pf { color: #b98600; } .ms { color: var(--red); }
+
+  /* 흐름 */
+  .flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px 18px; counter-reset: st; }
+  .flow figure { position: relative; margin: 0; counter-increment: st; }
+  .flow figure::before { content: counter(st); position: absolute; left: -6px; top: -7px; z-index: 2; width: 20px; height: 20px; border-radius: 50%; background: var(--cyan); color: var(--navy); font-weight: 900; font-size: 9pt; line-height: 20px; text-align: center; border: 2px solid #fff; }
+  .flow figure:not(:nth-child(4n)):not(:last-child)::after { content: "▶"; position: absolute; right: -15px; top: 27%; color: var(--cyan); font-size: 10pt; }
+  .flow figcaption { font-size: 8.3pt; }
+  .flow figcaption b { display: block; font-size: 9pt; }
+  .flowline { background: var(--bg-soft); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; font-size: 9.2pt; margin-top: 10px; }
+  .flowline .ar { color: var(--cyan); font-weight: 900; margin: 0 3px; }
+
+  /* 사운드 */
+  .snd td:first-child { white-space: nowrap; font-weight: 800; }
+  .wave { font-family: Consolas, monospace; font-size: 8.4pt; color: var(--sub); }
+  .bgm { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px; }
+  .bgm div { border: 1px solid var(--line); border-radius: 8px; padding: 8px 9px; break-inside: avoid; font-size: 8.7pt; line-height: 1.5; }
+  .bgm b { display: block; font-size: 10.5pt; }
+  .bgm .bpm { display: inline-block; background: var(--navy); color: var(--cyan); border-radius: 3px; padding: 0 5px; font-weight: 800; font-size: 8pt; margin: 2px 0 4px; }
+  .bgm .m1 { border-top: 4px solid #8a94b8; } .bgm .m2 { border-top: 4px solid var(--cyan); } .bgm .m3 { border-top: 4px solid var(--red); } .bgm .m4 { border-top: 4px solid var(--yellow); }
+</style>
+</head>
+<body>
+
+<!-- ===================== 표지 ===================== -->
+<div class="cover">
+  <div class="band">
+    <div class="kicker">GAME MANUAL</div>
+    <h1>릴리즈 러시<span>RELEASE RUSH</span></h1>
+    <div class="tag">65초 안에 서비스를 출시하라! · 1인 제작 · Windows 오프라인 실행 (HTML 파일 하나)</div>
+  </div>
+  <figure class="hero"><img src="../images/idle.jpg" alt="대기 화면"></figure>
+  <div class="facts">
+    <div class="fact"><b>65초</b><span>제한 시간 (미스 1회 −2초)</span></div>
+    <div class="fact"><b>3층 + 보스</b><span>기획 → 개발 → 테스트 → D-Day</span></div>
+    <div class="fact"><b>6종</b><span>층마다 무작위 미니게임</span></div>
+    <div class="fact"><b>약 3분</b><span>한 판 플레이 시간</span></div>
+  </div>
+  <div class="toc">
+    <div><i>1</i>게임 소개</div>
+    <div><i>2</i>실행 방법</div>
+    <div><i>3</i>조작 방법</div>
+    <div><i>4</i>한 판의 흐름 (그림으로 보기)</div>
+    <div><i>5</i>플레이 화면 읽는 법</div>
+    <div><i>6</i>미니게임 6종</div>
+    <div><i>7</i>스테이지 진행 화면</div>
+    <div><i>8</i>WARNING · 보너스 스테이지</div>
+    <div><i>9</i>카드 · 아이템 · 상점 · 루트</div>
+    <div><i>10</i>최종 보스 「출시 D-Day」</div>
+    <div><i>11</i>엔딩 · 결과 · 랭킹</div>
+    <div><i>12</i>효과음 · 배경 음악</div>
+    <div><i>13</i>제작 정보</div>
+  </div>
+  <div class="credit">위 그림: 대기 화면. 왼쪽은 타이틀과 시작 안내, 오른쪽은 전체 랭킹 TOP 10입니다. (설명서의 랭킹 이름·점수는 예시 기록)</div>
+</div>
+
+<!-- ===================== 1. 게임 소개 ===================== -->
+<section>
+  <h2><span class="no">1</span>게임 소개<span class="en">ABOUT</span></h2>
+  <p>신입 개발자가 되어 업무 몬스터를 쓰러뜨리며 <b>기획 → 개발 → 테스트</b>를 지나 <b>제한 시간 65초 안에 서비스를 출시</b>하는 짧은 아케이드 게임입니다. 한 판은 약 3분입니다.</p>
+  <ul>
+    <li>층마다 <b>미니게임 6종</b> 중 하나가 무작위로 나옵니다: 배포 타이밍 · 커맨드 입력 · 장애 알림 · 코드 리뷰 분류 · 컴파일 차지 · 알림 두더지</li>
+    <li>층 사이에는 다음 층을 미리 맛보는 <b>WARNING 중간보스</b>, 마지막에는 체력 바가 있는 <b>최종 보스 「출시 D-Day」</b>가 기다립니다.</li>
+    <li>카드 · 아이템 · 상점 · 룰렛으로 판마다 다른 전략을 세웁니다. <b>신기술 도입</b> 루트는 더 어렵지만 점수가 크게 오릅니다.</li>
+    <li>미스하면 제한 시간 <b>−2초</b>. 시간이 0초가 되면 게임 종료, 보스를 쓰러뜨리면 <b>출시 성공!</b></li>
+  </ul>
+</section>
+
+<!-- ===================== 2. 실행 방법 ===================== -->
+<section>
+  <h2><span class="no">2</span>실행 방법<span class="en">HOW TO RUN</span></h2>
+  <div class="side">
+    <div>
+      <ol>
+        <li>ZIP 파일의 압축을 풉니다.</li>
+        <li>「<b>게임실행.html</b>」을 더블클릭합니다. Microsoft Edge 또는 Chrome에서 열립니다(Windows 기본 Edge 권장).<br><span class="sub small">다른 프로그램으로 열리면: 파일 오른쪽 클릭 → 연결 프로그램 → Microsoft Edge</span></li>
+        <li>전체 화면은 <span class="key">F11</span>.</li>
+        <li>대기 화면에서 <span class="key">Enter</span>(또는 클릭) → 닉네임 입력 → <span class="key">Enter</span>로 시작합니다.</li>
+      </ol>
+      <div class="note">설치나 인터넷 연결이 필요 없습니다. 소리는 브라우저 정책상 <b>첫 키 입력 뒤부터</b> 나며, <span class="key">M</span> 키로 켜고 끕니다.</div>
+      <div class="tip">대기 화면에서 15초 동안 아무것도 누르지 않으면 <b>데모 플레이</b>가 자동으로 흘러갑니다. 아무 키나 누르면 바로 닉네임 입력으로 넘어갑니다.</div>
+    </div>
+    <figure>
+      <img src="../images/nickname.jpg" alt="닉네임 입력">
+      <figcaption><span class="t">닉네임 입력</span>랭킹에 표시될 이름을 1~10자로 입력합니다. 지난번 이름이 미리 채워져 있으며, <b>Enter</b>를 누르면 1층이 시작됩니다.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ===================== 3. 조작 방법 ===================== -->
+<section>
+  <h2><span class="no">3</span>조작 방법<span class="en">CONTROLS</span></h2>
+  <table>
+    <tr><th style="width:24%">공통</th><td><span class="key">Space</span> / <span class="key">Enter</span> 시작 · 다음으로 &nbsp; <span class="key">Esc</span> 일시정지 &nbsp; <span class="key">M</span> 소리 &nbsp; <span class="key">1</span><span class="key">2</span><span class="key">3</span> · <span class="key">←</span><span class="key">→</span> 카드 · 아이템 · 루트 고르기 (마우스 클릭 가능)</td></tr>
+    <tr><th>배포 타이밍</th><td>커서가 초록 구간에 오면 <span class="key">Space</span> (클릭 가능)</td></tr>
+    <tr><th>커맨드 입력</th><td>화살표 순서대로 방향키 (WASD 가능). <b>빨간 화살표는 반대 방향</b>, <b>?</b>는 차례가 되면 공개</td></tr>
+    <tr><th>장애 알림</th><td>신호가 초록불로 바뀌는 순간 <span class="key">Space</span>. 노란불은 함정</td></tr>
+    <tr><th>코드 리뷰 분류</th><td>버그 카드면 <span class="key">←</span>(반려), 정상 카드면 <span class="key">→</span>(승인) · A / D 가능</td></tr>
+    <tr><th>컴파일 차지</th><td><span class="key">Space</span>(또는 마우스)를 꾹 누르고, 게이지가 초록 구간에 오면 손을 뗌</td></tr>
+    <tr><th>알림 두더지</th><td>알림이 뜬 칸의 방향키 <span class="key">←</span><span class="key">↓</span><span class="key">→</span> (A S D). 👑 대표님 메시지는 누르지 않기</td></tr>
+    <tr><th>피버 · 보스 그로기</th><td>아무 키나 <b>연타</b> → 피버 점수, 최종 보스 체력 깎기 (꾹 누르기는 인정 안 됨)</td></tr>
+    <tr><th>상점</th><td><span class="key">1</span><span class="key">2</span><span class="key">3</span> 구매 · <span class="key">R</span> 새로고침 · <span class="key">G</span> 랜덤 뽑기 · <span class="key">Enter</span> 나가기</td></tr>
+  </table>
+</section>
+
+<!-- ===================== 4. 한 판의 흐름 ===================== -->
+<section class="page">
+  <h2><span class="no">4</span>한 판의 흐름<span class="en">ONE RUN</span></h2>
+  <p>한 판은 아래 순서로 진행됩니다. 그림의 번호 순서대로 화면이 바뀝니다.</p>
+  <div class="flow">
+    <figure><img src="../images/nickname.jpg" alt=""><figcaption><b>닉네임 입력</b>이번 판 1·2·3층 미니게임이 정해짐</figcaption></figure>
+    <figure><img src="../images/task-charge.jpg" alt=""><figcaption><b>1층 · 기획</b>안전 루트로 바로 시작</figcaption></figure>
+    <figure><img src="../images/tally.jpg" alt=""><figcaption><b>정산표</b>작업 점수·클리어·속도 보너스</figcaption></figure>
+    <figure><img src="../images/pick-start.jpg" alt=""><figcaption><b>시작 카드</b>3장 중 1장으로 빌드 시작</figcaption></figure>
+    <figure><img src="../images/warn-mole.jpg" alt=""><figcaption><b>⚠ WARNING</b>다음 층 미니게임 8초 미리보기</figcaption></figure>
+    <figure><img src="../images/itempick.jpg" alt=""><figcaption><b>WARNING 보상</b>아이템 3개 중 1개</figcaption></figure>
+    <figure><img src="../images/pick-reward.jpg" alt=""><figcaption><b>보상 카드 · 룰렛</b>(가끔 보너스 스테이지)</figcaption></figure>
+    <figure><img src="../images/shop.jpg" alt=""><figcaption><b>이벤트</b>상점 · 랜덤 카드 · 없음</figcaption></figure>
+    <figure><img src="../images/route.jpg" alt=""><figcaption><b>루트 선택</b>검증된 방식 / 신기술 도입</figcaption></figure>
+    <figure><img src="../images/task-command.jpg" alt=""><figcaption><b>2층 · 개발 → 3층 · 테스트</b>WARNING부터 같은 순서 반복</figcaption></figure>
+    <figure><img src="../images/groggy.jpg" alt=""><figcaption><b>최종 보스</b>미니게임 4개 → 그로기 연타 반복</figcaption></figure>
+    <figure><img src="../images/launch-clear-b.jpg" alt=""><figcaption><b>출시 컷신</b>성공 SERVICE OPEN / 실패 DEPLOY FAILED</figcaption></figure>
+    <figure><img src="../images/ending-clear.jpg" alt=""><figcaption><b>엔딩</b>이번 판 기록(RELEASE NOTE)</figcaption></figure>
+    <figure><img src="../images/result-clear.jpg" alt=""><figcaption><b>결과 · 랭킹</b>등급 · 칭호 · TOP 5</figcaption></figure>
+    <figure><img src="../images/idle.jpg" alt=""><figcaption><b>다음 사람</b>Enter로 대기 화면</figcaption></figure>
+  </div>
+  <div class="flowline">닉네임 <span class="ar">→</span> 1층 <span class="ar">→</span> 시작 카드 <span class="ar">→</span> WARNING <span class="ar">→</span> 아이템 <span class="ar">→</span> 보상 카드 · 룰렛 · 이벤트 <span class="ar">→</span> 루트 <span class="ar">→</span> 2층 <span class="ar">→</span> WARNING <span class="ar">→</span> … <span class="ar">→</span> 3층 <span class="ar">→</span> 최종 보스 <span class="ar">→</span> 출시 컷신 <span class="ar">→</span> 엔딩 <span class="ar">→</span> 결과 · 랭킹</div>
+  <div class="note">카드 · 루트 선택, 룰렛, 정산표, WARNING, 보너스 스테이지, 피버 연타 · 보스 그로기 중에는 <b>제한 시간이 멈춥니다.</b> 시간은 미니게임을 하는 동안에만 흐릅니다.</div>
+</section>
+
+<!-- ===================== 5. 화면 읽는 법 ===================== -->
+<section class="page">
+  <h2><span class="no">5</span>플레이 화면 읽는 법<span class="en">HUD</span></h2>
+  <div class="anno">
+    <img src="../images/task-command.jpg" alt="플레이 화면">
+    <span class="pin" style="left:30.5%;top:4.3%">1</span>
+    <span class="pin" style="left:56%;top:4.3%">2</span>
+    <span class="pin" style="left:77.6%;top:4.3%">3</span>
+    <span class="pin" style="left:20%;top:13%">4</span>
+    <span class="pin" style="left:80.2%;top:13%">5</span>
+    <span class="pin" style="left:59%;top:46%">6</span>
+    <span class="pin" style="left:17.6%;top:65.6%">7</span>
+    <span class="pin" style="left:2%;top:70.5%">8</span>
+    <span class="pin" style="left:20%;top:70.5%">9</span>
+    <span class="pin" style="left:83%;top:70.5%">10</span>
+  </div>
+  <div class="legend">
+    <div><span class="n">1</span><span><b>스테이지 · 루트</b> — 지금 층(2층 · 개발)과 고른 루트(신기술 도입 Lv.1)</span></div>
+    <div><span class="n">2</span><span><b>남은 시간</b> — 미스하면 깜빡이며 −2초. 0이 되면 게임 종료</span></div>
+    <div><span class="n">3</span><span><b>클리어까지 남은 작업</b> — 칸이 모두 차면 층 클리어. 마지막 1개는 깜빡임</span></div>
+    <div><span class="n">4</span><span><b>보유 카드</b> — 모은 카드와 현재 효과 수치 (예: 성과급 → 층 클리어 ×1.5)</span></div>
+    <div><span class="n">5</span><span><b>룰렛 확률 · 아이템 버프</b> — 다음 룰렛 당첨 확률, 보험, 이번 층 버프</span></div>
+    <div><span class="n">6</span><span><b>전투 연출</b> — 성공하면 주인공이 키보드로 공격, 미스하면 몬스터가 반격</span></div>
+    <div><span class="n">7</span><span><b>FEVER 게이지</b> — 성공·퍼펙트로 차오르고, 가득 차면 피버 타임</span></div>
+    <div><span class="n">8</span><span><b>SCORE</b> — 총점, 이번 층 점수, 미스 횟수</span></div>
+    <div><span class="n">9</span><span><b>미니게임 패널</b> — 미니게임 이름 · 작업 이름 · 진행(1/3) · 콤보, 아래에 조작 안내</span></div>
+    <div><span class="n">10</span><span><b>코인</b> — GOOD +1 · PERFECT +2. 상점 · 뽑기에 사용</span></div>
+  </div>
+
+  <h3>층마다 바뀌는 배경과 몬스터</h3>
+  <div class="g4">
+    <figure><img src="../images/task-timing.jpg" alt=""><figcaption><b>1층 기획</b> — 화이트보드 회의실, 몬스터는 「회의 요청 메일」</figcaption></figure>
+    <figure><img src="../images/task-command.jpg" alt=""><figcaption><b>2층 개발</b> — 모니터가 늘어선 개발실, 몬스터는 「버그」</figcaption></figure>
+    <figure><img src="../images/task-mole.jpg" alt=""><figcaption><b>3층 테스트</b> — 포스트잇 보드, 몬스터는 「에러 로그 슬라임」</figcaption></figure>
+    <figure><img src="../images/boss-command.jpg" alt=""><figcaption><b>최종 보스</b> — 붉은 서버실, 거대 「D-DAY 달력」</figcaption></figure>
+  </div>
+</section>
+
+<!-- ===================== 6. 미니게임 ===================== -->
+<section class="page">
+  <h2><span class="no">6</span>미니게임 6종<span class="en">MINI GAMES</span></h2>
+  <p>판마다 6종 중 3종이 1·2·3층에 무작위로 배정됩니다. 아래 그림은 각 미니게임의 <b>플레이 패널</b>(화면 아래쪽 가운데)을 확대한 것입니다. 빠르고 정확할수록 <b class="pf">PERFECT</b>(점수 ×1.6 · 코인 +2)가 됩니다.</p>
+  <div class="mg">
+    <div class="mgc"><img src="../images/mg-timing.jpg" alt=""><h4><em>①</em>배포 타이밍 <span class="key">Space</span></h4>
+      <div class="row">커서가 진행 바를 왕복합니다. <b>초록 구간</b>에 들어왔을 때 Space.<br><b class="pf">PERFECT</b> 가운데 노란 부분에서 누르기<br><b class="ms">MISS</b> 초록 구간 밖에서 누르기 · 연속 성공할수록 구간이 좁아짐</div></div>
+    <div class="mgc"><img src="../images/mg-command.jpg" alt=""><h4><em>②</em>커맨드 입력 <span class="key">↑↓←→</span></h4>
+      <div class="row">화살표 순서대로 방향키를 누릅니다. 그림의 <b>빨간 화살표는 반대 방향</b>으로 눌러야 하고, <b>?</b>는 차례가 되면 공개됩니다.<br><b class="pf">PERFECT</b> 한 번도 안 틀리고 완성 · <b class="ms">MISS</b> 틀린 방향</div></div>
+    <div class="mgc"><img src="../images/mg-alert.jpg" alt=""><h4><em>③</em>장애 알림 <span class="key">Space</span></h4>
+      <div class="row">빨간불(대기)이 <b>초록불로 바뀌는 순간</b> Space. 노란불은 함정입니다.<br><b class="pf">PERFECT</b> 초록불 직후 빠르게 반응<br><b class="ms">MISS</b> 빨강·노랑에 누르기, 초록불 놓치기</div></div>
+    <div class="mgc"><img src="../images/mg-sort.jpg" alt=""><h4><em>④</em>코드 리뷰 분류 <span class="key">←</span><span class="key">→</span></h4>
+      <div class="row">카드가 <b>버그 발견</b>이면 ←(반려), <b>정상 코드</b>면 →(승인). 카드 아래 노란 막대가 남은 판단 시간입니다.<br><b class="pf">PERFECT</b> 빠르게 판단 · <b class="ms">MISS</b> 잘못 분류, 시간 초과</div></div>
+    <div class="mgc"><img src="../images/mg-charge.jpg" alt=""><h4><em>⑤</em>컴파일 차지 <span class="key">Space 꾹</span></h4>
+      <div class="row">Space를 <b>꾹 누르면</b> 빌드 게이지가 차오릅니다. 초록 구간에서 <b>손을 뗍니다</b>. 오른쪽 끝 붉은 칸까지 차면 과열.<br><b class="pf">PERFECT</b> 노란 부분에서 떼기 · <b class="ms">MISS</b> 구간 밖에서 떼기, 과열</div></div>
+    <div class="mgc"><img src="../images/mg-mole.jpg" alt=""><h4><em>⑥</em>알림 두더지 <span class="key">←</span><span class="key">↓</span><span class="key">→</span></h4>
+      <div class="row">메일 · 메신저 · 캘린더 세 칸 중 <b>알림이 뜬 칸</b>의 방향키로 끕니다. 👑 <b>대표님 메시지</b>는 끄지 말고 기다립니다.<br><b class="pf">PERFECT</b> 빠르게 끄기 · <b class="ms">MISS</b> 다른 칸·대표님 메시지 누르기, 알림 놓치기</div></div>
+  </div>
+</section>
+
+<!-- ===================== 7. 스테이지 진행 화면 ===================== -->
+<section class="page">
+  <h2><span class="no">7</span>스테이지 진행 화면<span class="en">STAGE</span></h2>
+  <div class="g2">
+    <figure><img src="../images/ready-timing.jpg" alt=""><figcaption><span class="t">룰 카드 + 시범 플레이</span>시작 전에 미니게임 이름과 <b>누를 키</b>만 크게 보여 주고, 아래 패널에서 <b>시범 플레이</b>가 반복됩니다(누르는 순간 키가 빛남). 헷갈리는 조작만 <b>TIP 한 줄</b>. 시간은 멈춰 있고 <b>Space</b>로 시작합니다.</figcaption></figure>
+    <figure><img src="../images/tally.jpg" alt=""><figcaption><span class="t">층 클리어 · 정산표</span>작업을 모두 처리하면 STAGE CLEAR! 도장 → 정산표(작업 점수 · 클리어 보너스 · <b>처리 속도 보너스</b>)가 올라가고 <b>이번 스테이지 점수</b>가 크게 표시됩니다.</figcaption></figure>
+    <figure><img src="../images/fever.jpg" alt=""><figcaption><span class="t">피버 타임</span>FEVER 게이지가 가득 차면 게이지가 <b>두꺼워지며 형광색으로 빛나고</b> 화면 테두리 · 속도선 · 충격파가 터집니다. 5초 동안 <b>아무 키나 연타</b>! 피버 중에는 미니게임과 제한 시간이 멈춥니다.</figcaption></figure>
+    <figure><img src="../images/miss.jpg" alt=""><figcaption><span class="t">미스</span>잘못 누르면 「너무 빨라!」 같은 문구와 함께 화면이 붉게 번쩍이고, 몬스터가 반격합니다. 본 층에서는 <b>제한 시간 −2초</b>, 콤보가 0이 되고 피버 게이지가 줄어듭니다.</figcaption></figure>
+    <figure><img src="../images/pause.jpg" alt=""><figcaption><span class="t">일시정지</span><b>Esc</b>를 누르거나 창이 비활성화되면 멈춥니다. 아무 키나 누르면 계속합니다.</figcaption></figure>
+    <figure><img src="../images/boss-command.jpg" alt=""><figcaption><span class="t">커맨드 변형</span>신기술 루트나 보스에서는 <b>?</b> 화살표가 섞입니다. 차례가 되어야 방향이 공개되므로 침착하게 보고 누르세요.</figcaption></figure>
+  </div>
+</section>
+
+<!-- ===================== 8. WARNING · 보너스 ===================== -->
+<section class="page">
+  <h2><span class="no">8</span>WARNING 중간보스 · 보너스 스테이지<span class="en">EVENTS</span></h2>
+  <div class="g2">
+    <figure><img src="../images/ready-warn.jpg" alt=""><figcaption><span class="t">⚠ WARNING 룰 카드</span>1층 · 2층을 클리어하면 등장. <b>다음 층 미니게임을 8초 동안 미리 체험</b>합니다(「8초 동안 최대한 많이!」). 성공할수록 점수(+60)를 얻습니다.</figcaption></figure>
+    <figure><img src="../images/warn-mole.jpg" alt=""><figcaption><span class="t">WARNING 진행</span>위쪽에 남은 8초가 줄어들고, 몬스터는 「⚠ 강화」 버전으로 나옵니다. 미스해도 제한 시간이 줄지 않으니 마음껏 연습하세요. 성공 횟수가 많을수록 <b>보상 아이템 등급</b>이 좋아집니다.</figcaption></figure>
+    <figure><img src="../images/ready-bonus.jpg" alt=""><figcaption><span class="t">★ 보너스 스테이지 룰 카드</span>층을 클리어한 뒤 확률로 등장합니다(안전 25% · 신기술 45%). 금색 룰 카드로 무작위 미니게임을 알려 줍니다.</figcaption></figure>
+    <figure><img src="../images/bonus-sort.jpg" alt=""><figcaption><span class="t">보너스 진행</span><b>8초 안에 3번 성공</b>하면 ★ 특수 보상(오픈소스 발견 · 시니어 합류 · 서버 증설 · 투자 유치 중 하나). 성공 1회당 +100점, 코인 +1.</figcaption></figure>
+  </div>
+</section>
+
+<!-- ===================== 9. 카드 · 아이템 · 상점 ===================== -->
+<section class="page">
+  <h2><span class="no">9</span>카드 · 아이템 · 상점 · 루트<span class="en">BUILD</span></h2>
+  <p>카드는 판 끝까지 쌓이는 <b>빌드</b>, 아이템은 <b>즉시 효과 또는 다음 층 한정 버프</b>입니다. 카드에는 이름과 <b>효과 숫자</b>만 크게, 아래에는 남은 시간 · 코인 · 총점이 나옵니다. 고르는 동안 시간은 멈춥니다.</p>
+  <div class="g3">
+    <figure><img src="../images/pick-start.jpg" alt=""><figcaption><span class="t">시작 카드</span>1층을 해 본 뒤 3장 중 1장을 고릅니다. 카드 효과는 모두 숫자로 표시됩니다(예: 커피 한 잔 = 제한 시간 +10초, 성과급 = 층 클리어 ×1.5). <span class="key">1</span><span class="key">2</span><span class="key">3</span> 또는 ←→ + Enter.</figcaption></figure>
+    <figure><img src="../images/pick-reward.jpg" alt=""><figcaption><span class="t">보상 카드</span>층마다 한 장씩 더 받습니다. 점수 배율을 쌓을지(야근 수당 · 장인 정신), 시간을 벌지(커피 한 잔 · 리팩토링), 실수를 막을지(린터 · 단축키 등록) 전략을 고르세요.</figcaption></figure>
+    <figure><img src="../images/itempick.jpg" alt=""><figcaption><span class="t">WARNING 보상 아이템</span>WARNING이 끝나면 아이템 3개 중 1개를 무료로 고릅니다. 테두리 색이 등급입니다(일반 · 희귀 · 전설).</figcaption></figure>
+    <figure><img src="../images/roulette.jpg" alt=""><figcaption><span class="t">보상 룰렛</span>보상 카드 뒤에 룰렛이 돌아갑니다. 당첨되면 특수 보상(그림은 ★ 투자 유치 +1,000점). 꽝이 나올수록 다음 확률이 올라갑니다.</figcaption></figure>
+    <figure><img src="../images/mystery.jpg" alt=""><figcaption><span class="t">랜덤 카드</span>층 사이 이벤트 중 하나. 뒤집힌 카드 3장 중 1장을 고르면…</figcaption></figure>
+    <figure><img src="../images/mystery-open.jpg" alt=""><figcaption><span class="t">랜덤 카드 결과</span>…고른 카드의 아이템을 얻고 나머지 카드도 공개됩니다. Enter로 다음 단계.</figcaption></figure>
+    <figure><img src="../images/shop.jpg" alt=""><figcaption><span class="t">상점</span>모은 코인으로 아이템을 삽니다. <span class="key">1</span><span class="key">2</span><span class="key">3</span> 구매 · <span class="key">R</span> 새로고침 · <span class="key">G</span> 랜덤 뽑기 · <span class="key">Enter</span> 나가기. 가끔 30% 할인 <b>대박 상점</b>이 열립니다. 출시에 성공하면 남은 코인은 1개당 30점으로 바뀝니다.</figcaption></figure>
+    <figure><img src="../images/route.jpg" alt=""><figcaption><span class="t">루트 선택</span>2·3층 전에 고릅니다. <b>검증된 방식</b>(안전, 점수 ×1)과 <b>신기술 도입</b>(난이도 ×2.25 · 작업 수 ×1.5 · <b>보스 체력 ×2</b>, 대신 점수 ×2부터). 신기술을 고를 때마다 보스 체력이 두 배가 됩니다.</figcaption></figure>
+    <div class="tip" style="margin:0"><b>아이템 등급</b><br>일반(에너지 드링크 +5초 · 포스트잇 미스 1회 막기 등) · 희귀(더블 샷 +12초 · 집중 모드 다음 층 ×1.5 등) · 전설(황금 키보드 다음 층 ×2 · 타임머신 +25초 · 만능 패스 등). 「다음 층」 효과는 최종 보스에도 적용됩니다.</div>
+</div>
+</section>
+
+<!-- ===================== 10. 최종 보스 ===================== -->
+<section class="page">
+  <h2><span class="no">10</span>최종 보스 「출시 D-Day」<span class="en">BOSS</span></h2>
+  <div class="g2">
+    <figure><img src="../images/ready-boss.jpg" alt=""><figcaption><span class="t">보스 룰 카드</span><b>체력 → 0이면 출시!</b> 체력은 180에서 신기술을 고를 때마다 ×2. 「점수」 줄은 빨리 깰수록 받는 남은 1초당 점수입니다. 이번 판 미니게임 3종의 키를 한눈에 보여 줍니다. 미니게임 4개를 성공할 때마다 보스가 그로기에 빠집니다. 보스전에서는 <b>10초마다 장애</b>가 발생해 제한 시간이 −3초 줄어듭니다.</figcaption></figure>
+    <figure><img src="../images/boss-charge.jpg" alt=""><figcaption><span class="t">패턴 전환</span>미니게임이 바뀔 때마다 「패턴 전환! 컴파일 차지 — 꾹 → 초록에서 떼기!」처럼 안내가 뜹니다. 위쪽 빨간 바가 <b>보스 체력</b>, 그 아래 <b>GROGGY 게이지</b>가 4칸 차면 그로기입니다.</figcaption></figure>
+  </div>
+  <div class="side">
+    <figure><img src="../images/groggy.jpg" alt=""><figcaption><span class="t">그로기 연타</span>보스가 X 눈으로 쓰러지고 게이지가 <b>금색으로 빛나면</b> <b>아무 키나 연타!</b> 1회마다 체력 −1과 점수를 얻습니다. 그로기 동안 제한 시간은 멈춥니다. 끝나면 다시 미니게임 4개 → 그로기를 반복합니다.</figcaption></figure>
+    <div class="tip"><b>보스 공략 팁</b><ul style="margin:4px 0 0">
+      <li>회식 카드는 연타 효과(×1.5 · +1초)를 키워 줍니다.</li>
+      <li>리팩토링 · 오픈소스 · 만능 패스는 첫 그로기 게이지를 미리 채워 줍니다.</li>
+      <li>보스를 쓰러뜨리면 출시 보너스 +2,000점과 <b>남은 시간 · 코인</b>이 점수로 바뀝니다. <b>남은 1초 = 200점 × 신기술 배율</b>이라 빨리 깰수록 점수가 크게 오릅니다.</li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- ===================== 11. 엔딩 · 결과 · 랭킹 ===================== -->
+<section class="page">
+  <h2><span class="no">11</span>엔딩 · 결과 · 랭킹<span class="en">ENDING</span></h2>
+  <p>끝난 뒤 화면은 결과에 따라 배경이 다릅니다. <b>출시 성공은 해가 뜨는 새벽 도시</b>, <b>시간 종료는 비 오는 밤의 야근 사무실</b>입니다.</p>
+  <div class="g2">
+    <figure><img src="../images/launch-clear-b.jpg" alt=""><figcaption><span class="t">출시 성공 컷신</span>배포 진행률이 100%가 되면 <b>SERVICE OPEN</b>! 주인공 만세 · 동료 박수 · 불꽃놀이와 함께 팡파르가 울립니다.</figcaption></figure>
+    <figure><img src="../images/launch-fail-b.jpg" alt=""><figcaption><span class="t">시간 종료 컷신</span>진행률이 멈추고 <b>DEPLOY FAILED</b>가 깜빡입니다. 주인공은 고개를 떨구고 사무실 불이 꺼집니다.</figcaption></figure>
+    <figure><img src="../images/ending-clear.jpg" alt=""><figcaption><span class="t">엔딩 · RELEASE NOTE</span>점수가 생긴 스테이지와 ★ 보상만 <b>순서대로 한 줄씩</b> 보여 주고, 마지막에 플레이 기록 한 줄. Enter · Space로 결과 화면.</figcaption></figure>
+    <figure><img src="../images/ending-fail.jpg" alt=""><figcaption><span class="t">엔딩 · INCIDENT REPORT</span>시간 종료로 끝나면 장애 보고서 형식으로 기록이 나옵니다. 어디까지 갔는지, 몇 번 미스했는지 확인할 수 있습니다.</figcaption></figure>
+    <figure><img src="../images/result-clear.jpg" alt=""><figcaption><span class="t">결과 · MISSION COMPLETE</span><b>등급</b>(S · A · B)과 <b>최종 점수</b>를 크게, 칭호 · <b>순위</b> · 도달, 그리고 <b>TOP 5</b>에서 내 줄이 강조됩니다.</figcaption></figure>
+    <figure><img src="../images/result-fail.jpg" alt=""><figcaption><span class="t">결과 · TIME OVER</span>시간 종료면 주황 테두리와 C · D 등급. 기록은 똑같이 랭킹에 저장됩니다. <b>Enter</b>를 누르면 대기 화면으로 돌아가 다음 사람 차례가 됩니다.</figcaption></figure>
+  </div>
+  <h3>등급과 칭호</h3>
+  <table>
+    <tr><th>등급</th><td><b>S</b> 출시 성공 + 25,000점↑ · <b>A</b> 출시 성공 + 18,000점↑ · <b>B</b> 그 밖의 출시 성공 · <b>C</b> 시간 종료(보스 도달) · <b>D</b> 그 밖</td></tr>
+    <tr><th>칭호</th><td>유니콘 스타트업 CTO(신기술로 출시) · 출시 장인 · 배포 직전의 개발자 · QA 통과 대기 중 · 열정 넘치는 인턴</td></tr>
+  </table>
+  <div style="break-inside: avoid">
+  <h3>랭킹 확인 방법</h3>
+  <div class="side">
+    <ul>
+      <li><b>대기 화면 오른쪽</b>: 전체 TOP 10 (닉네임별 최고 점수, 출시 여부 · 도달 층 표시)</li>
+      <li><b>결과 화면</b>: 이번 점수의 순위, TOP 5, 등급. 1위면 「★ 전체 1위!」, 10위 안이면 「TOP 10 진입」 배지</li>
+      <li>기록은 이 PC의 브라우저에 저장되어 <b>게임을 껐다 켜도 유지</b>됩니다. (같은 PC · 같은 브라우저 · 같은 파일 위치 기준. 시크릿 창이나 다른 브라우저에서는 따로 저장)</li>
+      <li>데모 플레이 기록은 저장되지 않습니다.</li>
+      <li>기록 초기화(운영자용): 대기 화면에서 <span class="key">R</span> 키를 3초 안에 5번 → 확인</li>
+    </ul>
+    <figure><img src="../images/rank-top10.jpg" alt=""><figcaption><span class="t">TOP 10</span>대기 화면의 랭킹 표 (예시 기록)</figcaption></figure>
+  </div>
+  </div>
+</section>
+
+<!-- ===================== 12. 사운드 ===================== -->
+<section>
+  <h2><span class="no">12</span>효과음 · 배경 음악<span class="en">SOUND</span></h2>
+  <p>모든 소리는 음원 파일 없이 <b>코드(Web Audio)로 직접 합성한 8비트 칩튠</b>입니다. 저작권 걱정이 없고 인터넷 없이도 재생됩니다. <span class="key">M</span> 키로 효과음과 BGM을 함께 켜고 끄며, 설정은 브라우저에 저장됩니다.</p>
+
+  <h3>배경 음악 (BGM 4곡)</h3>
+  <div class="bgm">
+    <div class="m1"><b>메뉴</b><span class="bpm">96 BPM</span><br>카드 · 루트 · 상점 · 룰렛 등 선택 화면. 느긋한 사무실 대기 음악 (C–Am–F–G)</div>
+    <div class="m2"><b>스테이지</b><span class="bpm">140 BPM</span><br>1~3층 · 보너스 스테이지. 통통 튀는 아르페지오와 경쾌한 멜로디 (C–G–Am–F)</div>
+    <div class="m3"><b>보스</b><span class="bpm">150 BPM</span><br>WARNING · 최종 보스. 쉴 새 없는 하이햇과 거친 베이스의 긴장감 (Dm–B♭–C–A)</div>
+    <div class="m4"><b>엔딩</b><span class="bpm">88 BPM</span><br>엔딩 로그 · 결과 화면. 부드러운 삼각파로 된 잔잔한 마무리 (F–G–Em–Am)</div>
+  </div>
+  <ul class="small">
+    <li>장면이 바뀌면 0.4초 동안 서서히 커지며 곡이 바뀝니다. 효과음이 잘 들리도록 BGM은 작게 깔립니다.</li>
+    <li><b>대기 화면 · 데모 플레이 · 출시 컷신 · 일시정지</b>에서는 BGM이 멈춥니다(컷신은 팡파르만 들리도록).</li>
+    <li>데모 플레이 중에는 효과음도 나지 않습니다(전시 부스 소음 방지).</li>
+  </ul>
+
+  <h3>효과음 (16종)</h3>
+  <table class="snd">
+    <tr><th style="width:17%">소리</th><th style="width:38%">들리는 느낌</th><th>나는 때</th></tr>
+    <tr><td>작업 성공</td><td>짧고 맑은 「띵」 한 음</td><td>미니게임 GOOD 판정</td></tr>
+    <tr><td>퍼펙트</td><td>높은 두 음 「띠링↑」</td><td>미니게임 PERFECT 판정</td></tr>
+    <tr><td>미스</td><td>아래로 미끄러지는 낮은 「뿌웅↓」</td><td>잘못 누름, 시간 초과</td></tr>
+    <tr><td>입력 1칸</td><td>아주 짧은 「틱」</td><td>커맨드 화살표 1칸, 컴파일 차지 누르기, 메뉴 커서 이동</td></tr>
+    <tr><td>스테이지 시작</td><td>도·미·솔 올라가는 3음</td><td>룰 카드에서 Space로 시작</td></tr>
+    <tr><td>클리어</td><td>도·미·솔·도 + 반짝이는 잔향</td><td>STAGE CLEAR! 도장이 찍히는 순간</td></tr>
+    <tr><td>정산 숫자</td><td>빠르게 이어지는 「틱틱틱」</td><td>정산표 점수가 올라가는 동안</td></tr>
+    <tr><td>코인</td><td>동전 같은 「띠링」 두 음</td><td>상점 구매, 남은 코인 → 점수 환산</td></tr>
+    <tr><td>피버 시작</td><td>위로 솟구치는 「슈웅」 + 높은 3음</td><td>FEVER 게이지가 가득 참</td></tr>
+    <tr><td>연타</td><td>짧고 바삭한 「칙」</td><td>피버 · 그로기 연타 1회마다</td></tr>
+    <tr><td>보스 그로기</td><td>「쾅」 노이즈 + 내려가는 4음</td><td>보스가 그로기에 빠짐</td></tr>
+    <tr><td>장애 경보</td><td>「삐뽀삐뽀」 3번</td><td>보스전 장애 발생(제한 시간 감소)</td></tr>
+    <tr><td>출시 팡파르</td><td>「빠바밤 빰~ 빠바빰!」 축하 멜로디</td><td>출시 컷신 SERVICE OPEN</td></tr>
+    <tr><td>시간 종료</td><td>힘없이 내려가는 4음</td><td>출시 컷신 DEPLOY FAILED</td></tr>
+    <tr><td>메뉴 선택</td><td>미·라 짧은 2음</td><td>카드 · 루트 · 아이템 고르기</td></tr>
+    <tr><td>등급 도장</td><td>묵직한 「쿵」</td><td>결과 화면에 등급이 찍힐 때</td></tr>
+  </table>
+</section>
+
+<!-- ===================== 13. 제작 정보 ===================== -->
+<section>
+  <h2><span class="no">13</span>제작 정보<span class="en">CREDITS</span></h2>
+  <ul>
+    <li>제작: 1인 · 형식: HTML · CSS · JavaScript 한 파일 (외부 라이브러리 · 인터넷 연결 없음)</li>
+    <li>그림 · 효과음 · 배경 음악: 모두 코드로 직접 그리고 합성 (외부 음원 · 이미지 파일 없음)</li>
+    <li>권장 환경: Windows 10/11, Microsoft Edge 또는 Chrome, 16:9 화면, 키보드</li>
+    <li class="sub small">설명서의 화면은 실제 게임을 실행해 캡처한 것입니다. 수치(확률 · 점수 · 시간)는 조정 중인 추정치이며 실제 플레이와 조금 다를 수 있습니다.</li>
+  </ul>
+</section>
+
+</body>
+</html>

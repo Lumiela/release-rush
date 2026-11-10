@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>릴리즈 러시 · 매뉴얼</title>
+<link rel="stylesheet" href="manual.css">
+</head>
+<body>
+
+<div class="band">
+  <div class="kicker">MANUAL · 실행 · 조작 · 랭킹</div>
+  <h1>릴리즈 러시<span>RELEASE RUSH</span></h1>
+  <div class="tag">도파민 터지는 급박한 3분 · 게임 화면 · 규칙은 「게임설명서」를 보세요</div>
+</div>
+
+<!-- 1. 게임 소개 -->
+<section>
+  <h2><span class="no">1</span>게임 소개<span class="en">ABOUT</span></h2>
+  <div class="side">
+    <figure><img src="images/combo.jpg" alt="콤보 연출"><figcaption>콤보를 이어 갈수록 화면이 점점 크게 터집니다 (51 COMBO!)</figcaption></figure>
+    <div>
+      <p>신입 개발자가 되어 업무 몬스터를 쓰러뜨리며 <b>기획 → 개발 → 테스트</b>를 지나 <b>60초 안에 서비스를 출시</b>하는 아케이드 게임입니다. 한 판 약 <b>3분</b>, 쉬지 않고 몰아칩니다.</p>
+      <ul class="small">
+        <li>층마다 <b>미니게임 6종</b> 중 하나가 무작위로 · 층 사이 <b>WARNING</b>, 마지막 <b>최종 보스</b></li>
+        <li>미스 1회 = <b>−2초</b>, 0초가 되면 종료 · 빨리 깰수록 남은 시간이 큰 점수로</li>
+        <li><b>남은 시간이 조여 옴:</b> 30초 <b>HURRY</b> → 15초 <b>DANGER</b>(붉은 테두리) → 5초 <b>카운트다운</b></li>
+        <li><b>콤보:</b> 10콤보부터 콤보마다 「N COMBO!」가 점점 커짐 (NICE → … → LEGENDARY)</li>
+        <li><b>피버:</b> 아무 키나 연타 · 끝나면 <b>연타 10회당 +1콤보</b></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 2. 실행 방법 -->
+<section>
+  <h2><span class="no">2</span>실행 방법<span class="en">HOW TO RUN</span></h2>
+  <div class="chips"><span>ZIP 압축 풀기</span><i>→</i><span class="hl">게임실행.html 더블클릭</span><i>→</i><span><span class="key">F11</span> 전체 화면</span><i>→</i><span><span class="key">Enter</span> 시작</span></div>
+  <div class="g4">
+    <figure><img src="images/idle.jpg" alt=""><figcaption><b>① 대기 화면</b> <span class="key">Enter</span> 또는 클릭</figcaption></figure>
+    <figure><img src="images/nickname.jpg" alt=""><figcaption><b>② 닉네임</b> 1~10자 → <span class="key">Enter</span></figcaption></figure>
+    <figure><img src="images/ready-charge.jpg" alt=""><figcaption><b>③ 룰 카드</b> 키 · 방법 확인 → <span class="key">Space</span></figcaption></figure>
+    <figure><img src="images/task-charge.jpg" alt=""><figcaption><b>④ 플레이</b> 배경이 음악 박자에 맞춰 움직임</figcaption></figure>
+  </div>
+  <div class="note">설치 · 인터넷 연결이 필요 없습니다. <b>Microsoft Edge</b> 또는 Chrome에서 열립니다(다른 프로그램으로 열리면: 파일 오른쪽 클릭 → 연결 프로그램 → Microsoft Edge). 소리는 첫 키 입력 뒤부터 나며 <span class="key">M</span>으로 켜고 끕니다.</div>
+</section>
+
+<!-- 3. 조작 방법 -->
+<section>
+  <h2><span class="no">3</span>조작 방법<span class="en">CONTROLS</span></h2>
+  <table class="keys">
+    <tr><td>시작 · 다음</td><td><span class="key">Space</span> <span class="key">Enter</span> (클릭 가능)</td></tr>
+    <tr><td>고르기</td><td><span class="key">1</span> <span class="key">2</span> <span class="key">3</span> 또는 <span class="key">←</span> <span class="key">→</span> + <span class="key">Enter</span> (클릭 가능)</td></tr>
+    <tr><td>일시정지 · 소리</td><td><span class="key">Esc</span> 일시정지 · <span class="key">M</span> 소리 켜기/끄기</td></tr>
+    <tr><td>배포 타이밍</td><td><span class="key">Space</span> 초록 구간에서</td></tr>
+    <tr><td>커맨드 입력</td><td><span class="key">↑</span> <span class="key">↓</span> <span class="key">←</span> <span class="key">→</span> 순서대로 · 빨간 화살표는 반대 방향</td></tr>
+    <tr><td>장애 알림</td><td><span class="key">Space</span> 초록불에만 · 노란불은 함정</td></tr>
+    <tr><td>코드 리뷰 분류</td><td><span class="key">←</span> 버그(반려) · <span class="key">→</span> 정상(승인)</td></tr>
+    <tr><td>컴파일 차지</td><td><span class="key">Space</span> 꾹 누르기 → 초록 구간에서 떼기</td></tr>
+    <tr><td>알림 두더지</td><td><span class="key">←</span> <span class="key">↓</span> <span class="key">→</span> 알림 칸 · 👑 대표님 메시지는 누르지 않기</td></tr>
+    <tr><td>피버 · 그로기</td><td>미니게임 자리에 피버 패널이 뜨면 <b>아무 키나 연타</b> (꾹 누르기는 1회) · 끝나면 연타 10회당 <b>+1콤보</b> · 「다시 시작!」 뒤 미니게임 계속</td></tr>
+    <tr><td>상점</td><td><span class="key">1</span><span class="key">2</span><span class="key">3</span> 구매 · <span class="key">R</span> 새로고침 · <span class="key">G</span> 뽑기 · <span class="key">Enter</span> 나가기</td></tr>
+  </table>
+  <p class="small sub">방향키 대신 <span class="key">W</span><span class="key">A</span><span class="key">S</span><span class="key">D</span>도 됩니다. 각 미니게임은 시작 전 룰 카드에서 시범 플레이로 보여 줍니다.</p>
+
+  <!-- 4. 랭킹 확인 -->
+  <h2 style="margin-top:14px"><span class="no">4</span>랭킹 확인 방법<span class="en">RANKING</span></h2>
+  <div class="g2" style="grid-template-columns:.8fr 1.2fr">
+    <figure><img src="images/rank-top10.jpg" alt=""><figcaption><span class="t">대기 화면</span>전체 <b>TOP 10</b> (닉네임별 최고 점수)</figcaption></figure>
+    <figure><img src="images/result-clear.jpg" alt=""><figcaption><span class="t">결과 화면</span>등급 · 점수 · <b>이번 순위</b> · TOP 5 (내 줄 강조)</figcaption></figure>
+  </div>
+  <ul class="small">
+    <li>기록은 이 PC의 브라우저에 저장되어 <b>껐다 켜도 유지</b>됩니다. 같은 PC · 같은 브라우저 · 같은 파일 위치 기준(시크릿 창 · 다른 브라우저는 따로 저장).</li>
+    <li>데모 플레이 기록은 저장되지 않습니다.</li>
+    <li><b>기록 초기화(운영자):</b> 대기 화면에서 <span class="key">R</span>을 3초 안에 5번 → 확인</li>
+  </ul>
+</section>
+
+<!-- 5. 문제 해결 · 환경 -->
+<section>
+  <h2><span class="no">5</span>문제 해결 · 권장 환경<span class="en">HELP</span></h2>
+  <table>
+    <tr><th>증상</th><th>해결</th></tr>
+    <tr><td>더블클릭하면 다른 프로그램이 열림</td><td>파일 오른쪽 클릭 → 연결 프로그램 → Microsoft Edge</td></tr>
+    <tr><td>소리가 안 남</td><td>아무 키나 한 번 누르기(브라우저 정책) · <span class="key">M</span>으로 꺼져 있는지 확인</td></tr>
+    <tr><td>랭킹이 사라짐</td><td>처음 연 브라우저 · 같은 파일 위치에서 열기</td></tr>
+    <tr><td>화면이 작음</td><td><span class="key">F11</span> 전체 화면 (16:9 비율 유지)</td></tr>
+    <tr><td>화면이 붉게 깜빡임</td><td>정상입니다. 남은 시간 15초 이하(DANGER) · 5초 이하(카운트다운) 연출</td></tr>
+  </table>
+  <p class="small">권장: Windows 10/11 · Microsoft Edge 또는 Chrome · 16:9 화면 · 키보드 &nbsp;|&nbsp; 제작: 1인 · HTML 한 파일(외부 라이브러리 · 음원 · 이미지 파일 없음)</p>
+</section>
+
+</body>
+</html>

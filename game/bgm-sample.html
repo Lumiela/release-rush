@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>릴리즈 러시 BGM 샘플</title>
+<style>
+:root{--bg:#0b0f1e;--panel:#141933;--line:#2d3561;--fg:#e8ebff;--dim:#9aa2c7;--a:#3ef2ff;--ok:#7be3a0;--y:#ffd84a;--r:#ff8a8a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"Malgun Gothic","맑은 고딕",sans-serif;padding:24px 16px 60px}
+.wrap{max-width:900px;margin:0 auto}
+h1{margin:0 0 6px;font-size:26px}
+.sub{color:var(--dim);font-size:14px;line-height:1.7}
+.sub b{color:var(--y)}
+.bar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:16px 0;padding:12px 14px;background:var(--panel);border:1px solid var(--line);border-radius:10px;font-size:14px;color:var(--dim)}
+.bar input[type=range]{width:160px}
+.slot{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
+.slot h2{margin:0 0 2px;font-size:17px}
+.slot .when{color:var(--dim);font-size:13px;margin-bottom:10px}
+.trk{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 0;border-top:1px solid var(--line)}
+.trk:first-of-type{border-top:none}
+.trk .nm{flex:1;min-width:200px}
+.trk .nm b{display:block;font-size:15px}
+.trk .nm span{color:var(--dim);font-size:12.5px}
+.btn{font:inherit;font-size:14px;font-weight:700;border:none;border-radius:8px;padding:8px 14px;cursor:pointer;background:var(--a);color:#0b0f1e;min-width:84px}
+.btn.on{background:var(--r)}
+.pick{font-size:13px;white-space:nowrap}
+.pick label{margin-left:6px;cursor:pointer}
+.out{margin-top:16px;padding:12px 14px;background:var(--panel);border:1px solid var(--line);border-radius:10px;font-size:14px}
+.out code{color:var(--ok);font-size:15px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>BGM 샘플</h1>
+  <div class="sub">
+    효과음과 같은 방식으로 <b>음원 파일 없이 코드에서 직접 연주</b>하는 8비트 칩튠입니다(저작권 없음 · 오프라인 동작 · 게임 파일 안에 그대로 들어감). 모두 짧은 구간이 끊김 없이 반복됩니다.<br>
+    장면마다 하나를 고르거나 "없음"을 고른 뒤 맨 아래 결과를 알려 주세요. 효과음보다 작게 깔리도록 음량을 낮게 잡았습니다.
+  </div>
+  <div class="bar">BGM 음량 <input id="vol" type="range" min="0" max="100" value="55"> <button class="btn" id="stop" style="background:#2d3561;color:var(--fg)">■ 정지</button></div>
+  <div id="slots"></div>
+  <div class="out">선택 결과: <code id="res"></code></div>
+</div>
+<script>
+var AC = null, master = null, timer = null, playing = null;
+function ac(){
+  if (!AC) { AC = new (window.AudioContext || window.webkitAudioContext)(); master = AC.createGain(); master.connect(AC.destination); }
+  master.gain.value = document.getElementById('vol').value / 100 * 0.35;
+  if (AC.state === 'suspended') AC.resume();
+  return AC;
+}
+document.getElementById('vol').oninput = function(){ if (master) master.gain.value = this.value / 100 * 0.35; };
+function mf(m){ return 440 * Math.pow(2, (m - 69) / 12); }
+function note(type, f, t, d, v){
+  var o = AC.createOscillator(), g = AC.createGain();
+  o.type = type; o.frequency.setValueAtTime(f, t);
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + 0.008); g.gain.setValueAtTime(v, t + d * 0.6); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+  o.connect(g); g.connect(master); o.start(t); o.stop(t + d + 0.02);
+}
+function drum(kind, t, v){
+  if (kind === 'k') { var o = AC.createOscillator(), g = AC.createGain(); o.type = 'sine'; o.frequency.setValueAtTime(150, t); o.frequency.exponentialRampToValueAtTime(45, t + 0.12);
+    g.gain.setValueAtTime(v * 1.6, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.14); o.connect(g); g.connect(master); o.start(t); o.stop(t + 0.16); return; }
+  var d = kind === 's' ? 0.1 : 0.03, buf = AC.createBuffer(1, Math.floor(AC.sampleRate * d), AC.sampleRate), ch = buf.getChannelData(0);
+  for (var i = 0; i < ch.length; i++) ch[i] = Math.random() * 2 - 1;
+  var src = AC.createBufferSource(), f = AC.createBiquadFilter(), g2 = AC.createGain();
+  src.buffer = buf; f.type = 'highpass'; f.frequency.value = kind === 's' ? 1500 : 7000;
+  g2.gain.setValueAtTime(kind === 's' ? v * 0.7 : v * 0.3, t); g2.gain.exponentialRampToValueAtTime(0.0001, t + d);
+  src.connect(f); f.connect(g2); g2.connect(master); src.start(t);
+}
+// 화음 [근음(MIDI), 'M' 장 / 'm' 단]. 인덱스 0=근음, 1=3도, 2=5도, 3=한 옥타브 위 근음…
+function tone(ch, idx){ var iv = ch[1] === 'm' ? [0, 3, 7] : [0, 4, 7]; return ch[0] + iv[((idx % 3) + 3) % 3] + 12 * Math.floor(idx / 3); }
+function P(str){ return str.split(' ').map(function(x){ return x === '.' ? null : (isNaN(+x) ? x : +x); }); }   // "0 . 2 ." → [0,null,2,null]
+
+var TRACKS = {
+  menu: { name:'사무실 대기', desc:'차분한 C장조 아르페지오 · 96BPM', bpm:96, chords:[[48, 'M'], [45, 'm'], [41, 'M'], [43, 'M']],
+    bass:P('r . . . . . r . r . . . . . r .'), arp:P('3 . 4 . 5 . 4 . 6 . 5 . 4 . 5 .'), lead:null,
+    drum:{ k:P('1 . . . . . . . 1 . . . . . . .'), s:P('. . . . . . . . . . . . . . . .'), h:P('. . 1 . . . 1 . . . 1 . . . 1 .') },
+    wave:{ bass:'triangle', arp:'square', lead:'square' }, vol:{ bass:0.22, arp:0.05, lead:0.08, drum:0.18 } },
+  playA: { name:'스테이지 A · 경쾌', desc:'A단조 팝 · 132BPM · 리드 멜로디', bpm:132, chords:[[45, 'm'], [41, 'M'], [48, 'M'], [43, 'M']],
+    bass:P('r . o . r . o . r . o . r . o .'), arp:null,
+    lead:[P('6 . 5 . 4 . 5 . 6 . 7 . 6 . 5 .'), P('5 . 4 . 3 . 4 . 5 . . . 4 . . .'), P('6 . 6 . 7 . 6 . 5 . 4 . 5 . 6 .'), P('7 . . . 6 . 5 . 4 . 5 . . . . .')],
+    drum:{ k:P('1 . . . . . . . 1 . . . . . . .'), s:P('. . . . 1 . . . . . . . 1 . . .'), h:P('1 . 1 . 1 . 1 . 1 . 1 . 1 . 1 .') },
+    wave:{ bass:'triangle', arp:'square', lead:'square' }, vol:{ bass:0.25, arp:0.05, lead:0.07, drum:0.2 } },
+  playB: { name:'스테이지 B · 통통 튀는', desc:'C장조 엇박 · 140BPM · 빠른 아르페지오', bpm:140, chords:[[48, 'M'], [43, 'M'], [45, 'm'], [41, 'M']],
+    bass:P('r . . r . . r . r . . r . . o .'), arp:P('3 4 5 6 5 4 3 4 5 6 7 6 5 4 5 6'),
+    lead:[P('6 . . 7 . . 8 . 7 . 6 . . . . .'), P('7 . . 6 . . 5 . 6 . . . . . . .'), P('6 . . 7 . . 8 . 9 . 8 . 7 . . .'), P('8 . 7 . 6 . 5 . 6 . . . . . . .')],
+    drum:{ k:P('1 . . . . . 1 . 1 . . . . . . .'), s:P('. . . . 1 . . . . . . . 1 . . 1'), h:P('. . 1 . . . 1 . . . 1 . . . 1 .') },
+    wave:{ bass:'triangle', arp:'triangle', lead:'square' }, vol:{ bass:0.25, arp:0.06, lead:0.065, drum:0.2 } },
+  bossA: { name:'보스 A · 긴장', desc:'D단조 질주 · 150BPM · 16분 베이스', bpm:150, chords:[[38, 'm'], [46, 'M'], [48, 'M'], [45, 'M']],
+    bass:P('r r o r r r o r r r o r r o r o'), arp:null,
+    lead:[P('6 . . 6 . . 7 . 6 . . . 5 . 4 .'), P('6 . . 6 . . 7 . 8 . . . 7 . . .'), P('6 . . 6 . . 7 . 6 . . . 5 . 4 .'), P('7 . 6 . 5 . 4 . 5 . 6 . 7 . . .')],
+    drum:{ k:P('1 . . . 1 . . . 1 . . . 1 . . .'), s:P('. . . . 1 . . . . . . . 1 . . .'), h:P('1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1') },
+    wave:{ bass:'sawtooth', arp:'square', lead:'square' }, vol:{ bass:0.07, arp:0.05, lead:0.07, drum:0.2 } },
+  bossB: { name:'보스 B · 묵직', desc:'E단조 하프타임 · 120BPM · 낮고 무거움', bpm:120, chords:[[40, 'm'], [36, 'M'], [40, 'm'], [38, 'M']],
+    bass:P('r . . . . . . . o . . . r . . .'), arp:P('3 . 5 . 4 . 5 . 3 . 5 . 4 . 2 .'),
+    lead:[P('6 . . . . . 5 . . . 4 . . . . .'), P('7 . . . 6 . . . 5 . . . . . . .'), P('6 . . . . . 5 . . . 4 . . . 3 .'), P('4 . . . 5 . . . 6 . . . . . . .')],
+    drum:{ k:P('1 . . . . . . . . . 1 . . . . .'), s:P('. . . . . . . . 1 . . . . . . .'), h:P('1 . 1 . 1 . 1 . 1 . 1 . 1 . 1 .') },
+    wave:{ bass:'square', arp:'triangle', lead:'square' }, vol:{ bass:0.09, arp:0.07, lead:0.06, drum:0.22 } },
+  ending: { name:'엔딩 · 결과', desc:'차분한 F→G→Em→Am · 88BPM', bpm:88, chords:[[41, 'M'], [43, 'M'], [40, 'm'], [45, 'm']],
+    bass:P('r . . . . . . . o . . . . . . .'), arp:P('3 . 4 . 5 . 6 . 5 . 4 . 5 . 4 .'),
+    lead:[P('6 . . . 7 . . . 8 . . . 7 . . .'), P('7 . . . 8 . . . 9 . . . . . . .'), P('8 . . . 7 . . . 6 . . . 5 . . .'), P('6 . . . . . . . . . . . . . . .')],
+    drum:{ k:P('1 . . . . . . . 1 . . . . . . .'), s:P('. . . . . . . . . . . . . . . .'), h:P('. . . . 1 . . . . . . . 1 . . .') },
+    wave:{ bass:'triangle', arp:'triangle', lead:'triangle' }, vol:{ bass:0.24, arp:0.07, lead:0.11, drum:0.14 } }
+};
+var SLOTS = [
+  { id:'menu',  title:'① 메뉴 · 선택 화면', when:'대기 화면, 닉네임, 카드 · 루트 · 아이템 · 상점 · 룰렛', opts:['menu'] },
+  { id:'play',  title:'② 스테이지 플레이', when:'1·2·3층, 보너스 스테이지', opts:['playA', 'playB'] },
+  { id:'boss',  title:'③ WARNING · 최종 보스', when:'WARNING 중간보스, 최종 보스전', opts:['bossA', 'bossB'] },
+  { id:'end',   title:'④ 엔딩 · 결과', when:'엔딩 로그, 결과창 (출시 컷신은 효과음 팡파르)', opts:['ending'] }
+];
+var sel = { menu:'menu', play:'playA', boss:'bossA', end:'ending' };
+
+function start(key){
+  stop(); ac(); playing = key;
+  var tr = TRACKS[key], spb = 60 / tr.bpm / 4, step = 0, next = AC.currentTime + 0.08;
+  timer = setInterval(function(){
+    while (next < AC.currentTime + 0.15) {
+      var bar = Math.floor(step / 16) % tr.chords.length, s16 = step % 16, ch = tr.chords[bar], v = tr.vol;
+      var b = tr.bass[s16]; if (b) note(tr.wave.bass, mf(ch[0] + (b === 'o' ? 12 : 0)), next, spb * 1.8, v.bass);
+      if (tr.arp && tr.arp[s16] != null) note(tr.wave.arp, mf(tone(ch, tr.arp[s16]) + 12), next, spb * 0.9, v.arp);
+      if (tr.lead) { var L = tr.lead[bar % tr.lead.length][s16]; if (L != null) note(tr.wave.lead, mf(tone(ch, L) + 12), next, spb * 1.7, v.lead); }
+      ['k', 's', 'h'].forEach(function(k){ if (tr.drum[k][s16]) drum(k, next, v.drum); });
+      next += spb; step++;
+    }
+  }, 25);
+  render();
+}
+function stop(){ if (timer) clearInterval(timer); timer = null; playing = null; }
+document.getElementById('stop').onclick = function(){ stop(); render(); };
+
+function render(){
+  document.getElementById('slots').innerHTML = SLOTS.map(function(sl){
+    return '<div class="slot"><h2>' + sl.title + '</h2><div class="when">' + sl.when + '</div>' +
+      sl.opts.map(function(k){ var t = TRACKS[k];
+        return '<div class="trk"><div class="nm"><b>' + t.name + '</b><span>' + t.desc + '</span></div>' +
+          '<button class="btn' + (playing === k ? ' on' : '') + '" data-k="' + k + '">' + (playing === k ? '■ 정지' : '▶ 듣기') + '</button></div>'; }).join('') +
+      '<div class="pick">고르기: ' + sl.opts.concat(['없음']).map(function(k){ return '<label><input type="radio" name="' + sl.id + '" value="' + k + '"' + (sel[sl.id] === k ? ' checked' : '') + '> ' + (TRACKS[k] ? TRACKS[k].name : '없음') + '</label>'; }).join('') + '</div></div>';
+  }).join('');
+  document.getElementById('res').textContent = SLOTS.map(function(sl){ return sl.title.slice(2).split(' ')[0] + '=' + (TRACKS[sel[sl.id]] ? TRACKS[sel[sl.id]].name : '없음'); }).join(' · ');
+}
+document.addEventListener('click', function(e){
+  var b = e.target.closest('[data-k]'); if (!b) return;
+  var k = b.getAttribute('data-k'); if (playing === k) { stop(); render(); } else start(k);
+});
+document.addEventListener('change', function(e){ if (sel.hasOwnProperty(e.target.name)) { sel[e.target.name] = e.target.value; render(); } });
+render();
+</script>
+</body>
+</html>
